@@ -6,9 +6,10 @@ import {Grid, GridItem, Spacer} from "@yamada-ui/react"
 
 interface LayoutProps {
     children: ReactNode;
+    scroll?: boolean;
 };
 
-export const Layout = ({ children }: LayoutProps) => {
+export const Layout = ({ children, scroll }: LayoutProps) => {
     return (
         <div>
             <Grid
@@ -17,7 +18,7 @@ export const Layout = ({ children }: LayoutProps) => {
             >
                 <GridItem w={"full"} h={"full"} gridArea={"1/1/1/10"}> <Header /></GridItem>
                 <GridItem w={"full"} h={"full"} gridArea={"2/1/9/2"} overflowY={"hidden"}><Spacer/></GridItem>
-                <GridItem w={"full"} h={"full"} gridArea={"2/3/9/8"} overflowY={"scroll"}>
+                <GridItem w={"full"} h={"full"} gridArea={"2/3/9/8"} overflowY={scroll? "auto": "hidden"}>
                     {children}
                 </GridItem>
                 <GridItem w={"full"} h={"full"} gridArea={"2/9/9/10"} overflowY={"hidden"}><Spacer/></GridItem>

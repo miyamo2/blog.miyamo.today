@@ -45,7 +45,7 @@ const ArticleList = ({ data, pageContext }: PageProps<Queries.ArticleListQueryQu
     })()
 
     return (
-        <Layout>
+        <Layout scroll={true}>
             <main>
                 <Heading className={"text-black text-3xl font-bold"} paddingBottom={"md"}>Articles</Heading>
                 <Grid templateColumns={"repeat(auto-fill, minmax(280px, 1fr))"}>
