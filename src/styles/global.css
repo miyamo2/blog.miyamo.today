@@ -106,3 +106,8 @@ body {
 .markdown .highlight pre {
     @apply bg-gray-100 !important;
 }
+
+.transform-scaleup-then-hover:hover img {
+    transition: transform .6s ease;
+    transform:scale(1.1);
+}

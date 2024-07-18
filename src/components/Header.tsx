@@ -1,38 +1,62 @@
 import React from 'react';
 import type { FC } from 'react';
 import { Link } from 'gatsby';
-import { Navbar } from 'react-daisyui'
+import {
+    Grid,
+    GridItem,
+    Button,
+    Menu,
+    MenuButton,
+    IconButton,
+    MenuItem,
+    MenuList,
+    useMediaQuery,
+    useBoolean,
+    Divider
+} from "@yamada-ui/react";
+import { Icon as FontAwesomeIcon } from "@yamada-ui/fontawesome"
+import { faBars, faXmark, faHome, faTags, faAddressCard } from "@fortawesome/free-solid-svg-icons"
 
-export const Header: FC = () => (
-    <header>
-        <div className={"navbar sticky top-0 z-50 bg-base-100"}>
-            <div className={"flex-1"}>
-                <Link to="/" className={"btn btn-ghost text-black text-xl md:text-2xl lg:text-3xl font-bold no-animation"}>miyamo2/blog</Link>
-            </div>
-            <div className={"flex-none"}>
-                <div className={"dropdown dropdown-end inline lg:hidden"}>
-                    <div>
-                        <div tabIndex={0} role="button" className={"btn btn-square btn-ghost"}>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                 className={"w-5 h-5 stroke-current"}>
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                      d="M4 6h16M4 12h16M4 18h16"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <ul tabIndex={0}
-                        className={"menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"}>
-                        <Link to="/" className={"tab"} activeClassName={"tab-active"}>Home</Link>
-                        <Link to="/tags" className={"tab"} activeClassName={"tab-active"}>Tags</Link>
-                        <Link to="/about" className={"tab"} activeClassName={"tab-active"}>About</Link>
-                    </ul>
-                </div>
-                <div role="tablist" className={"hidden lg:inline tabs"}>
-                    <Link to="/" role="tab" activeClassName={"tab-active"} className={"tab text-lg"}>Home</Link>
-                    <Link to="/tags" role="tab" activeClassName={"tab-active"} className={"tab text-lg"}>Tags</Link>
-                    <Link to="/about" role="tab" activeClassName={"tab-active"} className={"tab text-lg"}>About</Link>
-                </div>
-            </div>
-        </div>
-    </header>
-);
+export const Header: FC = () => {
+    const [isLarge, isDark] = useMediaQuery([
+        "(min-width: 1280px)",
+        "(prefers-color-scheme: dark)",
+    ])
+    const [isBargerOpen, { on, off }] = useBoolean()
+    return (<header>
+        <Grid templateColumns="repeat(9, 1fr)" backdropFilter="blur(10px)">
+            <GridItem colSpan={3} w="full" padding={"md"}>
+                <Link to="/" className={"btn btn-ghost text-black text-4xl font-bold no-animation whitespace-nowrap"}>blog.miyamo.today</Link>
+            </GridItem>
+            <GridItem w="full" colStart={7} paddingTop={"lg"} paddingBottom={"md"}>
+                { isLarge ? <Button leftIcon={<FontAwesomeIcon icon={faHome}/>} variant="ghost" as={Link} to="/" className={"text-black text-lg font-bold"}>Home</Button>: <></>}
+            </GridItem>
+            <GridItem w="full" colStart={8} paddingTop={"lg"} paddingBottom={"md"}>
+                { isLarge ? <Button leftIcon={<FontAwesomeIcon icon={faTags}/>} variant="ghost" as={Link} to="/tags" className={"text-black text-lg font-bold"}>Tags</Button>: <></>}
+            </GridItem>
+            <GridItem w="full" colStart={9} paddingTop={isLarge ? "lg" : "md"} paddingBottom={"md"} >
+                { isLarge ? <Button leftIcon={<FontAwesomeIcon icon={faAddressCard}/>} variant="ghost" as={Link} to="/about" className={"text-black text-lg font-bold"}>About</Button>:
+                    <Menu onOpen={on} onClose={off}>
+                        <MenuButton
+                            as={IconButton}
+                            icon={isBargerOpen? <FontAwesomeIcon icon={faXmark}/> : <FontAwesomeIcon icon={faBars}/>}
+                            variant="ghost"
+                        />
+                        <MenuList>
+                            <MenuItem icon={<FontAwesomeIcon icon={faHome}/>}>
+                                <Link to="/">Home</Link>
+                            </MenuItem>
+                            <MenuItem  icon={<FontAwesomeIcon icon={faTags}/>}>
+                                <Link to="/tags">Tags</Link>
+                            </MenuItem>
+                            <MenuItem icon={<FontAwesomeIcon icon={faAddressCard}/>}>
+                                <Link to="/about">About</Link>
+                            </MenuItem>
+                        </MenuList>
+                    </Menu>
+                }
+            </GridItem>
+        </Grid>
+        <Divider/>
+    </header>)
+}

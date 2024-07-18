@@ -1,0 +1,15 @@
+query SourceNodes ($first: Int, $after: String) {
+    articles(first: $first, after: $after){
+        edges{
+            node{
+                id
+                thumbnailUrl
+                content
+            }
+        }
+        pageInfo{
+            hasNextPage
+            endCursor
+        }
+    }
+}

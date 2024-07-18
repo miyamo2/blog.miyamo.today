@@ -3,3 +3,4 @@
 public
 src/gatsby-types.d.ts
 .idea/
+.env.*

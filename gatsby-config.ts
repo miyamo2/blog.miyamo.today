@@ -1,6 +1,9 @@
 import type { GatsbyConfig } from "gatsby"
-import * as fs from "fs"
-import {buildSchema} from "gatsby/graphql";
+import path from "path";
+
+require('dotenv').config({
+  path: `.env.${process.env.NODE_ENV}`,
+});
 
 const config: GatsbyConfig = {
 
@@ -14,14 +17,47 @@ const config: GatsbyConfig = {
       resolve: "gatsby-source-graphql",
       options: {
         // Arbitrary name for the remote schema Query type
-        typeName: "Miyamo2Blog",
+        typeName: "MiyamoToday",
         // Field under which the remote schema will be accessible. You'll use this in your Gatsby query
-        fieldName: "miyamo2blog",
+        fieldName: "miyamotoday",
         // Url to query from
         url: process.env.URL,
       },
     },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `statics`,
+        path: `${__dirname}/static/`,
+      },
+    },
     'gatsby-plugin-postcss',
+    `gatsby-plugin-image`,
+    `gatsby-plugin-sharp`,
+    `gatsby-transformer-sharp`,
+    {
+      resolve: `gatsby-transformer-remark`,
+      options: {
+        footnotes: true,
+        gfm: true,
+        plugins: [
+          `gatsby-remark-line-breaks`,
+          `gatsby-remark-table-of-contents`,
+          `gatsby-remark-autolink-headers`,
+          {
+            resolve: `gatsby-remark-prismjs`,
+            options: {
+              classPrefix: "language-",
+              inlineCodeMarker: null,
+              aliases: {},
+              showLineNumbers: true,
+              noInlineHighlight: false,
+            },
+          }
+        ],
+      },
+    },
+    `gatsby-plugin-tsconfig-paths`
   ],
 }
 
