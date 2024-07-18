@@ -1,0 +1,60 @@
+{
+  "name": "blog.miyamo.today",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "author": "miyamo2",
+  "keywords": [
+    "gatsby"
+  ],
+  "scripts": {
+    "develop": "gatsby develop",
+    "start": "gatsby develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.2",
+    "@types/node": "^20.14.9",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "gatsby-plugin-root-import": "^2.0.9",
+    "typescript": "^5.5.2"
+  },
+  "dependencies": {
+    "@fontsource/jetbrains-mono": "^5.0.20",
+    "@fontsource/m-plus-1p": "^5.0.19",
+    "@formkit/tempo": "^0.1.2",
+    "@fortawesome/fontawesome-svg-core": "^6.5.2",
+    "@fortawesome/free-solid-svg-icons": "^6.5.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "@graphql-codegen/typescript-graphql-request": "^6.2.0",
+    "@tailwindcss/typography": "^0.5.13",
+    "@yamada-ui/fontawesome": "^1.0.31",
+    "@yamada-ui/react": "^1.4.3",
+    "gatsby": "^5.13.6",
+    "gatsby-graphql-source-toolkit": "^2.0.4",
+    "gatsby-image": "^3.11.0",
+    "gatsby-plugin-config": "^1.0.7",
+    "gatsby-plugin-image": "^3.13.1",
+    "gatsby-plugin-postcss": "^6.13.1",
+    "gatsby-plugin-sharp": "^5.13.1",
+    "gatsby-plugin-tsconfig-paths": "^1.0.6",
+    "gatsby-remark-autolink-headers": "^6.13.1",
+    "gatsby-remark-line-breaks": "^1.0.0",
+    "gatsby-remark-prismjs": "^7.13.1",
+    "gatsby-remark-table-of-contents": "^2.0.0",
+    "gatsby-source-filesystem": "^5.13.1",
+    "gatsby-source-graphql": "^5.13.1",
+    "gatsby-transformer-remark": "^6.13.1",
+    "gatsby-transformer-sharp": "^5.13.1",
+    "graphql": "^16.9.0",
+    "prismjs": "^1.29.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remark-breaks": "^4.0.0",
+    "tsconfig-paths-webpack-plugin": "^4.1.0"
+  }
+}
