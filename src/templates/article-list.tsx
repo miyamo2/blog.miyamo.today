@@ -1,11 +1,11 @@
 import { graphql, PageProps } from "gatsby";
-import {Grid, Box, Heading } from "@yamada-ui/react";
-import {ArticleCard} from "@/features/ArticleList/ArticleCard";
+import { Grid, Box, Heading, useMediaQuery } from "@yamada-ui/react";
+import { ArticleCard } from "@/features/ArticleList/ArticleCard";
 import * as React from "react";
-import {Pager} from "@/components/Pager";
-import {Layout} from "@/components/Layout";
+import { Pager } from "@/components/Pager";
+import { Layout } from "@/components/Layout";
 import { ArticleListPageContext } from "../../gatsby-node"
-import {ImageDataLike} from "gatsby-plugin-image/dist/src/components/hooks";
+import { ImageDataLike } from "gatsby-plugin-image/dist/src/components/hooks";
 
 interface Tag {
     id: string
@@ -23,13 +23,16 @@ interface ArticleCardData {
 }
 
 const ArticleList = ({ data, pageContext }: PageProps<Queries.ArticleListQueryQuery, ArticleListPageContext>) => {
+    const [isLarge] = useMediaQuery([
+        "(min-width: 1280px)",
+    ])
+
     const articleCardDataList = (() => {
         return data.miyamotoday.articles.edges.map((articleEdge): ArticleCardData => {
             const imageDataEdge = data.allFile.edges.find((edge: { node: { id: string; }; }) => edge.node.id === `ArticleImage:${articleEdge.cursor}`);
             const imageData = imageDataEdge?.node.childImageSharp || undefined
             const markdownRemarkNode = data.allMarkdownRemark.nodes.find((n) => n.frontmatter?.id == articleEdge.cursor)
             const articleExcerpt = markdownRemarkNode?.excerpt ?? undefined
-            console.log(articleExcerpt)
 
             const articleCardData: ArticleCardData = {
                 id: articleEdge.cursor,
@@ -45,7 +48,7 @@ const ArticleList = ({ data, pageContext }: PageProps<Queries.ArticleListQueryQu
     })()
 
     return (
-        <Layout scroll={true}>
+        <Layout scroll={true} isLarge={isLarge}>
             <main>
                 <Heading className={"text-black text-3xl font-bold"} paddingBottom={"md"}>Articles</Heading>
                 <Grid templateColumns={"repeat(auto-fill, minmax(280px, 1fr))"}>

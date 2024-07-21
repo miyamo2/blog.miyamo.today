@@ -1,5 +1,4 @@
 import React from 'react';
-import type { FC } from 'react';
 import { Link } from 'gatsby';
 import {
     Grid,
@@ -10,18 +9,17 @@ import {
     IconButton,
     MenuItem,
     MenuList,
-    useMediaQuery,
     useBoolean,
     Divider
 } from "@yamada-ui/react";
 import { Icon as FontAwesomeIcon } from "@yamada-ui/fontawesome"
 import { faBars, faXmark, faHome, faTags, faAddressCard } from "@fortawesome/free-solid-svg-icons"
 
-export const Header: FC = () => {
-    const [isLarge, isDark] = useMediaQuery([
-        "(min-width: 1280px)",
-        "(prefers-color-scheme: dark)",
-    ])
+interface HeaderProp {
+    isLarge: boolean;
+}
+
+export const Header = ({isLarge}: HeaderProp) => {
     const [isBargerOpen, { on, off }] = useBoolean()
     return (<header>
         <Grid templateColumns="repeat(9, 1fr)" backdropFilter="blur(10px)">

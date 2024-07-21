@@ -1,5 +1,5 @@
-import React, {FC} from "react";
-import {Link} from "gatsby";
+import React, { FC } from "react";
+import { Link } from "gatsby";
 import {
     Heading,
     Text,
@@ -8,11 +8,11 @@ import {
     Grid,
     GridItem
 } from "@yamada-ui/react"
-import {ImageDataLike} from "gatsby-plugin-image/dist/src/components/hooks";
+import { ImageDataLike } from "gatsby-plugin-image/dist/src/components/hooks";
 import { GatsbyImage, getImage } from "gatsby-plugin-image";
 import { format } from "@formkit/tempo";
 import { faCalendarDay } from "@fortawesome/free-solid-svg-icons"
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface Tag {
     id: string;
@@ -42,7 +42,7 @@ export const ArticleCard: FC<VerticalArticleCardProps> = (props: VerticalArticle
                 <GridItem>{gatsbyImage}</GridItem>
                 <GridItem>
                     {props.tags.map((tag) => (
-                        <Tag as={Link} size={"md"} id={`${props.id}-${tag.id}`} to={`/tags/${tag.id}`}>#{tag.name}</Tag>
+                        <Tag as={Link} size={"md"} id={`${props.id}-${tag.id}`} to={`/tags/${tag.id}`} colorScheme="gray">#{tag.name}</Tag>
                     ))}
                 </GridItem>
                 <GridItem><Heading as="h4" size={"md"}>{props.title}</Heading></GridItem>

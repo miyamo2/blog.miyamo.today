@@ -197,7 +197,7 @@ export type SourceNodesQueryVariables = Exact<{
 }>;
 
 
-export type SourceNodesQuery = { __typename?: 'Query', articles: { __typename?: 'ArticleConnection', edges: Array<{ __typename?: 'ArticleEdge', node: { __typename?: 'ArticleNode', id: string, thumbnailUrl: string, content: string } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage?: boolean | null, endCursor: string } } };
+export type SourceNodesQuery = { __typename?: 'Query', articles: { __typename?: 'ArticleConnection', edges: Array<{ __typename?: 'ArticleEdge', node: { __typename?: 'ArticleNode', id: string, title: string, thumbnailUrl: string, content: string, createdAt: any, updatedAt: any, tags: { __typename?: 'ArticleTagConnection', edges: Array<{ __typename?: 'ArticleTagEdge', cursor: string, node: { __typename?: 'ArticleTagNode', name: string } }> } } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage?: boolean | null, endCursor: string } } };
 
 
 export const SourceNodesDocument = gql`
@@ -206,8 +206,19 @@ export const SourceNodesDocument = gql`
     edges {
       node {
         id
+        title
         thumbnailUrl
         content
+        createdAt
+        updatedAt
+        tags {
+          edges {
+            cursor
+            node {
+              name
+            }
+          }
+        }
       }
     }
     pageInfo {

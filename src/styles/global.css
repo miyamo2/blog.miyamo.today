@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 body {
+    font-family: "M PLUS 1p";
+}
+
+[class*="language-"] {
     font-family: "JetBrains Mono", "M PLUS 1p";
 }
 
@@ -10,7 +14,16 @@ body {
     @apply font-bold;
 }
 
+.side-toc ul {
+    @apply my-2;
+}
+
+.side-toc li {
+    @apply py-2;
+}
+
 .markdown {
+    font-family: "JetBrains Mono", "M PLUS 1p";
     @apply text-gray-900 leading-normal break-words;
 }
 
