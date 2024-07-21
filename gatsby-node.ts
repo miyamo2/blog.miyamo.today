@@ -1,7 +1,8 @@
 import path from "path";
 import { GatsbyNode } from "gatsby";
-import {createFileNodeFromBuffer, createRemoteFileNode} from 'gatsby-source-filesystem';
+import { createFileNodeFromBuffer, createRemoteFileNode } from 'gatsby-source-filesystem';
 import { request, gql } from "graphql-request";
+import { format } from "@formkit/tempo";
 import { SourceNodesQuery, SourceNodesDocument, SourceNodesQueryVariables } from './src/generates/graphql';
 import InputMaybe = Queries.InputMaybe;
 
@@ -69,6 +70,12 @@ export const sourceNodes: GatsbyNode["sourceNodes"] = async ({ actions, createNo
             const rawContent = articleNode.content.replaceAll(`\\n`, `\n`)
             const content = `---
 id: "${articleNode.id}"
+title: "${articleNode.title}"
+createdAt: "${format(new Date(articleNode.createdAt), "YYYY/MM/DD")}"
+updatedAt: "${format(new Date(articleNode.updatedAt), "YYYY/MM/DD")}"
+tags: [${articleNode.tags.edges.map((edge) => {
+    return `{"id": "${edge.cursor}", "name": "${edge.node.name}"}`
+}).join(", ")}]
 ---
 ${rawContent}`
 
@@ -106,6 +113,7 @@ ${rawContent}`
 export const createPages: GatsbyNode["createPages"] = async ({actions, graphql}) => {
     const { createPage } = actions;
     await articleListPage(createPage, graphql);
+    await articleDetailPage(createPage, graphql);
 };
 
 export interface ArticleListPageContext {
@@ -114,6 +122,7 @@ export interface ArticleListPageContext {
     totalItems: number;
     currentPage: number;
     markdownCursors: string[];
+    imageCursors: string[];
 }
 
 const articleListPage = async (
@@ -152,12 +161,17 @@ const articleListPage = async (
             .slice((number-1)*PER_PAGE, number*PER_PAGE)
             .map((edge) => edge.cursor)
 
+        const imageCursors = articlePageInfoEdges
+            .slice((number-1)*PER_PAGE, number*PER_PAGE)
+            .map((edge) => `ArticleImage:${edge.cursor}`)
+
         const ctx: ArticleListPageContext = {
             startCursor: cursor,
             perPage: PER_PAGE,
             totalItems: totalArticles,
             currentPage: number,
             markdownCursors: cursors,
+            imageCursors: imageCursors,
         }
         if (index === 0) {
             createPage({
@@ -174,3 +188,44 @@ const articleListPage = async (
         cursor = articlePageInfoEdges[number*PER_PAGE]?.cursor
     })
 }
+
+export interface ArticleDetailPageContext {
+    cursor: string;
+    imageCursor?: string;
+}
+
+const articleDetailPage = async (
+    createPage: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["actions"]["createPage"],
+    graphql: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["graphql"]
+) => {
+    const getAllArticleCursors = await graphql<Queries.GetAllArticleCursorsQuery>(`
+        query GetAllArticleCursors {
+            allMarkdownRemark(filter: {frontmatter: {id: {ne: "Noop"}}}) {
+                nodes {
+                    frontmatter {
+                        id
+                    }
+                }
+            }
+        }`);
+
+    if (!getAllArticleCursors.data || getAllArticleCursors.errors) {
+        throw new Error("failed to get all article cursors");
+    }
+    const data = getAllArticleCursors.data;
+    data.allMarkdownRemark.nodes.forEach((edge) => {
+        const id = edge.frontmatter?.id
+        if (!id) {
+            return;
+        }
+        const context: ArticleDetailPageContext = {
+            cursor: id,
+            imageCursor: `ArticleImage:${id}`
+        };
+        createPage({
+            path: `/articles/${id}`,
+            component: path.resolve("./src/templates/article-detail.tsx"),
+            context,
+        });
+    });
+};

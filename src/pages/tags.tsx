@@ -1,11 +1,14 @@
-import { graphql, PageProps, Link} from "gatsby";
-import {Heading, Tag, List, ListItem} from "@yamada-ui/react";
+import { graphql, PageProps, Link } from "gatsby";
+import { Heading, Tag, List, ListItem, useMediaQuery } from "@yamada-ui/react";
 import * as React from "react";
 import { Layout } from "@/components/Layout";
 
 const Tags = ({ data }: PageProps<Queries.TagListQueryQuery>) => {
+    const [isLarge] = useMediaQuery([
+        "(min-width: 1280px)",
+    ])
     return (
-        <Layout scroll={true}>
+        <Layout scroll={true} isLarge={isLarge}>
             <main>
                 <Heading className={"text-black text-3xl font-bold"} paddingBottom={"md"}>Tags</Heading>
                 <List>

@@ -3,8 +3,19 @@ query SourceNodes ($first: Int, $after: String) {
         edges{
             node{
                 id
+                title
                 thumbnailUrl
                 content
+                createdAt
+                updatedAt
+                tags {
+                    edges {
+                        cursor
+                        node {
+                            name
+                        }
+                    }
+                }
             }
         }
         pageInfo{

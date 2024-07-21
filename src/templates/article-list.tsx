@@ -1,5 +1,5 @@
 import { graphql, PageProps } from "gatsby";
-import {Grid, Box, Heading } from "@yamada-ui/react";
+import {Grid, Box, Heading, useMediaQuery} from "@yamada-ui/react";
 import {ArticleCard} from "@/features/ArticleList/ArticleCard";
 import * as React from "react";
 import {Pager} from "@/components/Pager";
@@ -23,6 +23,10 @@ interface ArticleCardData {
 }
 
 const ArticleList = ({ data, pageContext }: PageProps<Queries.ArticleListQueryQuery, ArticleListPageContext>) => {
+    const [isLarge] = useMediaQuery([
+        "(min-width: 1280px)",
+    ])
+
     const articleCardDataList = (() => {
         return data.miyamotoday.articles.edges.map((articleEdge): ArticleCardData => {
             const imageDataEdge = data.allFile.edges.find((edge: { node: { id: string; }; }) => edge.node.id === `ArticleImage:${articleEdge.cursor}`);
@@ -45,7 +49,7 @@ const ArticleList = ({ data, pageContext }: PageProps<Queries.ArticleListQueryQu
     })()
 
     return (
-        <Layout scroll={true}>
+        <Layout scroll={true} isLarge={isLarge}>
             <main>
                 <Heading className={"text-black text-3xl font-bold"} paddingBottom={"md"}>Articles</Heading>
                 <Grid templateColumns={"repeat(auto-fill, minmax(280px, 1fr))"}>
