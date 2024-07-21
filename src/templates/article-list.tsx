@@ -1,11 +1,11 @@
 import { graphql, PageProps } from "gatsby";
-import {Grid, Box, Heading, useMediaQuery} from "@yamada-ui/react";
-import {ArticleCard} from "@/features/ArticleList/ArticleCard";
+import { Grid, Box, Heading, useMediaQuery } from "@yamada-ui/react";
+import { ArticleCard } from "@/features/ArticleList/ArticleCard";
 import * as React from "react";
-import {Pager} from "@/components/Pager";
-import {Layout} from "@/components/Layout";
+import { Pager } from "@/components/Pager";
+import { Layout } from "@/components/Layout";
 import { ArticleListPageContext } from "../../gatsby-node"
-import {ImageDataLike} from "gatsby-plugin-image/dist/src/components/hooks";
+import { ImageDataLike } from "gatsby-plugin-image/dist/src/components/hooks";
 
 interface Tag {
     id: string
@@ -33,7 +33,6 @@ const ArticleList = ({ data, pageContext }: PageProps<Queries.ArticleListQueryQu
             const imageData = imageDataEdge?.node.childImageSharp || undefined
             const markdownRemarkNode = data.allMarkdownRemark.nodes.find((n) => n.frontmatter?.id == articleEdge.cursor)
             const articleExcerpt = markdownRemarkNode?.excerpt ?? undefined
-            console.log(articleExcerpt)
 
             const articleCardData: ArticleCardData = {
                 id: articleEdge.cursor,
