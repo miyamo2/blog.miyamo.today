@@ -114,6 +114,7 @@ export const createPages: GatsbyNode["createPages"] = async ({actions, graphql})
     const { createPage } = actions;
     await articleListPage(createPage, graphql);
     await articleDetailPage(createPage, graphql);
+    await taggedArticlesPage(createPage, graphql);
 };
 
 export interface ArticleListPageContext {
@@ -229,3 +230,84 @@ const articleDetailPage = async (
         });
     });
 };
+
+export interface TaggedArticlesPageContext {
+    tagName: string;
+    perPage: number;
+    totalItems: number;
+    currentPage: number;
+    markdownCursors: string[];
+    imageCursors: string[];
+}
+
+const taggedArticlesPage = async (
+    createPage: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["actions"]["createPage"],
+    graphql: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["graphql"]
+)=> {
+    const taggedArticlesPageInfoQuery = await graphql<Queries.GetTaggedArticlesPageInfoQuery>(
+            `
+            query GetTaggedArticlesPageInfo {
+                miyamotoday {
+                    tags {
+                        edges {
+                            cursor
+                            node {
+                                articles {
+                                    edges {
+                                        cursor
+                                    }
+                                    totalCount
+                                }
+                            }
+                            node {
+                                id
+                                name
+                            }
+                        }
+                    }
+                }
+            }
+        `
+    )
+    if (taggedArticlesPageInfoQuery.errors || !taggedArticlesPageInfoQuery.data) {
+        throw new Error("failed to get tagged articles");
+    }
+
+    const articlePageInfoEdges = taggedArticlesPageInfoQuery.data.miyamotoday.tags.edges
+
+    articlePageInfoEdges.map((tagEdge) => {
+        const { id: tagId, name: tagName } = tagEdge.node
+        const { edges: articleEdges, totalCount: totalArticles }= tagEdge.node.articles
+
+        range(1, Math.ceil(totalArticles / PER_PAGE)).map((number, index) => {
+            const cursors = articleEdges
+                .slice((number-1)*PER_PAGE, number*PER_PAGE)
+                .map((edge) => edge.cursor)
+
+            const imageCursors = articleEdges
+                .slice((number-1)*PER_PAGE, number*PER_PAGE)
+                .map((edge) => `ArticleImage:${edge.cursor}`)
+
+            const ctx: TaggedArticlesPageContext = {
+                tagName: tagName,
+                perPage: PER_PAGE,
+                totalItems: totalArticles,
+                currentPage: number,
+                markdownCursors: cursors,
+                imageCursors: imageCursors,
+            }
+            if (index === 0) {
+                createPage({
+                    path: `/tags/${tagId}`,
+                    component: path.resolve("./src/templates/tagged-articles.tsx"),
+                    context: ctx,
+                });
+            }
+            createPage({
+                path: `/tags/${tagId}/${number}/`,
+                component: path.resolve("./src/templates/tagged-articles.tsx"),
+                context: ctx,
+            });
+        })
+    })
+}
