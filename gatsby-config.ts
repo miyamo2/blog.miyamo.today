@@ -21,7 +21,26 @@ const config: GatsbyConfig = {
         // Field under which the remote schema will be accessible. You'll use this in your Gatsby query
         fieldName: "miyamotoday",
         // Url to query from
-        url: process.env.URL,
+        url: process.env.BlogAPIMiyamoTodayURL,
+        headers: {
+          // Learn about environment variables: https://gatsby.dev/env-vars
+          Authorization: `Bearer ${process.env.BlogAPIMiyamoToday_TOKEN}`,
+        },
+      },
+    },
+    {
+      resolve: "gatsby-source-graphql",
+      options: {
+        // Arbitrary name for the remote schema Query type
+        typeName: "GitHub",
+        // Field under which the remote schema will be accessible. You'll use this in your Gatsby query
+        fieldName: "github",
+        // Url to query from
+        url: process.env.GitHubAPIURL,
+        headers: {
+          // Learn about environment variables: https://gatsby.dev/env-vars
+          Authorization: `Bearer ${process.env.GitHubToken}`,
+        },
       },
     },
     {
