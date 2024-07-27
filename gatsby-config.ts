@@ -1,7 +1,7 @@
-import type { GatsbyConfig } from "gatsby"
+import type { GatsbyConfig } from "gatsby";
 import path from "path";
 
-require('dotenv').config({
+require("dotenv").config({
   path: `.env.${process.env.NODE_ENV}`,
 });
 
@@ -57,7 +57,7 @@ const config: GatsbyConfig = {
         path: `${__dirname}/static/`,
       },
     },
-    'gatsby-plugin-postcss',
+    "gatsby-plugin-postcss",
     `gatsby-plugin-image`,
     `gatsby-plugin-sharp`,
     `gatsby-transformer-sharp`,
@@ -76,7 +76,7 @@ const config: GatsbyConfig = {
               ordered: false,
               fromHeading: 1,
               toHeading: 6,
-              className: "table-of-contents"
+              className: "table-of-contents",
             },
           },
           `gatsby-remark-autolink-headers`,
@@ -89,12 +89,12 @@ const config: GatsbyConfig = {
               showLineNumbers: true,
               noInlineHighlight: false,
             },
-          }
+          },
         ],
       },
     },
-    `gatsby-plugin-tsconfig-paths`
+    `gatsby-plugin-tsconfig-paths`,
   ],
-}
+};
 
-export default config
+export default config;
