@@ -1,4 +1,4 @@
-import { graphql, PageProps } from "gatsby";
+import {graphql, HeadProps, PageProps} from "gatsby";
 import { Grid, Box, Heading, useMediaQuery } from "@yamada-ui/react";
 import { ArticleCard } from "@/features/ArticleList/ArticleCard";
 import * as React from "react";
@@ -6,6 +6,8 @@ import { Pager } from "@/components/Pager";
 import { Layout } from "@/components/Layout";
 import { ArticleListPageContext } from "../../gatsby-node"
 import { ImageDataLike } from "gatsby-plugin-image/dist/src/components/hooks";
+import {getSrc} from "gatsby-plugin-image";
+import SEO from "@/components/SEO";
 
 interface Tag {
     id: string
@@ -89,7 +91,7 @@ export const query = graphql`
         }
         allMarkdownRemark(filter: {frontmatter: {id: {in: $markdownCursors}}}) {
             nodes{
-                excerpt
+                excerpt(pruneLength: 140, truncate: true)
                 frontmatter {
                     id
                 }
@@ -109,3 +111,11 @@ export const query = graphql`
 `;
 
 export default ArticleList
+
+export const Head = ({ location }: HeadProps) => {
+    const path = location.pathname
+
+    return (
+        <SEO path={path} />
+    )
+}

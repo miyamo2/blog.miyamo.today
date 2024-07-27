@@ -1,7 +1,8 @@
-import { navigate } from "gatsby";
+import {HeadProps, navigate} from "gatsby";
 import { Heading, useMediaQuery, Text, Button } from "@yamada-ui/react";
 import * as React from "react";
 import { Layout } from "@/components/Layout";
+import SEO from "@/components/SEO";
 
 const NotFound = () => {
     const [isLarge] = useMediaQuery([
@@ -21,3 +22,9 @@ const NotFound = () => {
 }
 
 export default NotFound
+
+export const Head = () => {
+    return (
+        <SEO />
+    )
+}

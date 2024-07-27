@@ -6,8 +6,15 @@ require('dotenv').config({
 });
 
 const config: GatsbyConfig = {
-
-  siteMetadata: {},
+  siteMetadata: {
+    title: "blog.miyamo.today",
+    siteUrl: "https://blog.miyamo.today",
+    description: "How was miyamo.today?",
+    twitterUsername: "@miyamo2_jp",
+    image: "/ogp.png",
+    icon: "/icon.png",
+    lang: "ja",
+  },
   // More easily incorporate content into your pages through automatic TypeScript type generation and better GraphQL IntelliSense.
   // If you use VSCode you can also use the GraphQL plugin
   // Learn more at: https://gatsby.dev/graphql-typegen
