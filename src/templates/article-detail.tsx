@@ -2,6 +2,7 @@ import { graphql, Link, PageProps } from "gatsby";
 import * as React from "react";
 import { ReactNode } from "react";
 import { Layout, SideNavRenderProps } from "@/components/Layout";
+import { Image } from "@/components/Image";
 import { ArticleDetailPageContext } from "../../gatsby-node"
 import {
     Heading,
@@ -15,7 +16,6 @@ import {
 } from "@yamada-ui/react";
 import { Icon as FontAwesomeIcon } from "@yamada-ui/fontawesome"
 import {faCalendarDay, faListUl} from "@fortawesome/free-solid-svg-icons"
-import { GatsbyImage, getImage } from "gatsby-plugin-image";
 import {format} from "@formkit/tempo";
 
 
@@ -24,14 +24,7 @@ const ArticleDetail = ({ data, pageContext }: PageProps<Queries.ArticleDetailQue
         "(min-width: 1280px)",
     ])
 
-    const gatsbyImage = (() => {
-        const node = data.allFile?.nodes?.at(0)
-        if (!node) {
-            return <></>
-        }
-        const image = node.childImageSharp ? getImage(node.childImageSharp) : undefined
-        return image ? <GatsbyImage image={image} alt={`ArticleImage:`} objectFit={"cover"} />: <></>
-    })()
+    const allFileConnection = data.allFile
 
     const markdownRemark = data.markdownRemark
     if (!markdownRemark) {
@@ -48,7 +41,7 @@ const ArticleDetail = ({ data, pageContext }: PageProps<Queries.ArticleDetailQue
     return (
         <Layout scroll={true} isLarge={isLarge} sideNavRightRender={ isLarge ? ArticleTOC(markdownRemark.tableOfContents ?? "") : undefined}>
             <main>
-                {gatsbyImage}
+                <Image allFileConnectrion={allFileConnection} alt={`ArticleImage:${pageContext.cursor}`} objectFit={"cover"} />
                 <Heading className={"text-black text-3xl font-bold"} paddingBottom={"md"}>{frontmatter.title}</Heading>
                 {frontmatter.tags?.map((tag) => (
                     <Tag as={Link} size={"md"} id={`${tag?.id}-${tag?.id}`} to={`/tags/${tag?.id}`} colorScheme={"gray"}>#{tag?.name}</Tag>

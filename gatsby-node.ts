@@ -1,9 +1,16 @@
 import path from "path";
-import { GatsbyNode } from "gatsby";
+import { GatsbyCache, GatsbyNode, Store } from "gatsby";
 import { createFileNodeFromBuffer, createRemoteFileNode } from 'gatsby-source-filesystem';
-import { request, gql } from "graphql-request";
+import { request } from "graphql-request";
 import { format } from "@formkit/tempo";
-import { SourceNodesQuery, SourceNodesDocument, SourceNodesQueryVariables } from './src/generates/graphql';
+import {
+    SourceNodesQuery,
+    SourceNodesDocument,
+    SourceNodesQueryVariables,
+    GitHubAvatarQuery,
+    GitHubAvatarDocument,
+    GitHubAvatarQueryVariables,
+} from './src/generates/graphql';
 import InputMaybe = Queries.InputMaybe;
 
 const PER_PAGE = (() => {
@@ -21,7 +28,19 @@ const PER_PAGE = (() => {
 const range = (start: number, end: number) => [...Array(end - start + 1)].map((_, i) => start + i)
 
 export const sourceNodes: GatsbyNode["sourceNodes"] = async ({ actions, createNodeId, cache, store, createContentDigest }) => {
-    const endpoint = process.env.URL;
+    const { createNode, createNodeField } = actions
+    await createArticleContentAndImageNode(createNode, createNodeField, cache, store, createContentDigest);
+    await createGitHubAvatarNode(createNode, createNodeField, cache, store);
+}
+
+const createArticleContentAndImageNode = async (
+    createNode: Parameters<NonNullable<GatsbyNode["sourceNodes"]>>["0"]["actions"]["createNode"],
+    createNodeField: Parameters<NonNullable<GatsbyNode["sourceNodes"]>>["0"]["actions"]["createNodeField"],
+    cache: GatsbyCache,
+    store: Store,
+    createContentDigest: Parameters<NonNullable<GatsbyNode["sourceNodes"]>>["0"]["createContentDigest"],
+)=> {
+    const endpoint = process.env.BlogAPIMiyamoTodayURL;
     if (!endpoint || typeof endpoint !== "string") {
         throw new Error("endpoint must not to be null or undefined");
     }
@@ -40,8 +59,6 @@ export const sourceNodes: GatsbyNode["sourceNodes"] = async ({ actions, createNo
         if (!data) {
             throw new Error("failed to get articles");
         }
-
-        const { createNode, createNodeField } = actions
 
         data.articles.edges.map(async (edge) => {
             const articleNode = edge.node
@@ -74,8 +91,8 @@ title: "${articleNode.title}"
 createdAt: "${format(new Date(articleNode.createdAt), "YYYY/MM/DD")}"
 updatedAt: "${format(new Date(articleNode.updatedAt), "YYYY/MM/DD")}"
 tags: [${articleNode.tags.edges.map((edge) => {
-    return `{"id": "${edge.cursor}", "name": "${edge.node.name}"}`
-}).join(", ")}]
+                return `{"id": "${edge.cursor}", "name": "${edge.node.name}"}`
+            }).join(", ")}]
 ---
 ${rawContent}`
 
@@ -108,6 +125,50 @@ ${rawContent}`
         doContinue = hasNextPage ?? false
         after = endCursor
     }
+}
+
+const createGitHubAvatarNode = async (
+    createNode: Parameters<NonNullable<GatsbyNode["sourceNodes"]>>["0"]["actions"]["createNode"],
+    createNodeField: Parameters<NonNullable<GatsbyNode["sourceNodes"]>>["0"]["actions"]["createNodeField"],
+    cache: GatsbyCache,
+    store: Store,
+)=> {
+    const endpoint = process.env.GitHubAPIURL;
+    if (!endpoint || typeof endpoint !== "string") {
+        throw new Error("endpoint must not to be null or undefined");
+    }
+
+    const requestHeaders = {
+        "Authorization": `Bearer ${process.env.GitHubToken}`,
+    }
+
+    const data: GitHubAvatarQuery = await request<GitHubAvatarQuery, GitHubAvatarQueryVariables>(
+        endpoint,
+        GitHubAvatarDocument,
+        {
+            loginId: "miyamo2",
+        },
+        requestHeaders
+    )
+    if (!data || !data.user) {
+        throw new Error("failed to get articles");
+    }
+
+    const avatarUrl = data.user.avatarUrl
+
+    const avatarNode =await createRemoteFileNode({
+        url: avatarUrl,
+        cache,
+        // @ts-ignore
+        store,
+        createNode: createNode,
+        createNodeId: () :string => { return `GitHubAvatar:miyamo2`},
+    });
+    createNodeField({
+        node: avatarNode,
+        name: 'link',
+        value: avatarUrl,
+    });
 }
 
 export const createPages: GatsbyNode["createPages"] = async ({actions, graphql}) => {

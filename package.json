@@ -13,7 +13,8 @@
     "build": "gatsby build",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "graphqlgen": "npx graphql-codegen generate"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.2",
@@ -40,6 +41,7 @@
     "gatsby-plugin-config": "^1.0.7",
     "gatsby-plugin-image": "^3.13.1",
     "gatsby-plugin-postcss": "^6.13.1",
+    "gatsby-plugin-react-helmet": "^6.13.1",
     "gatsby-plugin-sharp": "^5.13.1",
     "gatsby-plugin-tsconfig-paths": "^1.0.6",
     "gatsby-remark-autolink-headers": "^6.13.1",
@@ -54,6 +56,8 @@
     "prismjs": "^1.29.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-helmet": "^6.1.0",
+    "react-icons": "^5.2.1",
     "remark-breaks": "^4.0.0",
     "tsconfig-paths-webpack-plugin": "^4.1.0"
   }
