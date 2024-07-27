@@ -1,4 +1,4 @@
-import { graphql, Link, PageProps } from "gatsby";
+import {graphql, HeadProps, Link, PageProps} from "gatsby";
 import * as React from "react";
 import { ReactNode } from "react";
 import { Layout, SideNavRenderProps } from "@/components/Layout";
@@ -17,6 +17,8 @@ import {
 import { Icon as FontAwesomeIcon } from "@yamada-ui/fontawesome"
 import {faCalendarDay, faListUl} from "@fortawesome/free-solid-svg-icons"
 import {format} from "@formkit/tempo";
+import SEO from "@/components/SEO";
+import {getSrc} from "gatsby-plugin-image";
 
 
 const ArticleDetail = ({ data, pageContext }: PageProps<Queries.ArticleDetailQueryQuery, ArticleDetailPageContext>) => {
@@ -91,6 +93,7 @@ const ArticleTOC = (toc: string): (prop: SideNavRenderProps) => React.ReactNode 
 export const query = graphql`
     query ArticleDetailQuery($cursor: String!, $imageCursor: String) {
         markdownRemark(frontmatter: {id: {eq: $cursor}}) {
+            excerpt(pruneLength: 140, truncate: true)
             html
             tableOfContents
             frontmatter {
@@ -108,7 +111,7 @@ export const query = graphql`
             nodes {
                 id
                 childImageSharp {
-                    gatsbyImageData(width: 1280, height: 700, placeholder: BLURRED, quality: 100)
+                    gatsbyImageData(width: 1200, height: 630, placeholder: BLURRED, quality: 100)
                 }
             }
         }
@@ -116,3 +119,17 @@ export const query = graphql`
 `;
 
 export default ArticleDetail
+
+export const Head = ({ data, location }: HeadProps<Queries.ArticleDetailQueryQuery>) => {
+    const title = data.markdownRemark?.frontmatter?.title ?? undefined
+    const description = data.markdownRemark?.excerpt ?? undefined
+
+    const childImageSharp = data.allFile?.nodes.at(0)?.childImageSharp
+    const imageSrc = childImageSharp ? getSrc(childImageSharp) : undefined
+
+    const path = location.pathname
+
+    return (
+        <SEO path={path} title={title} image={imageSrc} description={description} />
+    )
+}

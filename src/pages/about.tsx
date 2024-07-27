@@ -1,9 +1,10 @@
-import { graphql, PageProps } from "gatsby";
+import { graphql, PageProps, HeadProps } from "gatsby";
 import { useMediaQuery, Heading, Text, HStack, Link, Button } from "@yamada-ui/react";
 import * as React from "react";
 import { Layout } from "@/components/Layout";
 import { Image } from "@/components/Image";
 import { SiGithub, SiZenn, SiQiita, SiSpeakerdeck } from "react-icons/si";
+import SEO from "@/components/SEO";
 
 const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
     const [isLarge] = useMediaQuery([
@@ -82,3 +83,10 @@ export const query = graphql`
 `;
 
 export default About;
+
+export const Head = ({ location }: HeadProps) => {
+    const path = location.pathname
+    return (
+        <SEO path={path} title={"About"}/>
+    )
+}

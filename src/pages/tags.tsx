@@ -1,7 +1,8 @@
-import { graphql, PageProps, Link } from "gatsby";
+import {graphql, PageProps, Link, HeadProps} from "gatsby";
 import { Heading, Tag, List, ListItem, useMediaQuery } from "@yamada-ui/react";
 import * as React from "react";
 import { Layout } from "@/components/Layout";
+import SEO from "@/components/SEO";
 
 const Tags = ({ data }: PageProps<Queries.TagListQueryQuery>) => {
     const [isLarge] = useMediaQuery([
@@ -42,3 +43,10 @@ export const query = graphql`
 `;
 
 export default Tags
+
+export const Head = ({ location }: HeadProps) => {
+    const path = location.pathname
+    return (
+        <SEO path={path} title={"Tags"}/>
+    )
+}
