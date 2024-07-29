@@ -66,7 +66,6 @@ const config: GatsbyConfig = {
         footnotes: true,
         gfm: true,
         plugins: [
-          `gatsby-remark-line-breaks`,
           {
             resolve: `gatsby-remark-table-of-contents`,
             options: {
