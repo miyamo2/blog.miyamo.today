@@ -4,6 +4,7 @@ import "./src/styles/global.css";
 import * as React from "react";
 import { UIProvider } from "@yamada-ui/react";
 import { GatsbyBrowser } from "gatsby";
+import "modern-css-reset";
 
 export const wrapPageElement: GatsbyBrowser["wrapPageElement"] = ({ element }) => {
   return <UIProvider>{element}</UIProvider>;

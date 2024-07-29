@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link } from "gatsby";
 import {
   Grid,
@@ -10,30 +10,54 @@ import {
   MenuItem,
   MenuList,
   useBoolean,
+  HStack,
   Divider,
 } from "@yamada-ui/react";
 import { Icon as FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faBars, faXmark, faHome, faTags, faAddressCard } from "@fortawesome/free-solid-svg-icons";
+import { useStaticLogoImage } from "@/hooks/useStaticLogoImage";
+import { useSiteMetaData } from "@/hooks/useSiteMetaData";
+import { Image } from "@/components/Image";
 
 interface HeaderProp {
   isLarge: boolean;
+  logoPaddingLeft?: "md" | "2xl";
+  bargerPaddingRight?: "md" | "2xl";
 }
 
-export const Header = ({ isLarge }: HeaderProp) => {
+export const Header = ({ isLarge, logoPaddingLeft }: HeaderProp) => {
+  const siteMeta = useMemo(() => useSiteMetaData(), []);
+  const iconPath = siteMeta?.icon ? siteMeta.icon.replace("/", "") : "";
+
+  const allFileConnection = useStaticLogoImage(iconPath);
+  console.log(allFileConnection);
   const [isBargerOpen, { on, off }] = useBoolean();
+
   return (
-    <header>
-      <Grid templateColumns="repeat(9, 1fr)" backdropFilter="blur(10px)">
-        <GridItem colSpan={3} w="full" padding={"md"}>
-          <Link
-            to="/"
-            className={"btn btn-ghost text-black text-4xl font-bold no-animation whitespace-nowrap"}
-          >
-            blog.miyamo.today
-          </Link>
-        </GridItem>
-        <GridItem w="full" colStart={7} paddingTop={"lg"} paddingBottom={"md"}>
-          {isLarge ? (
+    <>
+      <GridItem
+        w={"full"}
+        h={"full"}
+        gridArea={"1/1/2/2"}
+        paddingTop={"md"}
+        paddingLeft={logoPaddingLeft}
+      >
+        <Link
+          to="/"
+          className={"btn btn-ghost text-black text-4xl font-bold no-animation whitespace-nowrap"}
+        >
+          <Image allFileConnectrion={allFileConnection} objectFit={"cover"} />
+        </Link>
+      </GridItem>
+      <GridItem
+        paddingTop={isLarge ? "lg" : "md"}
+        w={"full"}
+        h={"full"}
+        gridArea={"1/9/2/10"}
+        justifySelf={"end"}
+      >
+        {isLarge ? (
+          <HStack className={"text-right"} w={"fit-content"}>
             <Button
               leftIcon={<FontAwesomeIcon icon={faHome} />}
               variant="ghost"
@@ -43,12 +67,6 @@ export const Header = ({ isLarge }: HeaderProp) => {
             >
               Home
             </Button>
-          ) : (
-            <></>
-          )}
-        </GridItem>
-        <GridItem w="full" colStart={8} paddingTop={"lg"} paddingBottom={"md"}>
-          {isLarge ? (
             <Button
               leftIcon={<FontAwesomeIcon icon={faTags} />}
               variant="ghost"
@@ -58,12 +76,6 @@ export const Header = ({ isLarge }: HeaderProp) => {
             >
               Tags
             </Button>
-          ) : (
-            <></>
-          )}
-        </GridItem>
-        <GridItem w="full" colStart={9} paddingTop={isLarge ? "lg" : "md"} paddingBottom={"md"}>
-          {isLarge ? (
             <Button
               leftIcon={<FontAwesomeIcon icon={faAddressCard} />}
               variant="ghost"
@@ -73,35 +85,35 @@ export const Header = ({ isLarge }: HeaderProp) => {
             >
               About
             </Button>
-          ) : (
-            <Menu onOpen={on} onClose={off}>
-              <MenuButton
-                as={IconButton}
-                icon={
-                  isBargerOpen ? (
-                    <FontAwesomeIcon icon={faXmark} />
-                  ) : (
-                    <FontAwesomeIcon icon={faBars} />
-                  )
-                }
-                variant="ghost"
-              />
-              <MenuList>
-                <MenuItem icon={<FontAwesomeIcon icon={faHome} />}>
-                  <Link to="/">Home</Link>
-                </MenuItem>
-                <MenuItem icon={<FontAwesomeIcon icon={faTags} />}>
-                  <Link to="/tags">Tags</Link>
-                </MenuItem>
-                <MenuItem icon={<FontAwesomeIcon icon={faAddressCard} />}>
-                  <Link to="/about">About</Link>
-                </MenuItem>
-              </MenuList>
-            </Menu>
-          )}
-        </GridItem>
-      </Grid>
-      <Divider />
-    </header>
+          </HStack>
+        ) : (
+          <Menu onOpen={on} onClose={off}>
+            <MenuButton
+              as={IconButton}
+              icon={
+                isBargerOpen ? (
+                  <FontAwesomeIcon icon={faXmark} />
+                ) : (
+                  <FontAwesomeIcon icon={faBars} />
+                )
+              }
+              variant="ghost"
+              className={"text-black text-lg font-bold"}
+            />
+            <MenuList>
+              <MenuItem icon={<FontAwesomeIcon icon={faHome} />}>
+                <Link to="/">Home</Link>
+              </MenuItem>
+              <MenuItem icon={<FontAwesomeIcon icon={faTags} />}>
+                <Link to="/tags">Tags</Link>
+              </MenuItem>
+              <MenuItem icon={<FontAwesomeIcon icon={faAddressCard} />}>
+                <Link to="/about">About</Link>
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        )}
+      </GridItem>
+    </>
   );
 };

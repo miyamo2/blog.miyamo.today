@@ -2,7 +2,7 @@ import React from "react";
 import { ReactNode } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Grid, GridItem, Spacer } from "@yamada-ui/react";
+import { Grid, GridItem } from "@yamada-ui/react";
 
 interface LayoutProps {
   sideNavLeftRender?: (prop: SideNavRenderProps) => ReactNode;
@@ -23,56 +23,55 @@ export const Layout = ({
   scroll,
   isLarge,
 }: LayoutProps) => {
+  const containsSideNavLeft = sideNavLeftRender !== undefined;
+  const containsSideNavRight = sideNavRightRender !== undefined;
+
+  const mainColStart = containsSideNavLeft ? 2 : 1;
+  const mainColEnd = containsSideNavRight ? 9 : 10;
+
   return (
     <div>
-      {isLarge ? (
-        <Grid w={"full"} h={"100vh"}>
-          <GridItem w={"full"} h={"full"} gridArea={"1/1/1/10"}>
-            {" "}
-            <Header isLarge={isLarge} />
-          </GridItem>
-          <GridItem w={"full"} h={"full"} gridArea={"2/1/9/3"} overflowY={"hidden"}>
-            <aside>
-              {sideNavLeftRender ? sideNavLeftRender({ isLarge: isLarge }) : <Spacer />}
-            </aside>
-          </GridItem>
+      <Grid w={"full"} h={"100vh"}>
+        <Header
+          isLarge={isLarge}
+          logoPaddingLeft={!containsSideNavLeft ? (isLarge ? "2xl" : "md") : "md"}
+          bargerPaddingRight={!containsSideNavRight ? (isLarge ? "2xl" : "md") : "md"}
+        />
+        {containsSideNavLeft && isLarge ? (
           <GridItem
             w={"full"}
             h={"full"}
-            gridArea={"2/4/9/7"}
-            overflowY={scroll ? "auto" : "hidden"}
+            gridArea={"2/1/9/2"}
+            overflowY={"hidden"}
+            className={"sideNavBar"}
           >
-            {children}
+            <aside>{sideNavLeftRender({ isLarge: isLarge })}</aside>
           </GridItem>
-          <GridItem w={"full"} h={"full"} gridArea={"2/8/9/10"} overflowY={"hidden"}>
-            <aside>
-              {sideNavRightRender ? sideNavRightRender({ isLarge: isLarge }) : <Spacer />}
-            </aside>
+        ) : (
+          <></>
+        )}
+        <GridItem
+          w={"full"}
+          h={"full"}
+          gridArea={`2/${mainColStart}/9/${mainColEnd}`}
+          overflowY={scroll ? "auto" : "hidden"}
+          paddingLeft={!containsSideNavLeft ? (isLarge ? "2xl" : "md") : "md"}
+          paddingRight={!containsSideNavRight ? (isLarge ? "2xl" : "md") : "md"}
+          className={"mainContent"}
+        >
+          {children}
+        </GridItem>
+        {containsSideNavRight && isLarge ? (
+          <GridItem w={"full"} h={"full"} gridArea={"2/9/9/10"} overflowY={"hidden"}>
+            <aside>{sideNavRightRender({ isLarge: isLarge })}</aside>
           </GridItem>
-          <GridItem w={"full"} h={"full"} gridArea={"10/1/10/10"}>
-            <Footer />
-          </GridItem>
-        </Grid>
-      ) : (
-        <Grid w={"full"} h={"100vh"}>
-          <GridItem w={"full"} h={"full"} gridArea={"1/1/1/10"}>
-            {" "}
-            <Header isLarge={isLarge} />
-          </GridItem>
-          <GridItem
-            w={"full"}
-            h={"full"}
-            gridArea={"2/1/9/10"}
-            padding={"md"}
-            overflowY={scroll ? "auto" : "hidden"}
-          >
-            {children}
-          </GridItem>
-          <GridItem w={"full"} h={"full"} gridArea={"10/1/10/10"}>
-            <Footer />
-          </GridItem>
-        </Grid>
-      )}
+        ) : (
+          <></>
+        )}
+        <GridItem w={"full"} h={"full"} gridArea={"10/1/10/10"} className={"sideNavBar"}>
+          <Footer />
+        </GridItem>
+      </Grid>
     </div>
   );
 };
