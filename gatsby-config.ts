@@ -92,6 +92,7 @@ const config: GatsbyConfig = {
       },
     },
     `gatsby-plugin-tsconfig-paths`,
+    `gatsby-plugin-fix-fouc`,
   ],
 };
 
