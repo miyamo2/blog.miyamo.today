@@ -95,7 +95,7 @@ const ArticleTOC = (toc: string): ((prop: SideNavRenderProps) => React.ReactNode
           <Box paddingRight={"lg"} w={"full"} top={0}>
             <Heading paddingBottom={"md"}>
               <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
-              目次
+              TOC
             </Heading>
             <Box borderBlock={"solid"} writingMode={"horizontal-tb"}>
               <div className={"side-toc"} dangerouslySetInnerHTML={{ __html: toc }}></div>
@@ -107,7 +107,7 @@ const ArticleTOC = (toc: string): ((prop: SideNavRenderProps) => React.ReactNode
               <AccordionItem>
                 <AccordionLabel className={"text-black text-2xl font-bold"}>
                   <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
-                  目次
+                  TOC
                 </AccordionLabel>
                 <AccordionPanel>
                   <div dangerouslySetInnerHTML={{ __html: toc }}></div>

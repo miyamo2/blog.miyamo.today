@@ -1,5 +1,4 @@
 import type { GatsbyConfig } from "gatsby";
-import path from "path";
 
 require("dotenv").config({
   path: `.env.${process.env.NODE_ENV}`,
@@ -12,7 +11,7 @@ const config: GatsbyConfig = {
     description: "How was miyamo.today?",
     twitterUsername: "@miyamo2_jp",
     image: "/ogp.png",
-    icon: "/icon.png",
+    icon: "/logo.png",
     lang: "ja",
   },
   // More easily incorporate content into your pages through automatic TypeScript type generation and better GraphQL IntelliSense.

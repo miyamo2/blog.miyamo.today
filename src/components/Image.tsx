@@ -2,7 +2,7 @@ import { GatsbyImage, getImage, IGatsbyImageData } from "gatsby-plugin-image";
 import * as React from "react";
 import { FC } from "react";
 
-interface AllFileConnection {
+export interface AllFileConnection {
   readonly nodes: ReadonlyArray<{
     readonly id: string;
     readonly childImageSharp: { readonly gatsbyImageData: IGatsbyImageData } | null;

@@ -1,8 +1,9 @@
 import { graphql, PageProps, Link, HeadProps } from "gatsby";
-import { Heading, Tag, List, ListItem, useMediaQuery } from "@yamada-ui/react";
+import { Heading, Tag, List, ListItem, useMediaQuery, Grid } from "@yamada-ui/react";
 import * as React from "react";
 import { Layout } from "@/components/Layout";
 import SEO from "@/components/SEO";
+import { ArticleCard } from "@/features/ArticleList/ArticleCard";
 
 const Tags = ({ data }: PageProps<Queries.TagListQueryQuery>) => {
   const [isLarge] = useMediaQuery(["(min-width: 1280px)"]);
@@ -12,15 +13,13 @@ const Tags = ({ data }: PageProps<Queries.TagListQueryQuery>) => {
         <Heading className={"text-black text-3xl font-bold"} paddingBottom={"md"}>
           Tags
         </Heading>
-        <List>
+        <Grid templateColumns={"repeat(auto-fill, minmax(120px, auto))"} gap={"sm"}>
           {data.miyamotoday.tags.edges.map((edge, i) => (
-            <ListItem key={edge.cursor}>
-              <Tag as={Link} to={`/tags/${edge.cursor}`}>
-                #{edge.node.name}({edge.node.articles.totalCount})
-              </Tag>
-            </ListItem>
+            <Tag as={Link} to={`/tags/${edge.cursor}`}>
+              #{edge.node.name}({edge.node.articles.totalCount})
+            </Tag>
           ))}
-        </List>
+        </Grid>
       </main>
     </Layout>
   );
