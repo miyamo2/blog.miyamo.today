@@ -27,7 +27,7 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
           About
         </Heading>
         <Grid
-          templateColumns={"repeat(auto-fill, minmax(150px, auto))"}
+          templateColumns={"repeat(auto-fit, minmax(150px, auto))"}
           justifyContent={"center"}
           gap={"lg"}
         >
@@ -43,50 +43,28 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
             <Heading as={"h3"} className={"text-black text-3xl font-bold"} paddingBottom={"md"}>
               {data.github?.user?.login}
             </Heading>
-            <Heading as={"h4"} className={"text-black text-xl font-bold"} paddingBottom={"sm"}>
-              Bio
-            </Heading>
             <Text paddingBottom={"md"}>{data.github?.user?.bio}</Text>
-            <Heading as={"h4"} className={"text-black text-xl font-bold"} paddingBottom={"sm"}>
-              Social Accounts
-            </Heading>
-            {isLarge ? (
-              <HStack>
+            <Grid templateColumns={"repeat(auto-fit, minmax(65px, auto))"} gap={"sm"}>
+              <GridItem>
                 <Button
                   as={Link}
                   href={data.github?.user?.url}
                   isExternal={true}
                   variant="ghost"
                   className={"text-3xl"}
+                  size={"lg"}
                 >
-                  <SiGithub />
+                  <SiGithub size={"lg"} />
                 </Button>
-                {data.github?.user?.socialAccounts?.nodes?.map((socialAccount) =>
-                  SocialAccountLink(socialAccount?.url ?? "")
-                )}
-              </HStack>
-            ) : (
-              <Grid templateColumns={"repeat(auto-fill, minmax(50px, auto))"} gap={"sm"}>
-                <GridItem>
-                  <Button
-                    as={Link}
-                    href={data.github?.user?.url}
-                    isExternal={true}
-                    variant="ghost"
-                    className={"text-3xl"}
-                  >
-                    <SiGithub />
-                  </Button>
-                </GridItem>
-                {data.github?.user?.socialAccounts?.nodes?.map((socialAccount) => {
-                  const link = SocialAccountLink(socialAccount?.url ?? "");
-                  if (!link) {
-                    return <></>;
-                  }
-                  return <GridItem>{link}</GridItem>;
-                })}
-              </Grid>
-            )}
+              </GridItem>
+              {data.github?.user?.socialAccounts?.nodes?.map((socialAccount) => {
+                const link = SocialAccountLink(socialAccount?.url ?? "");
+                if (!link) {
+                  return <></>;
+                }
+                return <GridItem>{link}</GridItem>;
+              })}
+            </Grid>
           </GridItem>
         </Grid>
       </main>
@@ -97,13 +75,13 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
 const SocialAccountLink = (url: string) => {
   const icon = (() => {
     if (url.includes("zenn")) {
-      return <SiZenn />;
+      return <SiZenn size={"lg"} />;
     }
     if (url.includes("qiita")) {
-      return <SiQiita />;
+      return <SiQiita size={"lg"} />;
     }
     if (url.includes("speakerdeck")) {
-      return <SiSpeakerdeck />;
+      return <SiSpeakerdeck size={"lg"} />;
     }
     return undefined;
   })();
@@ -111,7 +89,14 @@ const SocialAccountLink = (url: string) => {
     return <></>;
   }
   return (
-    <Button as={Link} href={url} isExternal={true} variant="ghost" className={"text-3xl"}>
+    <Button
+      as={Link}
+      href={url}
+      isExternal={true}
+      variant="ghost"
+      className={"text-3xl"}
+      size={"lg"}
+    >
       {icon}
     </Button>
   );
