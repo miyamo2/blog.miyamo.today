@@ -14,9 +14,8 @@ import { Layout } from "@/components/Layout";
 import { Image } from "@/components/Image";
 import { SiGithub, SiZenn, SiQiita, SiSpeakerdeck } from "react-icons/si";
 import SEO from "@/components/SEO";
-import AboutQueryQuery = Queries.AboutQueryQuery;
 
-const About = ({ data }: PageProps<AboutQueryQuery>) => {
+const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
   const [isLarge] = useMediaQuery(["(min-width: 1280px)"]);
 
   const allFileConnection = data.allFile;
@@ -84,7 +83,7 @@ const About = ({ data }: PageProps<AboutQueryQuery>) => {
                   if (!link) {
                     return <></>;
                   }
-                  return <GridItem>link</GridItem>;
+                  return <GridItem>{link}</GridItem>;
                 })}
               </Grid>
             )}
