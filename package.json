@@ -41,6 +41,7 @@
     "gatsby-graphql-source-toolkit": "^2.0.4",
     "gatsby-image": "^3.11.0",
     "gatsby-plugin-config": "^1.0.7",
+    "gatsby-plugin-fix-fouc": "^1.0.5",
     "gatsby-plugin-image": "^3.13.1",
     "gatsby-plugin-postcss": "^6.13.1",
     "gatsby-plugin-react-helmet": "^6.13.1",
