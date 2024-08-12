@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.0.20",
-    "@fontsource/m-plus-1p": "^5.0.19",
+    "@fontsource/m-plus-1p": "^5.0.20",
     "@formkit/tempo": "^0.1.2",
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
