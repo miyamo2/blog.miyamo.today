@@ -36,7 +36,7 @@
     "@graphql-codegen/typescript-graphql-request": "^6.2.0",
     "@tailwindcss/typography": "^0.5.13",
     "@yamada-ui/fontawesome": "^1.0.31",
-    "@yamada-ui/react": "^1.4.3",
+    "@yamada-ui/react": "^1.5.4",
     "gatsby": "^5.13.6",
     "gatsby-graphql-source-toolkit": "^2.0.4",
     "gatsby-image": "^3.11.0",
