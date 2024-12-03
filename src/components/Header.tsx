@@ -11,13 +11,12 @@ import {
   MenuList,
   useBoolean,
   HStack,
-  Divider,
 } from "@yamada-ui/react";
-import { Icon as FontAwesomeIcon } from "@yamada-ui/fontawesome";
+import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faBars, faXmark, faHome, faTags, faAddressCard } from "@fortawesome/free-solid-svg-icons";
-import { useStaticLogoImage } from "@/hooks/useStaticLogoImage";
-import { useSiteMetaData } from "@/hooks/useSiteMetaData";
-import { Image } from "@/components/Image";
+import { useStaticLogoImage } from "../hooks/useStaticLogoImage";
+import { useSiteMetaData } from "../hooks/useSiteMetaData";
+import { Image } from "../components/Image";
 
 interface HeaderProp {
   isLarge: boolean;
@@ -30,7 +29,6 @@ export const Header = ({ isLarge, logoPaddingLeft }: HeaderProp) => {
   const iconPath = siteMeta?.icon ? siteMeta.icon.replace("/", "") : "";
 
   const allFileConnection = useStaticLogoImage(iconPath);
-  console.log(allFileConnection);
   const [isBargerOpen, { on, off }] = useBoolean();
 
   return (
@@ -38,7 +36,7 @@ export const Header = ({ isLarge, logoPaddingLeft }: HeaderProp) => {
       <GridItem
         w={"full"}
         h={"full"}
-        gridArea={"1/1/2/2"}
+        gridArea={"1/2/2/2"}
         paddingTop={"md"}
         paddingLeft={logoPaddingLeft}
       >
@@ -53,13 +51,13 @@ export const Header = ({ isLarge, logoPaddingLeft }: HeaderProp) => {
         paddingTop={isLarge ? "lg" : "md"}
         w={"full"}
         h={"full"}
-        gridArea={"1/9/2/10"}
+        gridArea={"1/8/2/8"}
         justifySelf={"end"}
       >
         {isLarge ? (
           <HStack className={"text-right"} w={"fit-content"}>
             <Button
-              leftIcon={<FontAwesomeIcon icon={faHome} />}
+              startIcon={<FontAwesomeIcon icon={faHome} />}
               variant="ghost"
               as={Link}
               to="/"
@@ -68,7 +66,7 @@ export const Header = ({ isLarge, logoPaddingLeft }: HeaderProp) => {
               Home
             </Button>
             <Button
-              leftIcon={<FontAwesomeIcon icon={faTags} />}
+              startIcon={<FontAwesomeIcon icon={faTags} />}
               variant="ghost"
               as={Link}
               to="/tags"
@@ -77,7 +75,7 @@ export const Header = ({ isLarge, logoPaddingLeft }: HeaderProp) => {
               Tags
             </Button>
             <Button
-              leftIcon={<FontAwesomeIcon icon={faAddressCard} />}
+              startIcon={<FontAwesomeIcon icon={faAddressCard} />}
               variant="ghost"
               as={Link}
               to="/about"

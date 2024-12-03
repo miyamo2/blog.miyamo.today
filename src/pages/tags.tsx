@@ -1,9 +1,8 @@
 import { graphql, PageProps, Link, HeadProps } from "gatsby";
-import { Heading, Tag, List, ListItem, useMediaQuery, Grid } from "@yamada-ui/react";
+import { Heading, Tag, useMediaQuery, Grid } from "@yamada-ui/react";
 import * as React from "react";
-import { Layout } from "@/components/Layout";
-import SEO from "@/components/SEO";
-import { ArticleCard } from "@/features/ArticleList/ArticleCard";
+import { Layout } from "../components/Layout";
+import SEO from "../components/SEO";
 
 const Tags = ({ data }: PageProps<Queries.TagListQueryQuery>) => {
   const [isLarge] = useMediaQuery(["(min-width: 1280px)"]);

@@ -275,31 +275,56 @@ const articleListPage = async (
   });
 };
 
+export interface ArticleDetailPageTag {
+  id?: string;
+  name?: string;
+}
+
 export interface ArticleDetailPageContext {
   cursor: string;
   imageCursor?: string;
+  excerpt?: string;
+  html?: string;
+  tableOfContents?: string
+  frontmatter?: {
+    id?: string;
+    title?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    tags: ArticleDetailPageTag[];
+  }
 }
 
 const articleDetailPage = async (
   createPage: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["actions"]["createPage"],
   graphql: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["graphql"]
 ) => {
-  const getAllArticleCursors = await graphql<Queries.GetAllArticleCursorsQuery>(`
-    query GetAllArticleCursors {
+  const getAllArticles = await graphql<Queries.GetAllArticlesQuery>(`
+    query GetAllArticles {
       allMarkdownRemark(filter: { frontmatter: { id: { ne: "Noop" } } }) {
         nodes {
+          excerpt(pruneLength: 140, truncate: true)
+          html
+          tableOfContents
           frontmatter {
             id
+            title
+            createdAt
+            updatedAt
+            tags {
+              id
+              name
+            }
           }
         }
       }
     }
   `);
 
-  if (!getAllArticleCursors.data || getAllArticleCursors.errors) {
+  if (!getAllArticles.data || getAllArticles.errors) {
     throw new Error("failed to get all article cursors");
   }
-  const data = getAllArticleCursors.data;
+  const data = getAllArticles.data;
   data.allMarkdownRemark.nodes.forEach((edge) => {
     const id = edge.frontmatter?.id;
     if (!id) {
@@ -308,6 +333,34 @@ const articleDetailPage = async (
     const context: ArticleDetailPageContext = {
       cursor: id,
       imageCursor: `ArticleImage:${id}`,
+      excerpt: edge.excerpt ?? undefined,
+      html: edge.html ?? undefined,
+      tableOfContents: edge.tableOfContents ?? undefined,
+      frontmatter: (() => {
+        const frontmatter = edge.frontmatter
+        if (frontmatter === null) {
+          return undefined
+        }
+
+        const articleDetailPageTag: ArticleDetailPageTag[] = []
+        frontmatter.tags?.forEach((t) => {
+          if (!t) {
+            return;
+          }
+          articleDetailPageTag.push({
+            id: t.id ?? undefined,
+            name: t.name ?? undefined,
+          })
+        })
+
+        return {
+          id: frontmatter.id ?? undefined,
+          title: frontmatter.title ?? undefined,
+          createdAt: frontmatter.createdAt ?? undefined,
+          updatedAt: frontmatter.updatedAt ?? undefined,
+          tags: articleDetailPageTag,
+        }
+      })(),
     };
     createPage({
       path: `/articles/${id}`,

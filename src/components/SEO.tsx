@@ -1,4 +1,4 @@
-import { useSiteMetaData } from "@/hooks/useSiteMetaData";
+import { useSiteMetaData } from "../hooks/useSiteMetaData";
 import React, { FC } from "react";
 import { Helmet } from "react-helmet";
 

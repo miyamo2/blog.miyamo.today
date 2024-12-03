@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { Link } from "gatsby";
-import { Heading, Text, Tag, Divider, Grid, GridItem } from "@yamada-ui/react";
+import { Heading, Text, Tag, Separator, Grid, GridItem } from "@yamada-ui/react";
 import { ImageDataLike } from "gatsby-plugin-image/dist/src/components/hooks";
 import { GatsbyImage, getImage } from "gatsby-plugin-image";
 import { format } from "@formkit/tempo";
@@ -73,7 +73,7 @@ export const ArticleCard: FC<VerticalArticleCardProps> = (props: VerticalArticle
         <Text color="muted">{props.articleExcerpt}</Text>
       </GridItem>
       <GridItem>
-        <Divider />
+        <Separator />
       </GridItem>
       <GridItem>
         <Text>

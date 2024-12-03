@@ -1,8 +1,7 @@
 import { graphql, HeadProps, Link, PageProps } from "gatsby";
 import * as React from "react";
-import { ReactNode } from "react";
-import { Layout, SideNavRenderProps } from "@/components/Layout";
-import { Image } from "@/components/Image";
+import { Layout } from "../components/Layout";
+import { Image } from "../components/Image";
 import { ArticleDetailPageContext } from "../../gatsby-node";
 import {
   Heading,
@@ -13,11 +12,13 @@ import {
   AccordionItem,
   AccordionLabel,
   AccordionPanel,
+  Grid,
+  GridItem,
 } from "@yamada-ui/react";
-import { Icon as FontAwesomeIcon } from "@yamada-ui/fontawesome";
+import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faCalendarDay, faListUl } from "@fortawesome/free-solid-svg-icons";
 import { format } from "@formkit/tempo";
-import SEO from "@/components/SEO";
+import SEO from "../components/SEO";
 import { getSrc } from "gatsby-plugin-image";
 
 const ArticleDetail = ({
@@ -28,12 +29,7 @@ const ArticleDetail = ({
 
   const allFileConnection = data.allFile;
 
-  const markdownRemark = data.markdownRemark;
-  if (!markdownRemark) {
-    return <></>;
-  }
-
-  const frontmatter = markdownRemark.frontmatter;
+  const frontmatter = pageContext.frontmatter;
   if (!frontmatter) {
     return <></>;
   }
@@ -44,66 +40,91 @@ const ArticleDetail = ({
     <Layout
       scroll={true}
       isLarge={isLarge}
-      sideNavRightRender={isLarge ? ArticleTOC(markdownRemark.tableOfContents ?? "") : undefined}
     >
       <main>
-        <Image
-          allFileConnectrion={allFileConnection}
-          alt={`ArticleImage:${pageContext.cursor}`}
-          objectFit={"cover"}
-        />
-        <Heading className={"text-black text-3xl font-bold"} paddingBottom={"md"}>
-          {frontmatter.title}
-        </Heading>
-        {frontmatter.tags?.map((tag) => (
-          <Tag
-            as={Link}
-            size={"md"}
-            id={`${tag?.id}-${tag?.id}`}
-            to={`/tags/${tag?.id}`}
-            colorScheme={"gray"}
-          >
-            #{tag?.name}
-          </Tag>
-        ))}
-        <Box paddingTop={"md"} paddingBottom={"md"}>
-          <FontAwesomeIcon icon={faCalendarDay} />
-          {createdAt}
-        </Box>
-        <article className={"markdown"}>
-          {!isLarge ? (
-            ArticleTOC(markdownRemark.tableOfContents ?? "")({ isLarge: isLarge })
-          ) : (
-            <></>
-          )}
-          <div
-            dangerouslySetInnerHTML={{
-              __html: markdownRemark.html ?? "",
-            }}
-          ></div>
-        </article>
+        <Grid
+          templateAreas={ isLarge ?
+            `
+          "image image image toc toc"
+          "title title title toc toc"
+          "tag tag tag toc toc"
+          "date date date toc toc"
+          "content content content toc toc"
+        ` : `
+          "image image image"
+          "title title title"
+          "tag tag tag"
+          "date date date"
+          "content content content"
+        `}>
+          <GridItem gridArea={"image"}>
+            <Image
+              allFileConnectrion={allFileConnection}
+              alt={`ArticleImage:${pageContext.cursor}`}
+              objectFit={"cover"}
+            />
+          </GridItem>
+          {
+            isLarge ? <GridItem gridArea={"toc"}>{ArticleTOC(pageContext.tableOfContents ?? "", isLarge)}</GridItem> : <></>
+          }
+          <GridItem gridArea={"title"}>
+            <Heading className={"text-black text-3xl font-bold"} paddingBottom={"md"}>
+              {frontmatter.title}
+            </Heading>
+          </GridItem>
+          <GridItem gridArea={"tag"}>
+            {frontmatter.tags?.map((tag) => (
+              <Tag
+                as={Link}
+                size={"md"}
+                id={`${tag?.id}-${tag?.id}`}
+                to={`/tags/${tag?.id}`}
+                colorScheme={"gray"}
+              >
+                #{tag?.name}
+              </Tag>
+            ))}
+          </GridItem>
+          <GridItem gridArea={"date"}>
+            <Box paddingTop={"md"} paddingBottom={"md"}>
+              <FontAwesomeIcon icon={faCalendarDay} />
+              {createdAt}
+            </Box>
+          </GridItem>
+          <GridItem gridArea={"content"}>
+            <article className={"markdown"}>
+              {
+                !isLarge ? ArticleTOC(pageContext.tableOfContents ?? "", isLarge) : <></>
+              }
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: pageContext.html ?? "",
+                }}
+              ></div>
+            </article>
+          </GridItem>
+        </Grid>
       </main>
     </Layout>
   );
 };
 
-const ArticleTOC = (toc: string): ((prop: SideNavRenderProps) => React.ReactNode) => {
-  return ({ isLarge }: SideNavRenderProps): ReactNode => {
-    return (
+const ArticleTOC = (toc: string, isLarge: boolean) =>  {
+  return (
       <>
         {isLarge ? (
-          <Box paddingRight={"lg"} w={"full"} top={0}>
+          <Box w={"full"} top={0}>
             <Heading paddingBottom={"md"}>
               <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
               TOC
             </Heading>
-            <Box borderBlock={"solid"} writingMode={"horizontal-tb"}>
+            <Box borderBlock={"solid"} writingMode={"horizontal-tb"} w={"full"}>
               <div className={"side-toc"} dangerouslySetInnerHTML={{ __html: toc }}></div>
             </Box>
           </Box>
         ) : (
           <div>
-            <Accordion isToggle>
+            <Accordion toggle>
               <AccordionItem>
                 <AccordionLabel className={"text-black text-2xl font-bold"}>
                   <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
@@ -117,27 +138,11 @@ const ArticleTOC = (toc: string): ((prop: SideNavRenderProps) => React.ReactNode
           </div>
         )}
       </>
-    );
-  };
+    )
 };
 
 export const query = graphql`
-  query ArticleDetailQuery($cursor: String!, $imageCursor: String) {
-    markdownRemark(frontmatter: { id: { eq: $cursor } }) {
-      excerpt(pruneLength: 140, truncate: true)
-      html
-      tableOfContents
-      frontmatter {
-        id
-        title
-        createdAt
-        updatedAt
-        tags {
-          id
-          name
-        }
-      }
-    }
+  query ArticleDetailQuery($imageCursor: String) {
     allFile(filter: { id: { eq: $imageCursor } }) {
       nodes {
         id
@@ -151,9 +156,9 @@ export const query = graphql`
 
 export default ArticleDetail;
 
-export const Head = ({ data, location }: HeadProps<Queries.ArticleDetailQueryQuery>) => {
-  const title = data.markdownRemark?.frontmatter?.title ?? undefined;
-  const description = data.markdownRemark?.excerpt ?? undefined;
+export const Head = ({ data, pageContext, location }: HeadProps<Queries.ArticleDetailQueryQuery, ArticleDetailPageContext>) => {
+  const title = pageContext.frontmatter?.title ?? undefined;
+  const description = pageContext.excerpt ?? undefined;
 
   const childImageSharp = data.allFile?.nodes.at(0)?.childImageSharp;
   const imageSrc = childImageSharp ? getSrc(childImageSharp) : undefined;

@@ -3,17 +3,16 @@ import {
   useMediaQuery,
   Heading,
   Text,
-  HStack,
   Link,
   Button,
   Grid,
   GridItem,
 } from "@yamada-ui/react";
 import * as React from "react";
-import { Layout } from "@/components/Layout";
-import { Image } from "@/components/Image";
+import { Layout } from "../components/Layout";
+import { Image } from "../components/Image";
 import { SiGithub, SiZenn, SiQiita, SiSpeakerdeck } from "react-icons/si";
-import SEO from "@/components/SEO";
+import SEO from "../components/SEO";
 
 const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
   const [isLarge] = useMediaQuery(["(min-width: 1280px)"]);

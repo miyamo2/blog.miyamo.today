@@ -1,12 +1,12 @@
 import { graphql, HeadProps, PageProps } from "gatsby";
 import { Grid, Box, Heading, useMediaQuery } from "@yamada-ui/react";
-import { ArticleCard } from "@/features/ArticleList/ArticleCard";
+import { ArticleCard } from "../features/ArticleList/ArticleCard";
 import * as React from "react";
-import { Pager } from "@/components/Pager";
-import { Layout } from "@/components/Layout";
+import { Pager } from "../components/Pager";
+import { Layout } from "../components/Layout";
 import { TaggedArticlesPageContext } from "../../gatsby-node";
 import { ImageDataLike } from "gatsby-plugin-image/dist/src/components/hooks";
-import SEO from "@/components/SEO";
+import SEO from "../components/SEO";
 
 interface Tag {
   id: string;
