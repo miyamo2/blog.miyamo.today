@@ -93,7 +93,16 @@ const config: GatsbyConfig = {
       },
     },
     `gatsby-plugin-tsconfig-paths`,
-    `gatsby-plugin-fix-fouc`
+    `gatsby-plugin-fix-fouc`,
+    {
+      resolve: `gatsby-plugin-google-gtag`,
+      options: {
+        trackingIds: ["G-F1N7VJ0ZX9"],
+        pluginConfig: {
+          head: true
+        }
+      }
+    }
   ],
 };
 
