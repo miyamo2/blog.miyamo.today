@@ -1,6 +1,5 @@
 import { useSiteMetaData } from "../hooks/useSiteMetaData";
 import React, { FC } from "react";
-import { Helmet } from "react-helmet";
 
 interface SeoProps {
   title?: string;
@@ -23,20 +22,22 @@ const SEO: FC<SeoProps> = ({ path, title, description, image, lang }: SeoProps) 
     image: defaultImage,
     icon,
     twitterUsername,
+    facebookAppId,
   } = siteMetaData;
 
   const seo = {
     title: defaultTitle ? (title ? `${title} | ${defaultTitle}` : defaultTitle) : "",
     description: description ?? defaultDescription ?? "",
     url: defaultSiteUrl ? (path ? `${defaultSiteUrl}${path}` : defaultSiteUrl) : "",
-    lang: lang ?? defaultLang ?? "ja",
-    image: image ?? `${defaultSiteUrl}${defaultImage}` ?? "",
+    lang: lang ?? defaultLang ?? "ja_JP",
+    image: image ? `${defaultSiteUrl}${image}` : `${defaultSiteUrl}${defaultImage}`,
     icon: icon ?? "",
     twitterUsername: twitterUsername ?? "",
+    facebookAppId: facebookAppId ?? "",
   };
 
   return (
-    <Helmet>
+    <>
       <title>{seo.title}</title>
       <meta name="description" content={seo.description} />
       <meta property="og:title" content={seo.title} />
@@ -45,6 +46,8 @@ const SEO: FC<SeoProps> = ({ path, title, description, image, lang }: SeoProps) 
       <meta property="og:url" content={seo.url} />
       <meta property="og:type" content="website" />
       <meta property="og:image" content={seo.image} />
+      <meta property="og:locale" content={seo.lang} />
+      <meta property="fb:app_id" content={seo.facebookAppId} />
       <meta name="twitter:creator" content={seo.twitterUsername} />
       <meta name="twitter:title" content={seo.title} />
       <meta name="twitter:description" content={seo.description} />
@@ -52,8 +55,8 @@ const SEO: FC<SeoProps> = ({ path, title, description, image, lang }: SeoProps) 
       <meta name="twitter:url" content={seo.url} />
       <meta name="twitter:card" content="summary_large_image" />
       <link rel={"icon"} href={`${defaultSiteUrl}${icon}`} />
-    </Helmet>
-  );
-};
+      </>
+      );
+      };
 
 export default SEO;

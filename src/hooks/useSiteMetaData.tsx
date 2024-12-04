@@ -12,6 +12,7 @@ export const useSiteMetaData = () => {
           image
           icon
           twitterUsername
+          facebookAppId
         }
       }
     }
