@@ -102,7 +102,21 @@ const config: GatsbyConfig = {
           head: true
         }
       }
-    }
+    },
+    {
+      resolve: `gatsby-plugin-manifest`,
+      options: {
+        name: `blog.miyamo.today`,
+        short_name: `blog.miyamo.today`,
+        description: `How was miyamo.today?`,
+        start_url: `/?homescreen`,
+        background_color: `#ffffff`,
+        theme_color: `#3f3a3a`,
+        display: `standalone`,
+        icon: `static/pwa_logo.png`,
+      },
+    },
+    `gatsby-plugin-offline`
   ],
 };
 

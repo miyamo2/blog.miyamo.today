@@ -31,12 +31,12 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
           gap={"lg"}
         >
           <GridItem>
-            <Image
-              allFileConnectrion={allFileConnection}
-              alt={"GitHubAvatar:miyamo2"}
-              objectFit={"cover"}
-              className={"rounded-full"}
-            />
+              <Image
+                allFileConnectrion={allFileConnection}
+                alt={"GitHubAvatar:miyamo2"}
+                objectFit={"cover"}
+                className={"round-image isolate"}
+              />
           </GridItem>
           <GridItem>
             <Heading as={"h3"} className={"text-black text-3xl font-bold"} paddingBottom={"md"}>
@@ -53,7 +53,7 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
                   className={"text-3xl"}
                   size={"lg"}
                 >
-                  <SiGithub size={"lg"} />
+                  <SiGithub size={"100%"} />
                 </Button>
               </GridItem>
               {data.github?.user?.socialAccounts?.nodes?.map((socialAccount) => {
@@ -74,13 +74,13 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
 const SocialAccountLink = (url: string) => {
   const icon = (() => {
     if (url.includes("zenn")) {
-      return <SiZenn size={"lg"} />;
+      return <SiZenn size={"100%"} />;
     }
     if (url.includes("qiita")) {
-      return <SiQiita size={"lg"} />;
+      return <SiQiita size={"100%"} />;
     }
     if (url.includes("speakerdeck")) {
-      return <SiSpeakerdeck size={"lg"} />;
+      return <SiSpeakerdeck size={"100%"} />;
     }
     return undefined;
   })();
