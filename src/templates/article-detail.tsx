@@ -1,12 +1,9 @@
 import { graphql, HeadProps, Link, PageProps } from "gatsby";
 import * as React from "react";
-import { Layout } from "../components/Layout";
-import { Image } from "../components/Image";
 import { ArticleDetailPageContext } from "../../gatsby-node";
 import {
   Heading,
   Tag,
-  useMediaQuery,
   Box,
   Accordion,
   AccordionItem,
@@ -14,19 +11,21 @@ import {
   AccordionPanel,
   Grid,
   GridItem,
+  HStack,
 } from "@yamada-ui/react";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faCalendarDay, faListUl } from "@fortawesome/free-solid-svg-icons";
 import { format } from "@formkit/tempo";
-import SEO from "../components/SEO";
 import { getSrc } from "gatsby-plugin-image";
+import Layout from "../components/Layout";
+import Image from "../components/Image";
+import SEO from "../components/SEO";
+import "./article-detail.css"
 
 const ArticleDetail = ({
   data,
   pageContext,
 }: PageProps<Queries.ArticleDetailQueryQuery, ArticleDetailPageContext>) => {
-  const [isLarge] = useMediaQuery(["(min-width: 1280px)"]);
-
   const allFileConnection = data.allFile;
 
   const frontmatter = pageContext.frontmatter;
@@ -39,40 +38,59 @@ const ArticleDetail = ({
   return (
     <Layout
       scroll={true}
-      isLarge={isLarge}
     >
       <main>
-        <Grid
-          templateAreas={ isLarge ?
-            `
+        <div className={"hidden lg:block"}>
+          <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
+            {frontmatter.title}
+          </Heading>
+          <HStack gridArea={"tag"}>
+            {frontmatter.tags?.map((tag) => (
+              <Tag
+                as={Link}
+                size={"md"}
+                id={`${tag?.id}-${tag?.id}`}
+                to={`/tags/${tag?.id}`}
+                bg={["#ddf4ff", "#121d2f"]}
+              >
+                #{tag?.name}
+              </Tag>
+            ))}
+          </HStack>
+            <Box paddingTop={"md"} paddingBottom={"md"}>
+              <FontAwesomeIcon icon={faCalendarDay} />
+              {createdAt}
+            </Box>
+          <Grid
+            templateAreas={`
           "image image image toc toc"
-          "title title title toc toc"
-          "tag tag tag toc toc"
-          "date date date toc toc"
           "content content content toc toc"
-        ` : `
-          "image image image"
-          "title title title"
-          "tag tag tag"
-          "date date date"
-          "content content content"
         `}>
-          <GridItem gridArea={"image"}>
-            <Image
-              allFileConnectrion={allFileConnection}
-              alt={`ArticleImage:${pageContext.cursor}`}
-              objectFit={"cover"}
-            />
-          </GridItem>
-          {
-            isLarge ? <GridItem gridArea={"toc"}>{ArticleTOC(pageContext.tableOfContents ?? "", isLarge)}</GridItem> : <></>
-          }
-          <GridItem gridArea={"title"}>
-            <Heading className={"text-black text-3xl font-bold"} paddingBottom={"md"}>
-              {frontmatter.title}
-            </Heading>
-          </GridItem>
-          <GridItem gridArea={"tag"}>
+            <GridItem gridArea={"image"}>
+              <Image
+                allFileConnectrion={allFileConnection}
+                alt={`ArticleImage:${pageContext.cursor}`}
+                objectFit={"cover"}
+              />
+            </GridItem>
+            <GridItem gridArea={"toc"}>{ArticleTOC(pageContext.tableOfContents ?? "", true)}</GridItem>
+            <GridItem gridArea={"content"}>
+              <article>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: pageContext.html ?? "",
+                  }}
+                  className={"markdown-body"}
+                ></div>
+              </article>
+            </GridItem>
+          </Grid>
+        </div>
+        <div className={"block lg:hidden"}>
+          <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
+            {frontmatter.title}
+          </Heading>
+          <HStack>
             {frontmatter.tags?.map((tag) => (
               <Tag
                 as={Link}
@@ -84,26 +102,36 @@ const ArticleDetail = ({
                 #{tag?.name}
               </Tag>
             ))}
-          </GridItem>
-          <GridItem gridArea={"date"}>
-            <Box paddingTop={"md"} paddingBottom={"md"}>
-              <FontAwesomeIcon icon={faCalendarDay} />
-              {createdAt}
-            </Box>
-          </GridItem>
-          <GridItem gridArea={"content"}>
-            <article className={"markdown"}>
-              {
-                !isLarge ? ArticleTOC(pageContext.tableOfContents ?? "", isLarge) : <></>
-              }
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: pageContext.html ?? "",
-                }}
-              ></div>
-            </article>
-          </GridItem>
-        </Grid>
+          </HStack>
+          <Box paddingTop={"md"} paddingBottom={"md"}>
+            <FontAwesomeIcon icon={faCalendarDay} />
+            {createdAt}
+          </Box>
+          <Grid
+            templateAreas={`
+          "image image image"
+          "content content content"
+        `}>
+            <GridItem gridArea={"image"}>
+              <Image
+                allFileConnectrion={allFileConnection}
+                alt={`ArticleImage:${pageContext.cursor}`}
+                objectFit={"cover"}
+              />
+            </GridItem>
+            <GridItem gridArea={"content"}>
+              <article>
+                { ArticleTOC(pageContext.tableOfContents ?? "", false) }
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: pageContext.html ?? "",
+                  }}
+                  className={"markdown-body"}
+                ></div>
+              </article>
+            </GridItem>
+          </Grid>
+        </div>
       </main>
     </Layout>
   );
@@ -114,7 +142,7 @@ const ArticleTOC = (toc: string, isLarge: boolean) =>  {
       <>
         {isLarge ? (
           <Box w={"full"} top={0}>
-            <Heading paddingBottom={"md"}>
+            <Heading as={"h2"} paddingBottom={"md"}>
               <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
               TOC
             </Heading>
@@ -126,7 +154,7 @@ const ArticleTOC = (toc: string, isLarge: boolean) =>  {
           <div>
             <Accordion toggle>
               <AccordionItem>
-                <AccordionLabel className={"text-black text-2xl font-bold"}>
+                <AccordionLabel className={"text-2xl font-bold"} >
                   <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
                   TOC
                 </AccordionLabel>

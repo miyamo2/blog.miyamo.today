@@ -93,7 +93,6 @@ const config: GatsbyConfig = {
       },
     },
     `gatsby-plugin-tsconfig-paths`,
-    `gatsby-plugin-fix-fouc`,
     {
       resolve: `gatsby-plugin-google-gtag`,
       options: {
@@ -116,7 +115,15 @@ const config: GatsbyConfig = {
         icon: `static/pwa_logo.png`,
       },
     },
-    `gatsby-plugin-offline`
+    `gatsby-plugin-offline`,
+    `gatsby-plugin-lodash`,
+    `gatsby-plugin-fix-fouc`,
+    {
+      resolve: 'gatsby-plugin-html-attributes',
+      options: {
+        lang: 'ja'
+      }
+    },
   ],
 };
 

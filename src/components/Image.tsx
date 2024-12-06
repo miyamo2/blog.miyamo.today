@@ -1,6 +1,5 @@
 import { GatsbyImage, getImage, IGatsbyImageData } from "gatsby-plugin-image";
 import * as React from "react";
-import { FC } from "react";
 
 export interface AllFileConnection {
   readonly nodes: ReadonlyArray<{
@@ -16,7 +15,7 @@ interface ImageProps {
   className?: string;
 }
 
-export const Image: FC<ImageProps> = ({
+const Image = ({
   allFileConnectrion,
   alt,
   objectFit,
@@ -33,3 +32,5 @@ export const Image: FC<ImageProps> = ({
     <></>
   );
 };
+
+export default Image;

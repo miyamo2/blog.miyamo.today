@@ -1,43 +1,83 @@
 import React from "react";
 import { ReactNode } from "react";
-import { Header } from "../components/Header";
-import { Footer } from "../components/Footer";
-import { Grid, GridItem } from "@yamada-ui/react";
+import Header from "./Header";
+import Footer from "./Footer";
+import { Box, Grid, GridItem } from "@yamada-ui/react";
 
 interface LayoutProps {
   children: ReactNode;
   scroll?: boolean;
-  isLarge: boolean;
 }
 
-export const Layout = ({
+const Layout = ({
   children,
   scroll,
-  isLarge,
 }: LayoutProps) => {
   return (
-    <div>
-      <Grid w={"full"} h={"100vh"}>
-        <Header
-          isLarge={isLarge}
-          logoPaddingLeft={isLarge ? "2xl" : "md"}
-          bargerPaddingRight={isLarge ? "2xl" : "md"}
-        />
-        <GridItem
-          w={"90vw"}
-          h={"full"}
-          gridArea={`2/2/9/9`}
-          overflowY={scroll ? "auto" : "hidden"}
-          paddingLeft={isLarge ? "2xl" : "md"}
-          paddingRight={isLarge ? "2xl" : "md"}
-          className={"mainContent"}
+    <>
+      <Box className={"hidden lg:block"} bg={["#ffffff", "#0d1117"]}>
+        <Grid w={"full"} h={"100vh"} templateAreas={`
+          "h h h h h h h h h"
+          "m m m m m m m m m"
+          "m m m m m m m m m"
+          "m m m m m m m m m"
+          "m m m m m m m m m"
+          "m m m m m m m m m"
+          "m m m m m m m m m"
+          "f f f f f f f f f"`}
         >
-          {children}
-        </GridItem>
-        <GridItem w={"full"} h={"full"} gridArea={"10/1/10/10"}>
-          <Footer />
-        </GridItem>
-      </Grid>
-    </div>
+          <GridItem gridArea={"h"}>
+            <Header
+              logoPaddingLeft={"2xl"}
+              menuPaddingRight={"2xl"}
+            />
+          </GridItem>
+          <GridItem
+            w={"90vw"}
+            h={"full"}
+            gridArea={"m"}
+            overflowY={scroll ? "auto" : "hidden"}
+            paddingLeft={"2xl"}
+            paddingRight={"2xl"}
+          >
+            {children}
+          </GridItem>
+          <GridItem w={"full"} h={"full"} gridArea={"f"}>
+            <Footer />
+          </GridItem>
+        </Grid>
+      </Box>
+      <Box className={"block lg:hidden"}>
+        <Grid w={"full"} h={"100vh"} templateAreas={`
+          "h h h h h h h h h"
+          "m m m m m m m m m"
+          "m m m m m m m m m"
+          "m m m m m m m m m"
+          "m m m m m m m m m"
+          "m m m m m m m m m"
+          "m m m m m m m m m"
+          "f f f f f f f f f"`}
+        >
+          <GridItem gridArea={"h"}>
+            <Header logoPaddingLeft={"md"} menuPaddingRight={"md"} />
+          </GridItem>
+          <GridItem
+            w={"90vw"}
+            h={"full"}
+            gridArea={"m"}
+            overflowY={scroll ? "auto" : "hidden"}
+            paddingLeft={"md"}
+            paddingRight={"md"}
+          >
+            {children}
+          </GridItem>
+          <GridItem w={"full"} h={"full"} gridArea={"f"}>
+            <Footer />
+          </GridItem>
+        </Grid>
+      </Box>
+    </>
   );
 };
+
+export default Layout;

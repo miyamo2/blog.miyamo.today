@@ -1,12 +1,12 @@
 import { graphql, HeadProps, PageProps } from "gatsby";
-import { Grid, Box, Heading, useMediaQuery } from "@yamada-ui/react";
-import { ArticleCard } from "../features/ArticleList/ArticleCard";
+import { Grid, Box, Heading } from "@yamada-ui/react";
 import * as React from "react";
-import { Pager } from "../components/Pager"
-import { Layout } from "../components/Layout";
 import { ArticleListPageContext } from "../../gatsby-node";
 import { ImageDataLike } from "gatsby-plugin-image/dist/src/components/hooks";
+import Pager from "../components/Pager"
+import Layout from "../components/Layout";
 import SEO from "../components/SEO";
+import ArticleCard from "../features/ArticleList/ArticleCard";
 
 interface Tag {
   id: string;
@@ -27,8 +27,6 @@ const ArticleList = ({
   data,
   pageContext,
 }: PageProps<Queries.ArticleListQueryQuery, ArticleListPageContext>) => {
-  const [isLarge] = useMediaQuery(["(min-width: 1280px)"]);
-
   const articleCardDataList = (() => {
     return data.miyamotoday.articles.edges.map((articleEdge): ArticleCardData => {
       const imageDataEdge = data.allFile.edges.find(
@@ -56,9 +54,9 @@ const ArticleList = ({
   })();
 
   return (
-    <Layout scroll={true} isLarge={isLarge}>
+    <Layout scroll={true}>
       <main>
-        <Heading className={"text-black text-3xl font-bold"} paddingBottom={"md"}>
+        <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
           Articles
         </Heading>
         <Grid templateColumns={"repeat(auto-fill, minmax(280px, 1fr))"}>

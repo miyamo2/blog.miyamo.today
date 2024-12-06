@@ -1,4 +1,3 @@
-import { FC } from "react";
 import { Flex, Pagination } from "@yamada-ui/react";
 import React from "react";
 import { navigate } from "gatsby";
@@ -10,7 +9,7 @@ interface PagerProps {
   pagePrefix: string;
 }
 
-export const Pager: FC<PagerProps> = (props: PagerProps) => {
+const Pager = (props: PagerProps) => {
   const currentPage = props.currentPage;
   const totalPages = Math.ceil(props.totalItems / props.perPage);
   return (
@@ -30,3 +29,5 @@ export const Pager: FC<PagerProps> = (props: PagerProps) => {
     </>
   );
 };
+
+export default Pager;

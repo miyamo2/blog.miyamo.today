@@ -1,0 +1,3 @@
+:root[data-mode="dark"] ~ .logoimage{
+    filter: drop-shadow(18px 10px 4px #4444dd);
+}

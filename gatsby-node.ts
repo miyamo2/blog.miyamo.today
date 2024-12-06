@@ -29,7 +29,6 @@ const range = (start: number, end: number) => [...Array(end - start + 1)].map((_
 
 export const sourceNodes: GatsbyNode["sourceNodes"] = async ({
   actions,
-  createNodeId,
   cache,
   store,
   createContentDigest,
@@ -42,7 +41,7 @@ export const sourceNodes: GatsbyNode["sourceNodes"] = async ({
     store,
     createContentDigest
   );
-  await createGitHubAvatarNode(createNode, createNodeField, cache, store);
+  await createGitHubAvatarNode(createNode, createNodeField, cache);
 };
 
 const createArticleContentAndImageNode = async (
@@ -82,8 +81,6 @@ const createArticleContentAndImageNode = async (
       const thumbnailNode = await createRemoteFileNode({
         url: articleNode.thumbnailUrl,
         cache,
-        // @ts-ignore
-        store,
         createNode: createNode,
         createNodeId: (): string => {
           return `ArticleImage:${articleNode.id}`;
@@ -118,8 +115,6 @@ ${rawContent}`;
 
       const contentNode = await createFileNodeFromBuffer({
         buffer: Buffer.from(content),
-        // @ts-ignore
-        store,
         cache,
         createNode,
         createNodeId: (): string => {
@@ -154,8 +149,7 @@ const createGitHubAvatarNode = async (
   createNodeField: Parameters<
     NonNullable<GatsbyNode["sourceNodes"]>
   >["0"]["actions"]["createNodeField"],
-  cache: GatsbyCache,
-  store: Store
+  cache: GatsbyCache
 ) => {
   const endpoint = process.env.GitHubAPIURL;
   if (!endpoint || typeof endpoint !== "string") {
@@ -179,12 +173,9 @@ const createGitHubAvatarNode = async (
   }
 
   const avatarUrl = data.user.avatarUrl;
-
   const avatarNode = await createRemoteFileNode({
     url: avatarUrl,
     cache,
-    // @ts-ignore
-    store,
     createNode: createNode,
     createNodeId: (): string => {
       return `GitHubAvatar:miyamo2`;
@@ -199,9 +190,9 @@ const createGitHubAvatarNode = async (
 
 export const createPages: GatsbyNode["createPages"] = async ({ actions, graphql }) => {
   const { createPage } = actions;
-  await articleListPage(createPage, graphql);
-  await articleDetailPage(createPage, graphql);
-  await taggedArticlesPage(createPage, graphql);
+    await articleListPage(createPage, graphql);
+    await articleDetailPage(createPage, graphql);
+    await taggedArticlesPage(createPage, graphql);
 };
 
 export interface ArticleListPageContext {

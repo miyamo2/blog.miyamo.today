@@ -1,4 +1,3 @@
-import React, { FC } from "react";
 import { Link } from "gatsby";
 import { Heading, Text, Tag, Separator, Grid, GridItem } from "@yamada-ui/react";
 import { ImageDataLike } from "gatsby-plugin-image/dist/src/components/hooks";
@@ -6,13 +5,14 @@ import { GatsbyImage, getImage } from "gatsby-plugin-image";
 import { format } from "@formkit/tempo";
 import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import * as React from "react";
 
 interface Tag {
   id: string;
   name: string;
 }
 
-interface VerticalArticleCardProps {
+interface ArticleCardProps {
   id: string;
   title: string;
   createdAt: string;
@@ -22,7 +22,7 @@ interface VerticalArticleCardProps {
   articleExcerpt?: string;
 }
 
-export const ArticleCard: FC<VerticalArticleCardProps> = (props: VerticalArticleCardProps) => {
+const ArticleCard = (props: ArticleCardProps) => {
   const gatsbyImage = (() => {
     const image = props.imageData ? getImage(props.imageData) : undefined;
     return image ? (
@@ -49,6 +49,8 @@ export const ArticleCard: FC<VerticalArticleCardProps> = (props: VerticalArticle
       padding={"sm"}
       as={Link}
       to={`/articles/${props.id}`}
+      aria-label={`link: ${props.title}`}
+      bg={["#f6f8fa", "#151b23"]}
     >
       <GridItem>{gatsbyImage}</GridItem>
       <GridItem>
@@ -58,14 +60,14 @@ export const ArticleCard: FC<VerticalArticleCardProps> = (props: VerticalArticle
             size={"md"}
             id={`${props.id}-${tag.id}`}
             to={`/tags/${tag.id}`}
-            colorScheme="gray"
+            bg={["#ddf4ff", "#121d2f"]}
           >
             #{tag.name}
           </Tag>
         ))}
       </GridItem>
       <GridItem>
-        <Heading as="h4" size={"md"}>
+        <Heading as="h2" size={"md"}>
           {props.title}
         </Heading>
       </GridItem>
@@ -81,7 +83,8 @@ export const ArticleCard: FC<VerticalArticleCardProps> = (props: VerticalArticle
           {createdAt}
         </Text>
       </GridItem>
-      <Link to={`/articles/${props.id}`}></Link>
     </Grid>
   );
 };
+
+export default ArticleCard;

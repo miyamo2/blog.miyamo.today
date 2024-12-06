@@ -1,10 +1,11 @@
 import React from "react";
-import type { FC } from "react";
 
-export const Footer: FC = () => (
+const Footer =() => (
   <footer>
     <div className={"text-center"}>
       <p className={"text-center"}>Copyright © miyamo2 All rights reserved.</p>
     </div>
   </footer>
 );
+
+export default Footer;

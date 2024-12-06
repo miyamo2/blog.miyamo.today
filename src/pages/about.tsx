@@ -1,6 +1,5 @@
 import { graphql, PageProps, HeadProps } from "gatsby";
 import {
-  useMediaQuery,
   Heading,
   Text,
   Link,
@@ -9,20 +8,19 @@ import {
   GridItem,
 } from "@yamada-ui/react";
 import * as React from "react";
-import { Layout } from "../components/Layout";
-import { Image } from "../components/Image";
 import { SiGithub, SiZenn, SiQiita, SiSpeakerdeck } from "react-icons/si";
+import Layout from "../components/Layout";
+import Image from "../components/Image";
 import SEO from "../components/SEO";
+import "./about.css";
 
 const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
-  const [isLarge] = useMediaQuery(["(min-width: 1280px)"]);
-
   const allFileConnection = data.allFile;
 
   return (
-    <Layout scroll={true} isLarge={isLarge}>
+    <Layout scroll={true}>
       <main>
-        <Heading className={"text-black text-3xl font-bold"} paddingBottom={"md"}>
+        <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
           About
         </Heading>
         <Grid
@@ -35,11 +33,11 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
                 allFileConnectrion={allFileConnection}
                 alt={"GitHubAvatar:miyamo2"}
                 objectFit={"cover"}
-                className={"round-image isolate"}
+                className={"round-image"}
               />
           </GridItem>
           <GridItem>
-            <Heading as={"h3"} className={"text-black text-3xl font-bold"} paddingBottom={"md"}>
+            <Heading as={"h2"} className={"text-3xl font-bold"} paddingBottom={"md"}>
               {data.github?.user?.login}
             </Heading>
             <Text paddingBottom={"md"}>{data.github?.user?.bio}</Text>
@@ -52,6 +50,7 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
                   variant="ghost"
                   className={"text-3xl"}
                   size={"lg"}
+                  aria-label={"GitHub"}
                 >
                   <SiGithub size={"100%"} />
                 </Button>
@@ -95,6 +94,7 @@ const SocialAccountLink = (url: string) => {
       variant="ghost"
       className={"text-3xl"}
       size={"lg"}
+      aria-label={`social account link: ${url}`}
     >
       {icon}
     </Button>

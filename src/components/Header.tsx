@@ -1,7 +1,5 @@
-import React, { useMemo } from "react";
 import { Link } from "gatsby";
 import {
-  Grid,
   GridItem,
   Button,
   Menu,
@@ -11,92 +9,100 @@ import {
   MenuList,
   useBoolean,
   HStack,
+  Grid,
 } from "@yamada-ui/react";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
-import { faBars, faXmark, faHome, faTags, faAddressCard } from "@fortawesome/free-solid-svg-icons";
-import { useStaticLogoImage } from "../hooks/useStaticLogoImage";
-import { useSiteMetaData } from "../hooks/useSiteMetaData";
-import { Image } from "../components/Image";
+import { faBars, faHome, faTags, faAddressCard } from "@fortawesome/free-solid-svg-icons";
+import { StaticImage } from "gatsby-plugin-image";
+import React from "react";
+import DarkmodeToggle from "./DarkmodeToggle";
+import "./Header.css";
 
 interface HeaderProp {
-  isLarge: boolean;
   logoPaddingLeft?: "md" | "2xl";
-  bargerPaddingRight?: "md" | "2xl";
+  menuPaddingRight?: "md" | "2xl";
 }
 
-export const Header = ({ isLarge, logoPaddingLeft }: HeaderProp) => {
-  const siteMeta = useMemo(() => useSiteMetaData(), []);
-  const iconPath = siteMeta?.icon ? siteMeta.icon.replace("/", "") : "";
-
-  const allFileConnection = useStaticLogoImage(iconPath);
+const Header = ({ logoPaddingLeft, menuPaddingRight }: HeaderProp) => {
   const [isBargerOpen, { on, off }] = useBoolean();
 
   return (
-    <>
+    <Grid bg={["#f6f8fa", "#010409"]} templateRows={"subgrid"} templateColumns={"1fr 1fr"}>
       <GridItem
         w={"full"}
         h={"full"}
-        gridArea={"1/2/2/2"}
-        paddingTop={"md"}
+        paddingTop={"lg:md"}
         paddingLeft={logoPaddingLeft}
+        justifySelf={"start"}
       >
-        <Link
-          to="/"
-          className={"btn btn-ghost text-black text-4xl font-bold no-animation whitespace-nowrap"}
-        >
-          <Image allFileConnectrion={allFileConnection} objectFit={"cover"} />
-        </Link>
+          <Link
+            to="/"
+            className={"btn btn-ghost no-animation whitespace-nowrap"}
+          >
+            <StaticImage
+              src={"../../static/logo.png"}
+              alt={"logo"}
+              style={{width: "65px", height: "65px"}}
+              objectFit={"cover"}
+              className={"logoimage"}/>
+          </Link>
       </GridItem>
       <GridItem
-        paddingTop={isLarge ? "lg" : "md"}
+        paddingTop={"lg"}
         w={"full"}
         h={"full"}
-        gridArea={"1/8/2/8"}
         justifySelf={"end"}
+        className={"hidden lg:block"}
+        paddingRight={menuPaddingRight}
       >
-        {isLarge ? (
-          <HStack className={"text-right"} w={"fit-content"}>
-            <Button
-              startIcon={<FontAwesomeIcon icon={faHome} />}
-              variant="ghost"
-              as={Link}
-              to="/"
-              className={"text-black text-lg font-bold"}
-            >
-              Home
-            </Button>
-            <Button
-              startIcon={<FontAwesomeIcon icon={faTags} />}
-              variant="ghost"
-              as={Link}
-              to="/tags"
-              className={"text-black text-lg font-bold"}
-            >
-              Tags
-            </Button>
-            <Button
-              startIcon={<FontAwesomeIcon icon={faAddressCard} />}
-              variant="ghost"
-              as={Link}
-              to="/about"
-              className={"text-black text-lg font-bold"}
-            >
-              About
-            </Button>
-          </HStack>
-        ) : (
+        <HStack className={"justify-end"}>
+          <DarkmodeToggle />
+          <Button
+            startIcon={<FontAwesomeIcon icon={faHome} />}
+            variant="ghost"
+            as={Link}
+            to="/"
+            className={"text-lg font-bold"}
+          >
+            Home
+          </Button>
+          <Button
+            startIcon={<FontAwesomeIcon icon={faTags} />}
+            variant="ghost"
+            as={Link}
+            to="/tags"
+            className={"text-lg font-bold"}
+          >
+            Tags
+          </Button>
+          <Button
+            startIcon={<FontAwesomeIcon icon={faAddressCard} />}
+            variant="ghost"
+            as={Link}
+            to="/about"
+            className={"text-lg font-bold"}
+          >
+            About
+          </Button>
+        </HStack>
+      </GridItem>
+      <GridItem
+        paddingTop={"md"}
+        w={"full"}
+        h={"full"}
+        justifySelf={"end"}
+        className={"lg:hidden"}
+        paddingRight={menuPaddingRight}
+      >
+        <HStack className={"justify-end"}>
+          <DarkmodeToggle />
           <Menu onOpen={on} onClose={off}>
             <MenuButton
               as={IconButton}
-              icon={
-                isBargerOpen ? (
-                  <FontAwesomeIcon icon={faXmark} />
-                ) : (
-                  <FontAwesomeIcon icon={faBars} />
-                )
-              }
+              icon={<FontAwesomeIcon icon={faBars} />}
               variant="ghost"
-              className={"text-black text-lg font-bold"}
+              className={"text-lg font-bold"}
+              aria-label={"menu-button"}
             />
             <MenuList>
               <MenuItem icon={<FontAwesomeIcon icon={faHome} />}>
@@ -110,8 +116,10 @@ export const Header = ({ isLarge, logoPaddingLeft }: HeaderProp) => {
               </MenuItem>
             </MenuList>
           </Menu>
-        )}
+        </HStack>
       </GridItem>
-    </>
+    </Grid>
   );
 };
+
+export default Header;
