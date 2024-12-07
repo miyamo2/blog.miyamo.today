@@ -2,17 +2,19 @@ import { graphql, HeadProps, Link, PageProps } from "gatsby";
 import * as React from "react";
 import { ArticleDetailPageContext } from "../../gatsby-node";
 import {
-  Heading,
-  Tag,
   Box,
+  Grid,
+  GridItem,
+  HStack,
+} from "@yamada-ui/layouts";
+import {
   Accordion,
   AccordionItem,
   AccordionLabel,
   AccordionPanel,
-  Grid,
-  GridItem,
-  HStack,
-} from "@yamada-ui/react";
+} from "@yamada-ui/accordion";
+import { Tag } from "@yamada-ui/tag";
+import { Heading } from "@yamada-ui/typography";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faCalendarDay, faListUl } from "@fortawesome/free-solid-svg-icons";
 import { format } from "@formkit/tempo";
@@ -40,32 +42,41 @@ const ArticleDetail = ({
       scroll={true}
     >
       <main>
-        <div className={"hidden lg:block"}>
-          <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
-            {frontmatter.title}
-          </Heading>
-          <HStack gridArea={"tag"}>
-            {frontmatter.tags?.map((tag) => (
-              <Tag
-                as={Link}
-                size={"md"}
-                id={`${tag?.id}-${tag?.id}`}
-                to={`/tags/${tag?.id}`}
-                bg={["#ddf4ff", "#121d2f"]}
-              >
-                #{tag?.name}
-              </Tag>
-            ))}
-          </HStack>
-            <Box paddingTop={"md"} paddingBottom={"md"}>
-              <FontAwesomeIcon icon={faCalendarDay} />
-              {createdAt}
-            </Box>
+        <div className={"hidden lg:block w-full"}>
           <Grid
             templateAreas={`
-          "image image image toc toc"
-          "content content content toc toc"
-        `}>
+            "title title title title title title"
+            "tag tag tag tag tag tag"
+            "date date date date date date"
+            "image image image image image image"
+            "content content content content toc toc"`}
+            className={"justify-start"}
+          >
+            <GridItem gridArea={"title"}>
+              <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
+                {frontmatter.title}
+              </Heading>
+            </GridItem>
+            <GridItem gridArea={"tag"}>
+              <HStack gridArea={"tag"}>
+                {frontmatter.tags?.map((tag) => (
+                  <Tag
+                    as={Link}
+                    size={"md"}
+                    id={`${tag?.id}-${tag?.id}`}
+                    to={`/tags/${tag?.id}`}
+                    bg={["#ddf4ff", "#121d2f"]}
+                  >
+                    #{tag?.name}
+                  </Tag>
+                ))}
+              </HStack>
+            </GridItem>
+            <GridItem gridArea={"date"}>
+              <Box paddingTop={"md"} paddingBottom={"md"}>
+                <FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />&nbsp;{createdAt}
+              </Box>
+            </GridItem>
             <GridItem gridArea={"image"}>
               <Image
                 allFileConnectrion={allFileConnection}
@@ -73,7 +84,9 @@ const ArticleDetail = ({
                 objectFit={"cover"}
               />
             </GridItem>
-            <GridItem gridArea={"toc"}>{ArticleTOC(pageContext.tableOfContents ?? "", true)}</GridItem>
+            <GridItem gridArea={"toc"} justifySelf={"start"} w={"full"}>
+              {ArticleTOC(pageContext.tableOfContents ?? "", true)}
+            </GridItem>
             <GridItem gridArea={"content"}>
               <article>
                 <div
@@ -86,7 +99,7 @@ const ArticleDetail = ({
             </GridItem>
           </Grid>
         </div>
-        <div className={"block lg:hidden"}>
+        <div className={"block lg:hidden w-full"}>
           <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
             {frontmatter.title}
           </Heading>
@@ -97,7 +110,7 @@ const ArticleDetail = ({
                 size={"md"}
                 id={`${tag?.id}-${tag?.id}`}
                 to={`/tags/${tag?.id}`}
-                colorScheme={"gray"}
+                bg={["#ddf4ff", "#121d2f"]}
               >
                 #{tag?.name}
               </Tag>
@@ -112,14 +125,14 @@ const ArticleDetail = ({
           "image image image"
           "content content content"
         `}>
-            <GridItem gridArea={"image"}>
+            <GridItem gridArea={"image"} justifySelf={"center"}>
               <Image
                 allFileConnectrion={allFileConnection}
                 alt={`ArticleImage:${pageContext.cursor}`}
                 objectFit={"cover"}
               />
             </GridItem>
-            <GridItem gridArea={"content"}>
+            <GridItem gridArea={"content"} justifySelf={"center"}>
               <article>
                 { ArticleTOC(pageContext.tableOfContents ?? "", false) }
                 <div
@@ -153,7 +166,7 @@ const ArticleTOC = (toc: string, isLarge: boolean) =>  {
         ) : (
           <div>
             <Accordion toggle>
-              <AccordionItem>
+              <AccordionItem w={"full"}>
                 <AccordionLabel className={"text-2xl font-bold"} >
                   <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
                   TOC
@@ -175,7 +188,7 @@ export const query = graphql`
       nodes {
         id
         childImageSharp {
-          gatsbyImageData(width: 1200, height: 630, placeholder: BLURRED, quality: 100)
+          gatsbyImageData(width: 1280, height: 720, placeholder: BLURRED, quality: 100)
         }
       }
     }

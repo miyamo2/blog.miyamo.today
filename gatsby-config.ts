@@ -13,7 +13,7 @@ const config: GatsbyConfig = {
     image: "/ogp.png",
     icon: "/logo.png",
     lang: "ja",
-    facebookAppId: `${process.env.FaceBookAppID}`
+    facebookAppId: `${process.env.FACEBOOK_APP_ID}`
   },
   // More easily incorporate content into your pages through automatic TypeScript type generation and better GraphQL IntelliSense.
   // If you use VSCode you can also use the GraphQL plugin
@@ -28,10 +28,10 @@ const config: GatsbyConfig = {
         // Field under which the remote schema will be accessible. You'll use this in your Gatsby query
         fieldName: "miyamotoday",
         // Url to query from
-        url: process.env.BlogAPIMiyamoTodayURL,
+        url: process.env.BLOG_API_MIYAMO_TODAY_URL,
         headers: {
           // Learn about environment variables: https://gatsby.dev/env-vars
-          Authorization: `Bearer ${process.env.BlogAPIMiyamoToday_TOKEN}`,
+          Authorization: `Bearer ${process.env.BLOG_API_MIYAMO_TODAY_TOKEN}`,
         },
       },
     },
@@ -43,10 +43,10 @@ const config: GatsbyConfig = {
         // Field under which the remote schema will be accessible. You'll use this in your Gatsby query
         fieldName: "github",
         // Url to query from
-        url: process.env.GitHubAPIURL,
+        url: process.env.GITHUB_API_URL,
         headers: {
           // Learn about environment variables: https://gatsby.dev/env-vars
-          Authorization: `Bearer ${process.env.GitHubToken}`,
+          Authorization: `Bearer ${process.env.GITHUB_API_TOKEN}`,
         },
       },
     },
@@ -67,17 +67,6 @@ const config: GatsbyConfig = {
         footnotes: true,
         gfm: true,
         plugins: [
-          {
-            resolve: `gatsby-remark-table-of-contents`,
-            options: {
-              exclude: "Table of Contents",
-              tight: false,
-              ordered: false,
-              fromHeading: 1,
-              toHeading: 6,
-              className: "table-of-contents",
-            },
-          },
           `gatsby-remark-autolink-headers`,
           {
             resolve: `gatsby-remark-prismjs`,

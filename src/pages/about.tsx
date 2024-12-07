@@ -1,12 +1,8 @@
 import { graphql, PageProps, HeadProps } from "gatsby";
-import {
-  Heading,
-  Text,
-  Link,
-  Button,
-  Grid,
-  GridItem,
-} from "@yamada-ui/react";
+import { Grid, GridItem, HStack } from "@yamada-ui/layouts";
+import { Button } from "@yamada-ui/button";
+import { Heading, Text } from "@yamada-ui/typography";
+import { Link } from "@yamada-ui/link";
 import * as React from "react";
 import { SiGithub, SiZenn, SiQiita, SiSpeakerdeck } from "react-icons/si";
 import Layout from "../components/Layout";
@@ -19,30 +15,38 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
 
   return (
     <Layout scroll={true}>
-      <main>
-        <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
-          About
-        </Heading>
-        <Grid
-          templateColumns={"repeat(auto-fit, minmax(150px, auto))"}
-          justifyContent={"center"}
-          gap={"lg"}
-        >
-          <GridItem>
+      <div className={"hidden lg:block w-full"}>
+        <main>
+          <Grid templateAreas={`
+          ". title ."
+          ". image ."
+          ". name ."
+          ". bio ."
+          ". social ."`}
+          className={"justify-between"}>
+            <GridItem gridArea={"title"}>
+              <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
+                About
+              </Heading>
+            </GridItem>
+            <GridItem gridArea={"image"} justifySelf={"center"} paddingBottom={"md"}>
               <Image
                 allFileConnectrion={allFileConnection}
                 alt={"GitHubAvatar:miyamo2"}
                 objectFit={"cover"}
                 className={"round-image"}
               />
-          </GridItem>
-          <GridItem>
-            <Heading as={"h2"} className={"text-3xl font-bold"} paddingBottom={"md"}>
-              {data.github?.user?.login}
-            </Heading>
-            <Text paddingBottom={"md"}>{data.github?.user?.bio}</Text>
-            <Grid templateColumns={"repeat(auto-fit, minmax(65px, auto))"} gap={"sm"}>
-              <GridItem>
+            </GridItem>
+            <GridItem gridArea={"name"} paddingBottom={"md"}>
+              <Heading as={"h2"} className={"text-3xl font-bold"}>
+                {data.github?.user?.login}
+              </Heading>
+            </GridItem>
+            <GridItem gridArea={"bio"} paddingBottom={"md"}>
+              <Text>{data.github?.user?.bio}</Text>
+            </GridItem>
+            <GridItem gridArea={"social"} justifySelf={"center"}>
+              <HStack>
                 <Button
                   as={Link}
                   href={data.github?.user?.url}
@@ -54,20 +58,69 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
                 >
                   <SiGithub size={"100%"} />
                 </Button>
-              </GridItem>
-              {data.github?.user?.socialAccounts?.nodes?.map((socialAccount) => {
-                const link = SocialAccountLink(socialAccount?.url ?? "");
-                if (!link) {
-                  return <></>;
-                }
-                return <GridItem>{link}</GridItem>;
-              })}
-            </Grid>
-          </GridItem>
-        </Grid>
-      </main>
+                {data.github?.user?.socialAccounts?.nodes?.map((socialAccount) => {
+                  const link = SocialAccountLink(socialAccount?.url ?? "");
+                  if (!link) {
+                    return <></>;
+                  }
+                  return link;
+                })}
+              </HStack>
+            </GridItem>
+          </Grid>
+        </main>
+      </div>
+      <div className={"lg:hidden w-full"}>
+        <main>
+          <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
+            About
+          </Heading>
+          <Grid
+            templateColumns={"repeat(auto-fit, minmax(150px, auto))"}
+            justifyContent={"center"}
+            gap={"lg"}
+          >
+            <GridItem>
+              <Image
+                allFileConnectrion={allFileConnection}
+                alt={"GitHubAvatar:miyamo2"}
+                objectFit={"cover"}
+                className={"round-image"}
+              />
+            </GridItem>
+            <GridItem>
+              <Heading as={"h2"} className={"text-3xl font-bold"} paddingBottom={"md"}>
+                {data.github?.user?.login}
+              </Heading>
+              <Text paddingBottom={"md"}>{data.github?.user?.bio}</Text>
+              <Grid templateColumns={"repeat(auto-fit, minmax(65px, auto))"} gap={"sm"}>
+                <GridItem>
+                  <Button
+                    as={Link}
+                    href={data.github?.user?.url}
+                    isExternal={true}
+                    variant="ghost"
+                    className={"text-3xl"}
+                    size={"lg"}
+                    aria-label={"GitHub"}
+                  >
+                    <SiGithub size={"100%"} />
+                  </Button>
+                </GridItem>
+                {data.github?.user?.socialAccounts?.nodes?.map((socialAccount) => {
+                  const link = SocialAccountLink(socialAccount?.url ?? "");
+                  if (!link) {
+                    return <></>;
+                  }
+                  return <GridItem>{link}</GridItem>;
+                })}
+              </Grid>
+            </GridItem>
+          </Grid>
+        </main>
+      </div>
     </Layout>
-  );
+);
 };
 
 const SocialAccountLink = (url: string) => {

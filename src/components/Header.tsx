@@ -1,20 +1,12 @@
 import { Link } from "gatsby";
-import {
-  GridItem,
-  Button,
-  Menu,
-  MenuButton,
-  IconButton,
-  MenuItem,
-  MenuList,
-  useBoolean,
-  HStack,
-  Grid,
-  useColorMode,
-} from "@yamada-ui/react";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faBars, faHome, faTags, faAddressCard } from "@fortawesome/free-solid-svg-icons";
 import { StaticImage } from "gatsby-plugin-image";
+import { Grid, GridItem, HStack } from "@yamada-ui/layouts";
+import { useColorMode } from "@yamada-ui/core";
+import { Button, IconButton } from "@yamada-ui/button";
+import { useBoolean } from "@yamada-ui/use-boolean";
+import { Menu, MenuButton, MenuItem, MenuList } from "@yamada-ui/menu";
 import React from "react";
 import DarkmodeToggle from "./DarkmodeToggle";
 

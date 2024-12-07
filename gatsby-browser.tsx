@@ -1,6 +1,7 @@
 import "modern-css-reset";
 import * as React from "react";
-import { getColorModeScript, UIProvider } from "@yamada-ui/react";
+import { getColorModeScript } from "@yamada-ui/core";
+import { UIProvider } from "@yamada-ui/providers";
 import { GatsbyBrowser } from "gatsby";
 import "@fontsource/jetbrains-mono";
 import "@fontsource/m-plus-1p/400.css";

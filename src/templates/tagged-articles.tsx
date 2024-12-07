@@ -1,5 +1,6 @@
 import { graphql, HeadProps, PageProps } from "gatsby";
-import { Grid, Box, Heading } from "@yamada-ui/react";
+import { Grid, Box } from "@yamada-ui/layouts";
+import { Heading } from "@yamada-ui/typography";
 import * as React from "react";
 import { TaggedArticlesPageContext } from "../../gatsby-node";
 import { ImageDataLike } from "gatsby-plugin-image/dist/src/components/hooks";
@@ -67,24 +68,26 @@ const TaggedArticleList = ({
 
   return (
     <Layout scroll={true}>
-      <main>
-        <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
-          #{pageContext.tagName}
-        </Heading>
-        <Grid templateColumns={"repeat(auto-fill, minmax(280px, 1fr))"}>
-          {articleCardDataList.map((data, i) => (
-            <ArticleCard {...data} />
-          ))}
-        </Grid>
-        <Box paddingTop={"lg"} paddingBottom={"sm"}>
-          <Pager
-            currentPage={pageContext.currentPage}
-            pagePrefix={"pages"}
-            perPage={pageContext.perPage}
-            totalItems={pageContext.totalItems}
-          />
-        </Box>
-      </main>
+      <div className={"w-full"}>
+        <main>
+          <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
+            #{pageContext.tagName}
+          </Heading>
+          <Grid templateColumns={"repeat(auto-fill, minmax(280px, 1fr))"} gap={"sm"}>
+            {articleCardDataList.map((data, i) => (
+              <ArticleCard {...data} />
+            ))}
+          </Grid>
+          <Box paddingTop={"lg"} paddingBottom={"sm"}>
+            <Pager
+              currentPage={pageContext.currentPage}
+              pagePrefix={"pages"}
+              perPage={pageContext.perPage}
+              totalItems={pageContext.totalItems}
+            />
+          </Box>
+        </main>
+      </div>
     </Layout>
   );
 };

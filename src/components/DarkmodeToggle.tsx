@@ -1,5 +1,6 @@
 import React from 'react'
-import { Switch, useColorMode } from "@yamada-ui/react";
+import { useColorMode } from "@yamada-ui/core";
+import { Switch } from "@yamada-ui/switch"
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
 

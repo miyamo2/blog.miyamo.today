@@ -1,10 +1,12 @@
 import { Link } from "gatsby";
-import { Heading, Text, Tag, Separator, Grid, GridItem } from "@yamada-ui/react";
 import { ImageDataLike } from "gatsby-plugin-image/dist/src/components/hooks";
 import { GatsbyImage, getImage } from "gatsby-plugin-image";
 import { format } from "@formkit/tempo";
 import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
+import { Grid, GridItem, Separator } from "@yamada-ui/layouts";
+import { Heading, Text } from "@yamada-ui/typography";
+import { Tag } from "@yamada-ui/tag";
 import * as React from "react";
 
 interface Tag {
@@ -46,11 +48,12 @@ const ArticleCard = (props: ArticleCardProps) => {
       templateRows={"subgrid"}
       gridRow={"span 6"}
       gap={"sm"}
-      padding={"sm"}
       as={Link}
       to={`/articles/${props.id}`}
       aria-label={`link: ${props.title}`}
       bg={["#f6f8fa", "#151b23"]}
+      maxW={"303px"}
+      w={"full"}
     >
       <GridItem>{gatsbyImage}</GridItem>
       <GridItem>
@@ -79,8 +82,7 @@ const ArticleCard = (props: ArticleCardProps) => {
       </GridItem>
       <GridItem>
         <Text>
-          <FontAwesomeIcon icon={faCalendarDay} />
-          {createdAt}
+          <FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />{createdAt}
         </Text>
       </GridItem>
     </Grid>

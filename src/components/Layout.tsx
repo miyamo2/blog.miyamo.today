@@ -2,7 +2,7 @@ import React from "react";
 import { ReactNode } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
-import { Box, Grid, GridItem } from "@yamada-ui/react";
+import { Box, Grid, GridItem, Spacer } from "@yamada-ui/layouts";
 
 interface LayoutProps {
   children: ReactNode;
@@ -18,12 +18,12 @@ const Layout = ({
       <Box className={"hidden lg:block"} bg={["#ffffff", "#0d1117"]}>
         <Grid w={"full"} h={"100vh"} templateAreas={`
           "h h h h h h h h h"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
+          "l m m m m m m m r"
+          "l m m m m m m m r"
+          "l m m m m m m m r"
+          "l m m m m m m m r"
+          "l m m m m m m m r"
+          "l m m m m m m m r"
           "f f f f f f f f f"`}
         >
           <GridItem gridArea={"h"}>
@@ -32,16 +32,19 @@ const Layout = ({
               menuPaddingRight={"2xl"}
             />
           </GridItem>
+          <GridItem gridArea={"l"} w={"5vw"}><Spacer /></GridItem>
           <GridItem
-            w={"90vw"}
             h={"full"}
+            w={"90vw"}
             gridArea={"m"}
             overflowY={scroll ? "auto" : "hidden"}
-            paddingLeft={"2xl"}
-            paddingRight={"2xl"}
+            overflowX={"hidden"}
           >
-            {children}
+            <div className={"flex w-full justify-center"}>
+              <div className={"w-full max-w-[1280px]"}>{children}</div>
+            </div>
           </GridItem>
+          <GridItem gridArea={"r"} w={"5vw"}><Spacer /></GridItem>
           <GridItem w={"full"} h={"full"} gridArea={"f"}>
             <Footer />
           </GridItem>
@@ -50,27 +53,29 @@ const Layout = ({
       <Box className={"block lg:hidden"}>
         <Grid w={"full"} h={"100vh"} templateAreas={`
           "h h h h h h h h h"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
+          "l m m m m m m m r"
+          "l m m m m m m m r"
+          "l m m m m m m m r"
+          "l m m m m m m m r"
+          "l m m m m m m m r"
+          "l m m m m m m m r"
           "f f f f f f f f f"`}
         >
           <GridItem gridArea={"h"}>
             <Header logoPaddingLeft={"md"} menuPaddingRight={"md"} />
           </GridItem>
+          <GridItem gridArea={"l"} w={"5vw"}><Spacer /></GridItem>
           <GridItem
             w={"90vw"}
             h={"full"}
             gridArea={"m"}
             overflowY={scroll ? "auto" : "hidden"}
-            paddingLeft={"md"}
-            paddingRight={"md"}
+            overflowX={"hidden"}
+            justifySelf={"center"}
           >
             {children}
           </GridItem>
+          <GridItem gridArea={"r"} w={"5vw"}><Spacer /></GridItem>
           <GridItem w={"full"} h={"full"} gridArea={"f"}>
             <Footer />
           </GridItem>

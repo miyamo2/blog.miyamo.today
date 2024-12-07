@@ -55,7 +55,7 @@ const createArticleContentAndImageNode = async (
     NonNullable<GatsbyNode["sourceNodes"]>
   >["0"]["createContentDigest"]
 ) => {
-  const endpoint = process.env.BlogAPIMiyamoTodayURL;
+  const endpoint = process.env.BLOG_API_MIYAMO_TODAY_URL;
   if (!endpoint || typeof endpoint !== "string") {
     throw new Error("endpoint must not to be null or undefined");
   }
@@ -151,13 +151,13 @@ const createGitHubAvatarNode = async (
   >["0"]["actions"]["createNodeField"],
   cache: GatsbyCache
 ) => {
-  const endpoint = process.env.GitHubAPIURL;
+  const endpoint = process.env.GITHUB_API_URL;
   if (!endpoint || typeof endpoint !== "string") {
     throw new Error("endpoint must not to be null or undefined");
   }
 
   const requestHeaders = {
-    Authorization: `Bearer ${process.env.GitHubToken}`,
+    Authorization: `Bearer ${process.env.GITHUB_API_TOKEN}`,
   };
 
   const data: GitHubAvatarQuery = await request<GitHubAvatarQuery, GitHubAvatarQueryVariables>(
