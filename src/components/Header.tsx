@@ -10,13 +10,13 @@ import {
   useBoolean,
   HStack,
   Grid,
+  useColorMode,
 } from "@yamada-ui/react";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faBars, faHome, faTags, faAddressCard } from "@fortawesome/free-solid-svg-icons";
 import { StaticImage } from "gatsby-plugin-image";
 import React from "react";
 import DarkmodeToggle from "./DarkmodeToggle";
-import "./Header.css";
 
 interface HeaderProp {
   logoPaddingLeft?: "md" | "2xl";
@@ -25,6 +25,7 @@ interface HeaderProp {
 
 const Header = ({ logoPaddingLeft, menuPaddingRight }: HeaderProp) => {
   const [isBargerOpen, { on, off }] = useBoolean();
+  const { colorMode } = useColorMode()
 
   return (
     <Grid bg={["#f6f8fa", "#010409"]} templateRows={"subgrid"} templateColumns={"1fr 1fr"}>
@@ -35,17 +36,25 @@ const Header = ({ logoPaddingLeft, menuPaddingRight }: HeaderProp) => {
         paddingLeft={logoPaddingLeft}
         justifySelf={"start"}
       >
-          <Link
-            to="/"
-            className={"btn btn-ghost no-animation whitespace-nowrap"}
-          >
+        <Link
+          to="/"
+          className={"btn btn-ghost no-animation whitespace-nowrap"}
+        >
+          <div className={colorMode==="dark" ? "hidden" : ""}>
             <StaticImage
               src={"../../static/logo.png"}
               alt={"logo"}
-              style={{width: "65px", height: "65px"}}
-              objectFit={"cover"}
-              className={"logoimage"}/>
-          </Link>
+              style={{ width: "65px", height: "65px" }}
+              objectFit={"cover"} />
+          </div>
+          <div className={colorMode==="light" ? "hidden" : ""}>
+            <StaticImage
+              src={"../../static/logo_nega.png"}
+              alt={"logo"}
+              style={{ width: "65px", height: "65px" }}
+              objectFit={"cover"} />
+          </div>
+        </Link>
       </GridItem>
       <GridItem
         paddingTop={"lg"}

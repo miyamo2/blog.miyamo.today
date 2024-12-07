@@ -1,13 +1,13 @@
 import "modern-css-reset";
 import * as React from "react";
-import { getColorModeScript, defaultConfig, UIProvider } from "@yamada-ui/react";
+import { getColorModeScript, UIProvider } from "@yamada-ui/react";
 import { GatsbyBrowser } from "gatsby";
 import "@fontsource/jetbrains-mono";
 import "@fontsource/m-plus-1p/400.css";
 
 const injectColorModeScript = () => {
   const scriptContent = getColorModeScript({
-    initialColorMode: defaultConfig.initialColorMode,
+    initialColorMode: "system",
   })
 
   const script = document.createElement("script")
