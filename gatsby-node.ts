@@ -1,5 +1,5 @@
 import path from "path";
-import { GatsbyCache, GatsbyNode, Store } from "gatsby";
+import { GatsbyCache, GatsbyNode } from "gatsby";
 import { createFileNodeFromBuffer, createRemoteFileNode } from "gatsby-source-filesystem";
 import { request } from "graphql-request";
 import { format } from "@formkit/tempo";
@@ -30,7 +30,6 @@ const range = (start: number, end: number) => [...Array(end - start + 1)].map((_
 export const sourceNodes: GatsbyNode["sourceNodes"] = async ({
   actions,
   cache,
-  store,
   createContentDigest,
 }) => {
   const { createNode, createNodeField } = actions;
@@ -38,7 +37,6 @@ export const sourceNodes: GatsbyNode["sourceNodes"] = async ({
     createNode,
     createNodeField,
     cache,
-    store,
     createContentDigest
   );
   await createGitHubAvatarNode(createNode, createNodeField, cache);
@@ -50,7 +48,6 @@ const createArticleContentAndImageNode = async (
     NonNullable<GatsbyNode["sourceNodes"]>
   >["0"]["actions"]["createNodeField"],
   cache: GatsbyCache,
-  store: Store,
   createContentDigest: Parameters<
     NonNullable<GatsbyNode["sourceNodes"]>
   >["0"]["createContentDigest"]
@@ -196,7 +193,6 @@ export const createPages: GatsbyNode["createPages"] = async ({ actions, graphql 
 };
 
 export interface ArticleListPageContext {
-  startCursor: string | null;
   perPage: number;
   totalItems: number;
   currentPage: number;
@@ -208,10 +204,11 @@ const articleListPage = async (
   createPage: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["actions"]["createPage"],
   graphql: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["graphql"]
 ) => {
+  // TODO: partitional fetch by cursor
   const articlesPageInfoQuery = await graphql<Queries.GetArticlesPageInfoQuery>(`
     query GetArticlesPageInfo {
       miyamotoday {
-        articles {
+        articles(last: 2147483647) {
           edges {
             cursor
           }
@@ -243,7 +240,6 @@ const articleListPage = async (
       .map((edge) => `ArticleImage:${edge.cursor}`);
 
     const ctx: ArticleListPageContext = {
-      startCursor: cursor,
       perPage: PER_PAGE,
       totalItems: totalArticles,
       currentPage: number,
@@ -403,7 +399,8 @@ const taggedArticlesPage = async (
 
   const articlePageInfoEdges = taggedArticlesPageInfoQuery.data.miyamotoday.tags.edges;
 
-  articlePageInfoEdges.map((tagEdge) => {
+  // TODO: support last paging of tag-articles in Backend
+  articlePageInfoEdges.toReversed().map((tagEdge) => {
     const { id: tagId, name: tagName } = tagEdge.node;
     const { edges: articleEdges, totalCount: totalArticles } = tagEdge.node.articles;
 

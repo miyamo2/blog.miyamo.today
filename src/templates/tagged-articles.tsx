@@ -8,6 +8,7 @@ import Pager from "../components/Pager";
 import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import ArticleCard from "../features/ArticleList/ArticleCard";
+import { useArticleCardList } from "../hooks/useArticleCardList";
 
 interface Tag {
   id: string;
@@ -28,43 +29,8 @@ const TaggedArticleList = ({
   data,
   pageContext,
 }: PageProps<Queries.TaggedArticleListQueryQuery, TaggedArticlesPageContext>) => {
-  const articleCardDataList: ArticleCardData[] = (() => {
-    return data.allMarkdownRemark.nodes
-      .map((node): ArticleCardData | undefined => {
-        const frontmatter = node.frontmatter;
-        if (!frontmatter) {
-          return undefined;
-        }
-
-        const imageDataEdge = data.allFile.edges.find(
-          (edge: { node: { id: string } }) => edge.node.id === `ArticleImage:${frontmatter.id}`
-        );
-        const imageData = imageDataEdge?.node.childImageSharp || undefined;
-        const articleExcerpt = node.excerpt ?? undefined;
-
-        const { id, title, createdAt, updatedAt, tags } = frontmatter;
-        if (!id || !title || !createdAt || !updatedAt) {
-          return undefined;
-        }
-
-        const articleCardData: ArticleCardData = {
-          id: id,
-          title: title,
-          createdAt: createdAt,
-          updatedAt: updatedAt,
-          tags:
-            tags
-              ?.filter((tag) => tag !== undefined && tag !== null)
-              .map((tag) => {
-                return { id: tag.id ?? "", name: tag.name ?? "" };
-              }) ?? Array.of<Tag>(),
-          imageData: imageData,
-          articleExcerpt: articleExcerpt,
-        };
-        return articleCardData;
-      })
-      .filter((data: ArticleCardData | undefined) => data !== undefined);
-  })();
+  useArticleCardList(data.allMarkdownRemark.nodes, data.allFile.edges)
+  const articleCardDataList = useArticleCardList(data.allMarkdownRemark.nodes, data.allFile.edges)
 
   return (
     <Layout scroll={true}>
@@ -94,7 +60,10 @@ const TaggedArticleList = ({
 
 export const query = graphql`
   query TaggedArticleListQuery($imageCursors: [String], $markdownCursors: [String]) {
-    allMarkdownRemark(filter: { frontmatter: { id: { in: $markdownCursors } } }) {
+    allMarkdownRemark(
+      filter: { frontmatter: { id: { in: $markdownCursors } } },
+      sort: { frontmatter: {id: DESC}}
+    ) {
       nodes {
         excerpt
         frontmatter {
