@@ -1,0 +1,43 @@
+name: Publish
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types:
+      - sync-read-model
+  workflow_dispatch:
+
+permissions: write-all
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Auth blog miyamo today
+        run: exit 0
+
+      - name: Build
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          BLOG_API_MIYAMO_TODAY_URL: ${{ secrets.BLOG_API_MIYAMO_TODAY_URL }}
+          BLOG_API_MIYAMO_TODAY_TOKEN: ""
+          GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
+          BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
+        run: bunx gatsby build
+
+      - name: Deploy
+        run: bun deploy

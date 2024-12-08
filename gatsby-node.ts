@@ -148,10 +148,7 @@ const createGitHubAvatarNode = async (
   >["0"]["actions"]["createNodeField"],
   cache: GatsbyCache
 ) => {
-  const endpoint = process.env.GITHUB_API_URL;
-  if (!endpoint || typeof endpoint !== "string") {
-    throw new Error("endpoint must not to be null or undefined");
-  }
+  const endpoint = "https://api.github.com/graphql";
 
   const requestHeaders = {
     Authorization: `Bearer ${process.env.GITHUB_API_TOKEN}`,

@@ -43,7 +43,7 @@ const config: GatsbyConfig = {
         // Field under which the remote schema will be accessible. You'll use this in your Gatsby query
         fieldName: "github",
         // Url to query from
-        url: process.env.GITHUB_API_URL,
+        url: "https://api.github.com/graphql",
         headers: {
           // Learn about environment variables: https://gatsby.dev/env-vars
           Authorization: `Bearer ${process.env.GITHUB_API_TOKEN}`,
