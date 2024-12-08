@@ -397,7 +397,7 @@ const taggedArticlesPage = async (
   const articlePageInfoEdges = taggedArticlesPageInfoQuery.data.miyamotoday.tags.edges;
 
   // TODO: support last paging of tag-articles in Backend
-  articlePageInfoEdges.toReversed().map((tagEdge) => {
+  articlePageInfoEdges.slice().reverse().map((tagEdge) => {
     const { id: tagId, name: tagName } = tagEdge.node;
     const { edges: articleEdges, totalCount: totalArticles } = tagEdge.node.articles;
 
