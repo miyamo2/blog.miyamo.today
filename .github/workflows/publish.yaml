@@ -34,10 +34,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           BLOG_API_MIYAMO_TODAY_URL: ${{ secrets.BLOG_API_MIYAMO_TODAY_URL }}
           BLOG_API_MIYAMO_TODAY_TOKEN: ""
-          GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_API_TOKEN:  ${{ secrets.READ_MY_REPO }}
           FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
           BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
-        run: bunx gatsby build
+        run: bunx run build
 
       - name: Deploy
         run: bun deploy
