@@ -113,6 +113,134 @@ const config: GatsbyConfig = {
         lang: 'ja'
       }
     },
+    {
+      resolve: `gatsby-plugin-feed`,
+      options: {
+        query: `{
+          site {
+            siteMetadata {
+              description
+              siteUrl
+              title
+              site_url: siteUrl
+            }
+          }
+        }`,
+        setup: (options) => ({ ...options, custom_namespaces: { media: "http://search.yahoo.com/mrss/", }, }),
+        feeds: [
+          {
+            serialize: ({ query: { site, allMarkdownRemark } }) => {
+              return allMarkdownRemark.nodes.map(node => {
+                return {
+                  title: node.frontmatter?.title ?? site?.siteMetadata?.title,
+                  description: node.excerpt ?? site?.siteMetadata?.description,
+                  date: node.frontmatter?.createdAt,
+                  url: `${site?.siteMetadata?.siteUrl}/articles/${node.frontmatter?.id ?? ""}`,
+                  guid: `${site?.siteMetadata?.siteUrl}/articles/${node.frontmatter?.id ?? ""}`,
+                  author: "miyamo2",
+                  custom_elements: [{
+                    "media:content": {
+                      _attr:
+                        {
+                          url: `${site?.siteMetadata?.siteUrl}/static/ogp.png`,
+                          width: 1200,
+                          height: 630,
+                          media: "image"
+                        }
+                    },
+                  }]
+                }
+              })
+            },
+            query: `query GetAllArticlesForRSS {
+              allMarkdownRemark(filter: { frontmatter: { id: { ne: "Noop" } } }) {
+                nodes {
+                  excerpt(pruneLength: 140, truncate: true)
+                  html
+                  tableOfContents
+                  frontmatter {
+                    id
+                    title
+                    createdAt
+                    updatedAt
+                  }
+                }
+              }
+            }`,
+            output: "/feed/rss.xml",
+            title: "blog.miyamo.today :: RSS feed",
+            feed_url: "https://blog.miyamo.today/feed/rss.xml",
+            site_url: "https://blog.miyamo.today",
+            language: "ja"
+          }
+        ]
+      }
+    },
+    {
+      resolve: `gatsby-plugin-s3`,
+      options: {
+        bucketName: process.env.BUCKET_NAME,
+        removeNonexistentObjects: true,
+        generateRoutingRules: false,
+        enableS3StaticWebsiteHosting: false,
+        generateIndexPageForRedirect: false,
+        generateRedirectObjectsForPermanentRedirects: false,
+        acl: null,
+        params: {
+          "*/*.webp": {
+            CacheControl: 'public, max-age=31536000, immutable'
+          },
+          "/page-data/**/.json": {
+            ContentType: 'application/json',
+            CacheControl: 'public, max-age=0, must-revalidate'
+          },
+          "*/index.html": {
+            ContentType: 'text/html',
+            CacheControl: 'public, max-age=0, must-revalidate'
+          },
+          "/*.webmanifest": {
+            ContentType: 'application/manifest+json',
+            CacheControl: 'public, max-age=0, must-revalidate'
+          },
+          "/workbox-v4.3.1/**": {
+            ContentType: 'application/javascript',
+            CacheControl: 'public, max-age=31536000, immutable'
+          },
+          "/~partytown/**": {
+            ContentType: 'application/javascript',
+            CacheControl: 'public, max-age=0, must-revalidate'
+          },
+          "/*.css": {
+            ContentType: 'text/css',
+            CacheControl: 'public, max-age=31536000, immutable'
+          },
+          "/webpack.stats.json": {
+            ContentType: 'application/json',
+            CacheControl: 'public, max-age=0, must-revalidate'
+          },
+          "chunk-map.json": {
+            ContentType: 'application/json',
+            CacheControl: 'public, max-age=0, must-revalidate'
+          },
+          "/feed/rss.xml": {
+            ContentType: 'application/rss+xml',
+            CacheControl: 'public, max-age=0, must-revalidate'
+          },
+          "/sw.js": {
+            ContentType: 'application/javascript',
+            CacheControl: 'public, max-age=0, must-revalidate'
+          },
+          "/*.js": {
+            ContentType: 'application/javascript',
+            CacheControl: 'public, max-age=31536000, immutable'
+          },
+          "/*.js.map": {
+            ContentType: 'application/javascript',
+            CacheControl: 'public, max-age=31536000, immutable'
+          },
+        },
+      },
+    }
   ],
 };
 

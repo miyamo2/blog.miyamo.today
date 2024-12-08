@@ -1,6 +1,6 @@
 import { Link } from "gatsby";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
-import { faBars, faHome, faTags, faAddressCard } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faHome, faTags, faAddressCard, faRss } from "@fortawesome/free-solid-svg-icons";
 import { StaticImage } from "gatsby-plugin-image";
 import { Grid, GridItem, HStack } from "@yamada-ui/layouts";
 import { useColorMode } from "@yamada-ui/core";
@@ -84,6 +84,15 @@ const Header = ({ logoPaddingLeft, menuPaddingRight }: HeaderProp) => {
             className={"text-lg font-bold"}
           >
             About
+          </Button>
+          <Button
+            startIcon={<FontAwesomeIcon icon={faRss} />}
+            variant="ghost"
+            as={Link}
+            to="/feed/rss.xml"
+            className={"text-lg font-bold"}
+          >
+            RSS
           </Button>
         </HStack>
       </GridItem>
