@@ -35,6 +35,7 @@ jobs:
         with:
           path: |
             ./.cache
+          key: ${{ runner.os }}-gatsby-build
 
       - name: Build
         env:
@@ -52,6 +53,7 @@ jobs:
         with:
           path: |
             ./.cache
+          key: ${{ runner.os }}-gatsby-build
 
       - name: Deploy
         env:
