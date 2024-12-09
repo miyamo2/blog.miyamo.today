@@ -39,9 +39,9 @@ jobs:
         with:
           path: |
             ./.cache
-          key: ${{ runner.os }}-gatsby-build-${{ github.ref }}-${{ github.event.client_payload.event_id }}
+          key: ${{ runner.os }}-gatsby-build-${{ github.sha }}-${{ github.event.client_payload.event_id }}
           restore-keys: |
-            ${{ runner.os }}-gatsby-build--${{ github.ref }}-
+            ${{ runner.os }}-gatsby-build-${{ github.sha }}-
 
       - name: Build
         env:
@@ -59,7 +59,7 @@ jobs:
         with:
           path: |
             ./.cache
-          key: ${{ runner.os }}-gatsby-build--${{ github.ref }}-${{ github.event.client_payload.event_id }}
+          key: ${{ runner.os }}-gatsby-build-${{ github.sha }}-${{ github.event.client_payload.event_id }}
 
       - name: Deploy
         env:
