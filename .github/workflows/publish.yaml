@@ -8,6 +8,10 @@ on:
       - sync-read-model
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 permissions: write-all
 
 jobs:
