@@ -68,6 +68,7 @@ const config: GatsbyConfig = {
         gfm: true,
         plugins: [
           `gatsby-remark-autolink-headers`,
+          `gatsby-remark-prismjs-copy-button`,
           {
             resolve: `gatsby-remark-prismjs`,
             options: {
