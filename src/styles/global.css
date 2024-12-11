@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: 'UDEVGothicHS';
+    font-display: swap;
+    font-style: normal;
+    font-weight: normal;
+    font-named-instance: 'UDEVGothicHS';
+    src: url(/fonts/UDEVGothicHS-Regular-Subset.woff2) format("woff2");
+}
+
+@font-face {
+    font-family: 'UDEVGothicHS';
+    font-display: swap;
+    font-style: normal;
+    font-weight: bold;
+    font-named-instance: 'UDEVGothicHS';
+    src: url(/fonts/UDEVGothicHS-Bold-Subset.woff2) format("woff2");
+}
+
+#___gatsby #gatsby-focus-wrapper * {
+    font-family: "UDEVGothicHS", "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol" !important;
+}

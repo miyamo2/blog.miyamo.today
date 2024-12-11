@@ -132,7 +132,7 @@ const ArticleDetail = ({
                 objectFit={"cover"}
               />
             </GridItem>
-            <GridItem gridArea={"content"} justifySelf={"center"}>
+            <GridItem gridArea={"content"} justifySelf={"stretch"}>
               <article>
                 { ArticleTOC(pageContext.tableOfContents ?? "", false) }
                 <div

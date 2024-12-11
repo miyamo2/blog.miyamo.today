@@ -3,9 +3,8 @@ import * as React from "react";
 import { getColorModeScript } from "@yamada-ui/core";
 import { UIProvider } from "@yamada-ui/providers";
 import { GatsbyBrowser } from "gatsby";
-import "@fontsource/jetbrains-mono";
-import "@fontsource/m-plus-1p/400.css";
 import "prism-themes/themes/prism-dracula.css";
+import "./src/styles/global.css";
 
 const injectColorModeScript = () => {
   const scriptContent = getColorModeScript({
