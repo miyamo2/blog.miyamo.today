@@ -6,6 +6,7 @@ import {
   Grid,
   GridItem,
   HStack,
+  Separator,
 } from "@yamada-ui/layouts";
 import {
   Accordion,
@@ -23,11 +24,14 @@ import Layout from "../components/Layout";
 import Image from "../components/Image";
 import SEO from "../components/SEO";
 import "./article-detail.css"
+import { useColorMode } from "@yamada-ui/core";
+import Giscus from "@giscus/react";
 
 const ArticleDetail = ({
   data,
   pageContext,
 }: PageProps<Queries.ArticleDetailQueryQuery, ArticleDetailPageContext>) => {
+  const { colorMode } = useColorMode();
   const allFileConnection = data.allFile;
 
   const frontmatter = pageContext.frontmatter;
@@ -49,7 +53,9 @@ const ArticleDetail = ({
             "tag tag tag tag tag tag"
             "date date date date date date"
             "image image image image image image"
-            "content content content content toc toc"`}
+            "content content content content toc toc"
+            "comment comment comment comment comment comment"`
+          }
             className={"justify-start"}
           >
             <GridItem gridArea={"title"}>
@@ -97,6 +103,25 @@ const ArticleDetail = ({
                 ></div>
               </article>
             </GridItem>
+            <GridItem gridArea={"comment"} justifySelf={"stretch"}>
+              <Separator paddingY={"sm"} />
+              <Giscus
+                id={"comments"}
+                repo={"miyamo2/giscus-playground"}
+                repoId={"R_kgDONcgSBA"}
+                category={"Announcements"}
+                categoryId={"DIC_kwDONcgSBM4ClJ66"}
+                mapping={"pathname"}
+                term={"Welcome to @giscus/react component!"}
+                reactionsEnabled={"1"}
+                emitMetadata={"0"}
+                inputPosition={"top"}
+                theme={colorMode}
+                lang={"ja"}
+                loading={"lazy"}
+                strict={"1"}
+              />
+            </GridItem>
           </Grid>
         </div>
         <div className={"block lg:hidden w-full"}>
@@ -124,6 +149,7 @@ const ArticleDetail = ({
             templateAreas={`
           "image image image"
           "content content content"
+          "comment comment comment"
         `}>
             <GridItem gridArea={"image"} justifySelf={"center"}>
               <Image
@@ -142,6 +168,25 @@ const ArticleDetail = ({
                   className={"markdown-body"}
                 ></div>
               </article>
+            </GridItem>
+            <GridItem gridArea={"comment"} justifySelf={"stretch"}>
+              <Separator paddingTop={"sm"} />
+              <Giscus
+                id={"comments"}
+                repo={"miyamo2/giscus-playground"}
+                repoId={"R_kgDONcgSBA"}
+                category={"Announcements"}
+                categoryId={"DIC_kwDONcgSBM4ClJ66"}
+                mapping={"pathname"}
+                term={"Welcome to @giscus/react component!"}
+                reactionsEnabled={"1"}
+                emitMetadata={"0"}
+                inputPosition={"top"}
+                theme={colorMode}
+                lang={"ja"}
+                loading={"lazy"}
+                strict={"1"}
+              />
             </GridItem>
           </Grid>
         </div>
