@@ -50,9 +50,9 @@ const ArticleDetail = ({
           <Grid
             templateAreas={`
             "title title title title title title"
+            "image image image image image image"
             "tag tag tag tag tag tag"
             "date date date date date date"
-            "image image image image image image"
             "content content content content toc toc"
             "comment comment comment comment comment comment"`
           }
@@ -80,7 +80,7 @@ const ArticleDetail = ({
             </GridItem>
             <GridItem gridArea={"date"}>
               <Box paddingTop={"md"} paddingBottom={"md"}>
-                <FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />&nbsp;{createdAt}
+                <FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />{createdAt}
               </Box>
             </GridItem>
             <GridItem gridArea={"image"}>
@@ -125,38 +125,46 @@ const ArticleDetail = ({
           </Grid>
         </div>
         <div className={"block lg:hidden w-full"}>
-          <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
-            {frontmatter.title}
-          </Heading>
-          <HStack>
-            {frontmatter.tags?.map((tag) => (
-              <Tag
-                as={Link}
-                size={"md"}
-                id={`${tag?.id}-${tag?.id}`}
-                to={`/tags/${tag?.id}`}
-                bg={["#ddf4ff", "#121d2f"]}
-              >
-                #{tag?.name}
-              </Tag>
-            ))}
-          </HStack>
-          <Box paddingTop={"md"} paddingBottom={"md"}>
-            <FontAwesomeIcon icon={faCalendarDay} />
-            {createdAt}
-          </Box>
           <Grid
             templateAreas={`
+          "title title title"
           "image image image"
+          "tag tag tag"
+          "date date date"
           "content content content"
           "comment comment comment"
         `}>
+            <GridItem gridArea={"title"}>
+              <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
+                {frontmatter.title}
+              </Heading>
+            </GridItem>
             <GridItem gridArea={"image"} justifySelf={"center"}>
               <Image
                 allFileConnectrion={allFileConnection}
                 alt={`ArticleImage:${pageContext.cursor}`}
                 objectFit={"cover"}
               />
+            </GridItem>
+            <GridItem gridArea={"tag"}>
+              <HStack>
+                {frontmatter.tags?.map((tag) => (
+                  <Tag
+                    as={Link}
+                    size={"md"}
+                    id={`${tag?.id}-${tag?.id}`}
+                    to={`/tags/${tag?.id}`}
+                    bg={["#ddf4ff", "#121d2f"]}
+                  >
+                    #{tag?.name}
+                  </Tag>
+                ))}
+              </HStack>
+            </GridItem>
+            <GridItem gridArea={"date"}>
+              <Box paddingTop={"md"} paddingBottom={"md"}>
+                <FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />{createdAt}
+              </Box>
             </GridItem>
             <GridItem gridArea={"content"} justifySelf={"stretch"}>
               <article>
