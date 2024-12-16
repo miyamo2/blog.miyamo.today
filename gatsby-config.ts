@@ -79,6 +79,15 @@ const config: GatsbyConfig = {
               noInlineHighlight: false,
             },
           },
+          {
+            resolve: `gatsby-remark-images-remote`,
+            options: {
+              maxWidth: 800,
+              withWebp: true,
+              quality: 100,
+              backgroundColor: `transparent`,
+            },
+          }
         ],
       },
     },
