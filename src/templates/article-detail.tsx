@@ -147,7 +147,6 @@ const ArticleDetail = ({
               />
             </GridItem>
             <GridItem gridArea={"tag"}>
-              <HStack>
                 {frontmatter.tags?.map((tag) => (
                   <Tag
                     as={Link}
@@ -159,7 +158,6 @@ const ArticleDetail = ({
                     #{tag?.name}
                   </Tag>
                 ))}
-              </HStack>
             </GridItem>
             <GridItem gridArea={"date"}>
               <Box paddingTop={"md"} paddingBottom={"md"}>

@@ -58,39 +58,39 @@ const ArticleList = ({
 };
 
 export const query = graphql`
-  query ArticleListQuery(
-    $imageCursors: [String]
-    $markdownCursors: [String]
-  ) {
-    allMarkdownRemark(
-      filter: { frontmatter: { id: { in: $markdownCursors } } },
-      sort: { frontmatter: {id: DESC}}
+    query ArticleListQuery(
+        $imageCursors: [String]
+        $markdownCursors: [String]
     ) {
-      nodes {
-        excerpt
-        frontmatter {
-          id
-          title
-          createdAt
-          updatedAt
-          tags {
-            id
-            name
-          }
+        allMarkdownRemark(
+            filter: { frontmatter: { id: { in: $markdownCursors } } },
+            sort: { frontmatter: {id: DESC}}
+        ) {
+            nodes {
+                excerpt
+                frontmatter {
+                    id
+                    title
+                    createdAt
+                    updatedAt
+                    tags {
+                        id
+                        name
+                    }
+                }
+            }
         }
-      }
-    }
-    allFile(filter: { id: { in: $imageCursors } }) {
-      edges {
-        node {
-          id
-          childImageSharp {
-            gatsbyImageData(
-              width: 275
-              height: 275
-              placeholder: BLURRED
-              quality: 100
-              layout: CONSTRAINED
+        allFile(filter: { id: { in: $imageCursors } }) {
+            edges {
+                node {
+                    id
+                    childImageSharp {
+                        gatsbyImageData(
+                            width: 750
+                            height: 470
+                            placeholder: BLURRED
+                            quality: 100
+                            layout: CONSTRAINED
             )
           }
         }

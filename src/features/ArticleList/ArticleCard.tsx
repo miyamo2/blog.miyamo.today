@@ -52,8 +52,8 @@ const ArticleCard = (props: ArticleCardProps) => {
       to={`/articles/${props.id}`}
       aria-label={`link: ${props.title}`}
       bg={["#f6f8fa", "#151b23"]}
-      maxW={"303px"}
       w={"full"}
+      className={"max-w-[750px] lg:max-w-[303px]"}
     >
       <GridItem>{gatsbyImage}</GridItem>
       <GridItem>
