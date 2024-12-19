@@ -38,7 +38,7 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
               />
             </GridItem>
             <GridItem gridArea={"name"} paddingBottom={"md"}>
-              <Heading as={"h2"} className={"text-3xl font-bold"}>
+              <Heading as={"h2"} className={"text-2xl font-bold"}>
                 {data.github?.user?.login}
               </Heading>
             </GridItem>
@@ -72,15 +72,18 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
       </div>
       <div className={"lg:hidden w-full"}>
         <main>
-          <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
-            About
-          </Heading>
-          <Grid
-            templateColumns={"repeat(auto-fit, minmax(150px, auto))"}
-            justifyContent={"center"}
-            gap={"lg"}
-          >
-            <GridItem>
+          <Grid templateAreas={`
+          "title title title title"
+          "image image . name"
+          "image image . bio"
+          "social social social social"`}
+                className={"justify-between"}>
+            <GridItem gridArea={"title"}>
+              <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
+                About
+              </Heading>
+            </GridItem>
+            <GridItem gridArea={"image"} justifySelf={"center"} paddingBottom={"md"}>
               <Image
                 allFileConnectrion={allFileConnection}
                 alt={"GitHubAvatar:miyamo2"}
@@ -88,39 +91,41 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
                 className={"round-image"}
               />
             </GridItem>
-            <GridItem>
-              <Heading as={"h2"} className={"text-3xl font-bold"} paddingBottom={"md"}>
+            <GridItem gridArea={"name"} paddingBottom={"md"}>
+              <Heading as={"h2"} className={"text-2xl font-bold"}>
                 {data.github?.user?.login}
               </Heading>
-              <Text paddingBottom={"md"}>{data.github?.user?.bio}</Text>
-              <Grid templateColumns={"repeat(auto-fit, minmax(65px, auto))"} gap={"sm"}>
-                <GridItem>
-                  <Button
-                    as={Link}
-                    href={data.github?.user?.url}
-                    isExternal={true}
-                    variant="ghost"
-                    className={"text-3xl"}
-                    size={"lg"}
-                    aria-label={"GitHub"}
-                  >
-                    <SiGithub size={"100%"} />
-                  </Button>
-                </GridItem>
+            </GridItem>
+            <GridItem gridArea={"bio"} paddingBottom={"md"}>
+              <Text>{data.github?.user?.bio}</Text>
+            </GridItem>
+            <GridItem gridArea={"social"} justifySelf={"center"}>
+              <HStack>
+                <Button
+                  as={Link}
+                  href={data.github?.user?.url}
+                  isExternal={true}
+                  variant="ghost"
+                  className={"text-3xl"}
+                  size={"lg"}
+                  aria-label={"GitHub"}
+                >
+                  <SiGithub size={"100%"} />
+                </Button>
                 {data.github?.user?.socialAccounts?.nodes?.map((socialAccount) => {
                   const link = SocialAccountLink(socialAccount?.url ?? "");
                   if (!link) {
                     return <></>;
                   }
-                  return <GridItem>{link}</GridItem>;
+                  return link;
                 })}
-              </Grid>
+              </HStack>
             </GridItem>
           </Grid>
         </main>
       </div>
     </Layout>
-);
+  );
 };
 
 const SocialAccountLink = (url: string) => {
@@ -155,28 +160,28 @@ const SocialAccountLink = (url: string) => {
 };
 
 export const query = graphql`
-  query AboutQuery {
-    allFile(filter: { id: { eq: "GitHubAvatar:miyamo2" } }) {
-      nodes {
-        id
-        childImageSharp {
-          gatsbyImageData(width: 350, height: 350, placeholder: BLURRED, quality: 100)
+    query AboutQuery {
+        allFile(filter: { id: { eq: "GitHubAvatar:miyamo2" } }) {
+            nodes {
+                id
+                childImageSharp {
+                    gatsbyImageData(width: 350, height: 350, placeholder: BLURRED, quality: 100)
+                }
+            }
         }
-      }
-    }
-    github {
-      user(login: "miyamo2") {
-        login
-        url
-        bio
-        socialAccounts(first: 10) {
-          nodes {
-            url
-          }
+        github {
+            user(login: "miyamo2") {
+                login
+                url
+                bio
+                socialAccounts(first: 10) {
+                    nodes {
+                        url
+                    }
+                }
+            }
         }
-      }
     }
-  }
 `;
 
 export default About;
