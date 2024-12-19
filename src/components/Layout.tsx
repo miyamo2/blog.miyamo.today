@@ -16,7 +16,7 @@ const Layout = ({
   return (
     <>
       <Box className={"hidden lg:block"} bg={["#ffffff", "#0d1117"]}>
-        <Grid w={"full"} h={"100vh"} templateAreas={`
+        <Grid w={"full"} h={"100vh"} className={"smooth-scroll"} templateAreas={`
           "h h h h h h h h h"
           "m m m m m m m m m"
           "m m m m m m m m m"
@@ -37,6 +37,7 @@ const Layout = ({
             gridArea={"m"}
             overflowY={scroll ? "auto" : "hidden"}
             overflowX={"hidden"}
+            className={"smooth-scroll"}
           >
             <div className={"flex w-full justify-center"}>
               <div className={"w-full max-w-[1280px] w-[90vw]"}>{children}</div>
@@ -48,7 +49,7 @@ const Layout = ({
         </Grid>
       </Box>
       <Box className={"block lg:hidden"}>
-        <Grid w={"full"} h={"100vh"} templateAreas={`
+        <Grid w={"full"} h={"100vh"} className={"smooth-scroll"} templateAreas={`
           "h h h h h h h h h"
           "m m m m m m m m m"
           "m m m m m m m m m"
@@ -67,6 +68,7 @@ const Layout = ({
             overflowY={scroll ? "auto" : "hidden"}
             overflowX={"hidden"}
             justifySelf={"center"}
+            className={"smooth-scroll"}
           >
             <div className={"w-[90vw]"}>{children}</div>
           </GridItem>
