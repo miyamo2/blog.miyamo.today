@@ -74,6 +74,9 @@ const createArticleContentAndImageNode = async (
 
     data.articles.edges.map(async (edge) => {
       const articleNode = edge.node;
+      if (articleNode.thumbnailUrl === null || articleNode.thumbnailUrl === undefined || articleNode.thumbnailUrl.length === 0) {
+        return;
+      }
 
       const thumbnailNode = await createRemoteFileNode({
         url: articleNode.thumbnailUrl,
