@@ -52,7 +52,20 @@ const ArticleDetail = ({
               </Heading>
             </GridItem>
             <GridItem gridArea={"tag"}>
-              <HStack gridArea={"tag"}>
+              <Box className={"block lg:hidden"}>
+                {frontmatter.tags?.filter((v) => v).map((tag) => (
+                  <Tag
+                    as={Link}
+                    size={"md"}
+                    id={`${tag?.id}-${tag?.id}`}
+                    to={`/tags/${tag?.id}`}
+                    bg={["#ddf4ff", "#121d2f"]}
+                  >
+                    #{tag?.name}
+                  </Tag>
+                ))}
+              </Box>
+              <HStack className={"hidden lg:block"}>
                 {frontmatter.tags?.filter((v) => v).map((tag) => (
                   <Tag
                     as={Link}

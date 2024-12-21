@@ -36,8 +36,8 @@ const Layout = ({
             overflowX={"hidden"}
             className={"smooth-scroll"}
           >
-            <div className={"lg:flex w-full lg:justify-center"}>
-              <div className={"w-full lg:max-w-[1280px] w-[90vw]"}>{children}</div>
+            <div className={"flex w-full justify-center"}>
+              <div className={"max-w-[1280px] w-[90vw]"}>{children}</div>
             </div>
           </GridItem>
           <GridItem w={"full"} h={"full"} gridArea={"f"}>
