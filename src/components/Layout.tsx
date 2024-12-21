@@ -33,7 +33,6 @@ const Layout = ({
             h={"full"}
             gridArea={"m"}
             overflowY={scroll ? "auto" : "hidden"}
-            overflowX={"hidden"}
             className={"smooth-scroll"}
           >
             <div className={"flex w-full justify-center"}>

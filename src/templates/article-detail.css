@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+.scroll-offset {
+    scroll-padding-top: 100px;
+    @screen lg {
+        scroll-padding-top: unset;
+    }
+}
+
 .article-detail {
     grid-template-areas:
           "title title title"

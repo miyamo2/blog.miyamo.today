@@ -20,7 +20,7 @@ import Layout from "../components/Layout";
 import Image from "../components/Image";
 import SEO from "../components/SEO";
 import "./article-detail.css"
-import ArticleTOC from "../features/ArticleDetail/TOC";
+import { ArticleTOCLarge, ArticleTOCMedium } from "../features/ArticleDetail/TOC";
 
 const ArticleDetail = ({
   data,
@@ -81,14 +81,14 @@ const ArticleDetail = ({
             <GridItem gridArea={"toc"} alignSelf={"start"} h={"full"} w={"full"} className={"contain-paint hidden lg:block"}>
               <Box h={"full"} overflow={"visible"}>
                 <Box position={"sticky"} top={0}>
-                  <ArticleTOC isLarge={true} headings={headings}></ArticleTOC>
+                  <ArticleTOCLarge headings={headings}></ArticleTOCLarge>
                 </Box>
               </Box>
             </GridItem>
             <GridItem gridArea={"toc"} position={"sticky"} top={0} className={"lg:hidden"}>
-              <ArticleTOC isLarge={false} headings={headings}></ArticleTOC>
+              <ArticleTOCMedium headings={headings}></ArticleTOCMedium>
             </GridItem>
-            <GridItem gridArea={"content"}>
+            <GridItem gridArea={"content"} className={"scroll-offset"}>
               <article>
                 <div
                   dangerouslySetInnerHTML={{
