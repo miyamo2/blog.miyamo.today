@@ -52,7 +52,7 @@ const ArticleDetail = ({
               </Heading>
             </GridItem>
             <GridItem gridArea={"tag"}>
-              <Box className={"block lg:hidden"}>
+              <Box className={"lg:hidden"}>
                 {frontmatter.tags?.filter((v) => v).map((tag) => (
                   <Tag
                     as={Link}
