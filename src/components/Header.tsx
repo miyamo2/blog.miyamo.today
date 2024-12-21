@@ -10,12 +10,9 @@ import { Menu, MenuButton, MenuItem, MenuList } from "@yamada-ui/menu";
 import React from "react";
 import DarkmodeToggle from "./DarkmodeToggle";
 
-interface HeaderProp {
-  logoPaddingLeft?: "md" | "2xl";
-  menuPaddingRight?: "md" | "2xl";
-}
+interface HeaderProp {}
 
-const Header = ({ logoPaddingLeft, menuPaddingRight }: HeaderProp) => {
+const Header = (prop: HeaderProp) => {
   const [isBargerOpen, { on, off }] = useBoolean();
   const { colorMode } = useColorMode()
 
@@ -25,8 +22,8 @@ const Header = ({ logoPaddingLeft, menuPaddingRight }: HeaderProp) => {
         w={"full"}
         h={"full"}
         paddingTop={"lg:md"}
-        paddingLeft={logoPaddingLeft}
         justifySelf={"start"}
+        className={"pl-[1rem] lg:pl-[3rem]"}
       >
         <Link
           to="/"
@@ -53,8 +50,7 @@ const Header = ({ logoPaddingLeft, menuPaddingRight }: HeaderProp) => {
         w={"full"}
         h={"full"}
         justifySelf={"end"}
-        className={"hidden lg:block"}
-        paddingRight={menuPaddingRight}
+        className={"hidden lg:block pr-[3rem]"}
       >
         <HStack className={"justify-end"}>
           <DarkmodeToggle />
@@ -101,8 +97,7 @@ const Header = ({ logoPaddingLeft, menuPaddingRight }: HeaderProp) => {
         w={"full"}
         h={"full"}
         justifySelf={"end"}
-        className={"lg:hidden"}
-        paddingRight={menuPaddingRight}
+        className={"lg:hidden pr-[1rem]"}
       >
         <HStack className={"justify-end"}>
           <DarkmodeToggle />

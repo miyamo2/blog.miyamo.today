@@ -2,7 +2,7 @@ import React from "react";
 import { ReactNode } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
-import { Box, Grid, GridItem, Spacer } from "@yamada-ui/layouts";
+import { Grid, GridItem } from "@yamada-ui/layouts";
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,7 +15,6 @@ const Layout = ({
 }: LayoutProps) => {
   return (
     <>
-      <Box className={"hidden lg:block"} bg={["#ffffff", "#0d1117"]}>
         <Grid w={"full"} h={"100vh"} className={"smooth-scroll"} templateAreas={`
           "h h h h h h h h h"
           "m m m m m m m m m"
@@ -25,12 +24,10 @@ const Layout = ({
           "m m m m m m m m m"
           "m m m m m m m m m"
           "f f f f f f f f f"`}
+          bg={["#ffffff", "#0d1117"]}
         >
           <GridItem gridArea={"h"}>
-            <Header
-              logoPaddingLeft={"2xl"}
-              menuPaddingRight={"2xl"}
-            />
+            <Header />
           </GridItem>
           <GridItem
             h={"full"}
@@ -39,44 +36,14 @@ const Layout = ({
             overflowX={"hidden"}
             className={"smooth-scroll"}
           >
-            <div className={"flex w-full justify-center"}>
-              <div className={"w-full max-w-[1280px] w-[90vw]"}>{children}</div>
+            <div className={"lg:flex w-full lg:justify-center"}>
+              <div className={"w-full lg:max-w-[1280px] w-[90vw]"}>{children}</div>
             </div>
           </GridItem>
           <GridItem w={"full"} h={"full"} gridArea={"f"}>
             <Footer />
           </GridItem>
         </Grid>
-      </Box>
-      <Box className={"block lg:hidden"}>
-        <Grid w={"full"} h={"100vh"} className={"smooth-scroll"} templateAreas={`
-          "h h h h h h h h h"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "f f f f f f f f f"`}
-        >
-          <GridItem gridArea={"h"}>
-            <Header logoPaddingLeft={"md"} menuPaddingRight={"md"} />
-          </GridItem>
-          <GridItem
-            h={"full"}
-            gridArea={"m"}
-            overflowY={scroll ? "auto" : "hidden"}
-            overflowX={"hidden"}
-            justifySelf={"center"}
-            className={"smooth-scroll"}
-          >
-            <div className={"w-[90vw]"}>{children}</div>
-          </GridItem>
-          <GridItem w={"full"} h={"full"} gridArea={"f"}>
-            <Footer />
-          </GridItem>
-        </Grid>
-      </Box>
     </>
   );
 };

@@ -8,33 +8,30 @@ import {
   HStack,
   Separator,
 } from "@yamada-ui/layouts";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionLabel,
-  AccordionPanel,
-} from "@yamada-ui/accordion";
-import { Tag } from "@yamada-ui/tag";
 import { Heading } from "@yamada-ui/typography";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
-import { faCalendarDay, faListUl } from "@fortawesome/free-solid-svg-icons";
+import { Tag } from "@yamada-ui/tag";
+import { useColorMode } from "@yamada-ui/core";
+import Giscus from "@giscus/react";
+import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
 import { format } from "@formkit/tempo";
 import { getSrc } from "gatsby-plugin-image";
 import Layout from "../components/Layout";
 import Image from "../components/Image";
 import SEO from "../components/SEO";
 import "./article-detail.css"
-import { useColorMode } from "@yamada-ui/core";
-import Giscus from "@giscus/react";
+import ArticleTOC from "../features/ArticleDetail/TOC";
 
 const ArticleDetail = ({
   data,
   pageContext,
 }: PageProps<Queries.ArticleDetailQueryQuery, ArticleDetailPageContext>) => {
   const { colorMode } = useColorMode();
-  const allFileConnection = data.allFile;
+  const { allFile, allMarkdownRemark } = data;
 
-  const frontmatter = pageContext.frontmatter;
+  const markdownRemark = allMarkdownRemark.nodes.at(0);
+  const { frontmatter, headings } =  markdownRemark ?? {frontmatter: undefined, headings: undefined};
+
   if (!frontmatter) {
     return <></>;
   }
@@ -46,17 +43,8 @@ const ArticleDetail = ({
       scroll={true}
     >
       <main>
-        <div className={"hidden lg:block w-full"}>
           <Grid
-            templateAreas={`
-            "title title title title title title"
-            "image image image image image image"
-            "tag tag tag tag tag tag"
-            "date date date date date date"
-            "content content content content toc toc"
-            "comment comment comment comment comment comment"`
-          }
-            className={"justify-start"}
+            className={"article-detail"}
           >
             <GridItem gridArea={"title"}>
               <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
@@ -65,7 +53,7 @@ const ArticleDetail = ({
             </GridItem>
             <GridItem gridArea={"tag"}>
               <HStack gridArea={"tag"}>
-                {frontmatter.tags?.map((tag) => (
+                {frontmatter.tags?.filter((v) => v).map((tag) => (
                   <Tag
                     as={Link}
                     size={"md"}
@@ -85,19 +73,26 @@ const ArticleDetail = ({
             </GridItem>
             <GridItem gridArea={"image"}>
               <Image
-                allFileConnectrion={allFileConnection}
+                allFileConnectrion={allFile}
                 alt={`ArticleImage:${pageContext.cursor}`}
                 objectFit={"cover"}
               />
             </GridItem>
-            <GridItem gridArea={"toc"} justifySelf={"start"} w={"full"}>
-              {ArticleTOC(pageContext.tableOfContents ?? "", true)}
+            <GridItem gridArea={"toc"} alignSelf={"start"} h={"full"} w={"full"} className={"contain-paint hidden lg:block"}>
+              <Box h={"full"} overflow={"visible"}>
+                <Box position={"sticky"} top={0}>
+                  <ArticleTOC isLarge={true} headings={headings}></ArticleTOC>
+                </Box>
+              </Box>
+            </GridItem>
+            <GridItem gridArea={"toc"} position={"sticky"} top={0} className={"lg:hidden"}>
+              <ArticleTOC isLarge={false} headings={headings}></ArticleTOC>
             </GridItem>
             <GridItem gridArea={"content"}>
               <article>
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: pageContext.html ?? "",
+                    __html: markdownRemark?.html ?? "",
                   }}
                   className={"markdown-body"}
                 ></div>
@@ -123,118 +118,34 @@ const ArticleDetail = ({
               />
             </GridItem>
           </Grid>
-        </div>
-        <div className={"block lg:hidden w-full"}>
-          <Grid
-            templateAreas={`
-          "title title title"
-          "image image image"
-          "tag tag tag"
-          "date date date"
-          "content content content"
-          "comment comment comment"
-        `}>
-            <GridItem gridArea={"title"}>
-              <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
-                {frontmatter.title}
-              </Heading>
-            </GridItem>
-            <GridItem gridArea={"image"} justifySelf={"center"}>
-              <Image
-                allFileConnectrion={allFileConnection}
-                alt={`ArticleImage:${pageContext.cursor}`}
-                objectFit={"cover"}
-              />
-            </GridItem>
-            <GridItem gridArea={"tag"}>
-                {frontmatter.tags?.map((tag) => (
-                  <Tag
-                    as={Link}
-                    size={"md"}
-                    id={`${tag?.id}-${tag?.id}`}
-                    to={`/tags/${tag?.id}`}
-                    bg={["#ddf4ff", "#121d2f"]}
-                  >
-                    #{tag?.name}
-                  </Tag>
-                ))}
-            </GridItem>
-            <GridItem gridArea={"date"}>
-              <Box paddingTop={"md"} paddingBottom={"md"}>
-                <FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />{createdAt}
-              </Box>
-            </GridItem>
-            <GridItem gridArea={"content"} justifySelf={"stretch"}>
-              <article>
-                { ArticleTOC(pageContext.tableOfContents ?? "", false) }
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: pageContext.html ?? "",
-                  }}
-                  className={"markdown-body"}
-                ></div>
-              </article>
-            </GridItem>
-            <GridItem gridArea={"comment"} justifySelf={"stretch"}>
-              <Separator paddingTop={"sm"} />
-              <Giscus
-                id={"comments"}
-                repo={"miyamo2/giscus-playground"}
-                repoId={"R_kgDONcgSBA"}
-                category={"Announcements"}
-                categoryId={"DIC_kwDONcgSBM4ClJ66"}
-                mapping={"pathname"}
-                term={"Welcome to @giscus/react component!"}
-                reactionsEnabled={"1"}
-                emitMetadata={"0"}
-                inputPosition={"top"}
-                theme={colorMode}
-                lang={"ja"}
-                loading={"lazy"}
-                strict={"1"}
-              />
-            </GridItem>
-          </Grid>
-        </div>
       </main>
     </Layout>
   );
 };
 
-const ArticleTOC = (toc: string, isLarge: boolean) =>  {
-  return (
-      <>
-        {isLarge ? (
-          <Box w={"full"} top={0}>
-            <Heading as={"h2"} paddingBottom={"md"}>
-              <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
-              TOC
-            </Heading>
-            <Box borderBlock={"solid"} writingMode={"horizontal-tb"} w={"full"}>
-              <div className={"side-toc"} dangerouslySetInnerHTML={{ __html: toc }}></div>
-            </Box>
-          </Box>
-        ) : (
-          <div>
-            <Accordion toggle>
-              <AccordionItem w={"full"}>
-                <AccordionLabel className={"text-2xl font-bold"} >
-                  <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
-                  TOC
-                </AccordionLabel>
-                <AccordionPanel>
-                  <div dangerouslySetInnerHTML={{ __html: toc }}></div>
-                </AccordionPanel>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        )}
-      </>
-    )
-};
-
 export const query = graphql`
-  query ArticleDetailQuery($imageCursor: String) {
+  query ArticleDetailQuery($cursor: String, $imageCursor: String) {
+    allMarkdownRemark(filter: { frontmatter: { id: { eq: $cursor } } }) {
+        nodes {
+            excerpt(pruneLength: 140, truncate: true)
+            html
+            headings {
+                depth
+                id
+                value
+            }
+            frontmatter {
+                id
+                title
+                createdAt
+                updatedAt
+                tags {
+                    id
+                    name
+                }
+            }
+        }
+    }
     allFile(filter: { id: { eq: $imageCursor } }) {
       nodes {
         id
@@ -249,10 +160,13 @@ export const query = graphql`
 export default ArticleDetail;
 
 export const Head = ({ data, pageContext, location }: HeadProps<Queries.ArticleDetailQueryQuery, ArticleDetailPageContext>) => {
-  const title = pageContext.frontmatter?.title ?? undefined;
-  const description = pageContext.excerpt ?? undefined;
+  const { allMarkdownRemark, allFile } = data;
+  const markdownRemark = allMarkdownRemark.nodes.at(0);
 
-  const childImageSharp = data.allFile?.nodes.at(0)?.childImageSharp;
+  const title = markdownRemark?.frontmatter?.title ?? undefined;
+  const description = markdownRemark?.excerpt ?? undefined;
+
+  const childImageSharp = allFile?.nodes.at(0)?.childImageSharp;
   const imageSrc = childImageSharp ? getSrc(childImageSharp) : undefined;
 
   const path = location.pathname;

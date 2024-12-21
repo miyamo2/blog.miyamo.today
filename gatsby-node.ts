@@ -270,16 +270,6 @@ export interface ArticleDetailPageTag {
 export interface ArticleDetailPageContext {
   cursor: string;
   imageCursor?: string;
-  excerpt?: string;
-  html?: string;
-  tableOfContents?: string
-  frontmatter?: {
-    id?: string;
-    title?: string;
-    createdAt?: string;
-    updatedAt?: string;
-    tags: ArticleDetailPageTag[];
-  }
 }
 
 const articleDetailPage = async (
@@ -290,14 +280,8 @@ const articleDetailPage = async (
     query GetAllArticles {
       allMarkdownRemark(filter: { frontmatter: { id: { ne: "Noop" } } }) {
         nodes {
-          excerpt(pruneLength: 140, truncate: true)
-          html
-          tableOfContents
           frontmatter {
             id
-            title
-            createdAt
-            updatedAt
             tags {
               id
               name
@@ -320,34 +304,6 @@ const articleDetailPage = async (
     const context: ArticleDetailPageContext = {
       cursor: id,
       imageCursor: `ArticleImage:${id}`,
-      excerpt: edge.excerpt ?? undefined,
-      html: edge.html ?? undefined,
-      tableOfContents: edge.tableOfContents ?? undefined,
-      frontmatter: (() => {
-        const frontmatter = edge.frontmatter
-        if (frontmatter === null) {
-          return undefined
-        }
-
-        const articleDetailPageTag: ArticleDetailPageTag[] = []
-        frontmatter.tags?.forEach((t) => {
-          if (!t) {
-            return;
-          }
-          articleDetailPageTag.push({
-            id: t.id ?? undefined,
-            name: t.name ?? undefined,
-          })
-        })
-
-        return {
-          id: frontmatter.id ?? undefined,
-          title: frontmatter.title ?? undefined,
-          createdAt: frontmatter.createdAt ?? undefined,
-          updatedAt: frontmatter.updatedAt ?? undefined,
-          tags: articleDetailPageTag,
-        }
-      })(),
     };
     createPage({
       path: `/articles/${id}`,

@@ -27,3 +27,7 @@
 .smooth-scroll {
     scroll-behavior: smooth;
 }
+
+.contain-paint {
+    contain: paint;
+}
