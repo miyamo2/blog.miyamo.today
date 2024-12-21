@@ -3,9 +3,9 @@ import * as React from "react";
 import { ArticleDetailPageContext } from "../../gatsby-node";
 import {
   Box,
+  Flex,
   Grid,
   GridItem,
-  HStack,
   Separator,
 } from "@yamada-ui/layouts";
 import { Heading } from "@yamada-ui/typography";
@@ -21,8 +21,10 @@ import Image from "../components/Image";
 import SEO from "../components/SEO";
 import "./article-detail.css"
 import { ArticleTOCLarge, ArticleTOCMedium } from "../features/ArticleDetail/TOC";
+import ShareButtons from "../components/ShareButtons";
 
 const ArticleDetail = ({
+  location,
   data,
   pageContext,
 }: PageProps<Queries.ArticleDetailQueryQuery, ArticleDetailPageContext>) => {
@@ -78,7 +80,14 @@ const ArticleDetail = ({
                 objectFit={"cover"}
               />
             </GridItem>
-            <GridItem gridArea={"toc"} alignSelf={"start"} h={"full"} w={"full"} className={"contain-paint hidden lg:block"}>
+            <GridItem gridArea={"lnav"} alignSelf={"end"} h={"full"} w={"full"} className={"contain-paint hidden lg:block"}>
+              <Box h={"full"} overflow={"visible"}>
+                <Box position={"sticky"} top={0}>
+                  <ShareButtons title={frontmatter.title ?? ""} url={location.host+location.pathname} stackType={"v"} buttonSize={32}/>
+                </Box>
+              </Box>
+            </GridItem>
+            <GridItem gridArea={"rnav"} alignSelf={"start"} h={"full"} w={"full"} className={"contain-paint hidden lg:block"}>
               <Box h={"full"} overflow={"visible"}>
                 <Box position={"sticky"} top={0}>
                   <ArticleTOCLarge headings={headings}></ArticleTOCLarge>
@@ -97,6 +106,11 @@ const ArticleDetail = ({
                   className={"markdown-body"}
                 ></div>
               </article>
+            </GridItem>
+            <GridItem gridArea={"share"} className={"lg:hidden"} paddingTop={"md"}>
+              <Flex justifyContent={"space-evenly"}>
+                <ShareButtons title={frontmatter.title ?? ""} url={location.host+location.pathname} stackType={"h"} buttonSize={32}/>
+              </Flex>
             </GridItem>
             <GridItem gridArea={"comment"} justifySelf={"stretch"}>
               <Separator paddingY={"sm"} />

@@ -17,6 +17,8 @@
           "image image image"
           "toc toc toc"
           "content content content"
+          "content content content"
+          "share share share"
           "comment comment comment";
     @screen lg {
         grid-template-areas:
@@ -24,8 +26,8 @@
         "tag tag tag tag tag tag"
         "date date date date date date"
         "image image image image image image"
-        "content content content content toc toc"
-        "comment comment comment comment comment comment";
+        "lnav content content content content rnav"
+        "lnav comment comment comment comment rnav";
         justify-content: start;
         align-items: start;
         contain: paint;

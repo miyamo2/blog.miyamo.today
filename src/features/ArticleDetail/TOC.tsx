@@ -6,7 +6,6 @@ import * as React from "react";
 import { useState } from "react";
 import { Accordion, AccordionItem, AccordionLabel, AccordionPanel, AccordionProps } from "@yamada-ui/accordion";
 import { AnchorLink } from "gatsby-plugin-anchor-links";
-import { useBoolean } from "@yamada-ui/use-boolean";
 
 export interface ArticleTOCProps {
   headings?: ReadonlyArray<{ readonly depth: number | null, readonly id: string | null, readonly value: string | null } | null> | null;
@@ -21,9 +20,9 @@ export const ArticleTOCMedium = ({headings}: ArticleTOCProps) => {
         return <FontAwesomeIcon icon={expanded ? faMinus : faPlus} color={["#f6f8fa", "#010409"]} />
       }}>
       <AccordionItem w={"full"}>
-        <AccordionLabel className={"text-lg font-bold"} color={["#f6f8fa", "#010409"]}>
+        <AccordionLabel size={"md"} color={["#f6f8fa", "#010409"]}>
           <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
-          TOC
+          Table of Contents
         </AccordionLabel>
         <AccordionPanel bg={["#f6f8fa", "#0d1117"]}>
           {headings?.map((heading) => (
@@ -39,21 +38,19 @@ export const ArticleTOCMedium = ({headings}: ArticleTOCProps) => {
 
 export const ArticleTOCLarge = ({headings}: ArticleTOCProps) => {
   return (
-    <Box w={"full"}>
-      <Box bg={["#0d1117", "#f6f8fa"]} w={"full"} className={"backdrop-blur-md"} borderRadius={"md"}>
-        <Heading as={"h2"} paddingBottom={"sm"} paddingTop={"sm"} color={["#f6f8fa", "#010409"]}>
+    <Box w={"full"} rounded={"xl"}>
+      <Box w={"full"} className={"backdrop-blur-md"} borderBottom={"solid"} writingMode={"horizontal-tb"} >
+        <Heading as={"h2"} paddingTop={"sm"} size={"md"} className={"font-bold"}>
           <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
-          TOC
+          Table of Contents
         </Heading>
       </Box>
-      <Box borderBottom={"solid"} writingMode={"horizontal-tb"} w={"full"}>
-        <div className={"side-toc"}>
-          {headings?.map((heading) => (
-            <AnchorLink to={`#${heading?.id}`} key={heading?.id}>
-              <Text paddingBottom={"sm"} textIndent={`${heading?.depth ?? 0}em`}>{heading?.value}</Text>
-            </AnchorLink>
-          ))}
-        </div>
+      <Box className={"side-toc"} w={"full"} paddingTop={"sm"}>
+        {headings?.map((heading) => (
+          <AnchorLink to={`#${heading?.id}`} key={heading?.id}>
+            <Text paddingBottom={"sm"} textIndent={`${heading?.depth ?? 0}em`}>{heading?.value}</Text>
+          </AnchorLink>
+        ))}
       </Box>
     </Box>
   )
