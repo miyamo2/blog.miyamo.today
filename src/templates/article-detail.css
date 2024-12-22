@@ -2,10 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-.scroll-offset {
-    scroll-padding-top: 100px;
+.smooth-scroll {
+    scroll-snap-type: y proximity !important;
+    scroll-padding-top: 250px !important;
     @screen lg {
-        scroll-padding-top: unset;
+        scroll-padding-top: unset !important;
     }
 }
 
