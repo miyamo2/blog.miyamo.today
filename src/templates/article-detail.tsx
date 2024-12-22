@@ -94,7 +94,7 @@ const ArticleDetail = ({
                 </Box>
               </Box>
             </GridItem>
-            <GridItem gridArea={"toc"} position={"sticky"} top={0} className={"lg:hidden"}>
+            <GridItem gridArea={"toc"} position={"sticky"} top={0} className={"lg:hidden"} zIndex={2}>
               <ArticleTOCMedium headings={headings}></ArticleTOCMedium>
             </GridItem>
             <GridItem gridArea={"content"} className={"scroll-offset"}>

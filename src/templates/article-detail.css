@@ -41,6 +41,11 @@
     }
 }
 
+.makdown-body > p > .gatsby-resp-image-wrapper,
+.makdown-body > p > .gatsby-resp-image-wrapper > .gatsby-resp-image-link {
+    z-index: 0 !important;
+}
+
 .transform-scaleup-then-hover:hover img {
     transition: transform .6s ease;
     transform:scale(1.1);
@@ -131,7 +136,7 @@
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-    position: unset !important;
+    z-index: 0 !important;
 }
 
 .markdown-body h1:hover .anchor .octicon-link:before,
