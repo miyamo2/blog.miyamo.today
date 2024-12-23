@@ -32,7 +32,7 @@ const ShareButtons = ({title, url, stackType, buttonSize}: ShareButtonProps) => 
     <>
       {
         stackType === "v" ?
-          <VStack>
+          <VStack marginRight={"3em"}>
             <FacebookShareButton url={url}>
               <FacebookIcon size={buttonSize} round />
             </FacebookShareButton>

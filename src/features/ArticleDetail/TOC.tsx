@@ -20,7 +20,7 @@ export const ArticleTOCMedium = ({headings}: ArticleTOCProps) => {
         return <FontAwesomeIcon icon={expanded ? faMinus : faPlus} color={["#f6f8fa", "#010409"]} />
       }}>
       <AccordionItem w={"full"}>
-        <AccordionLabel size={"md"} color={["#f6f8fa", "#010409"]}>
+        <AccordionLabel color={["#f6f8fa", "#010409"]}>
           <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
           Table of Contents
         </AccordionLabel>
@@ -38,9 +38,9 @@ export const ArticleTOCMedium = ({headings}: ArticleTOCProps) => {
 
 export const ArticleTOCLarge = ({headings}: ArticleTOCProps) => {
   return (
-    <Box w={"full"} rounded={"xl"}>
+    <Box w={"full"}>
       <Box w={"full"} className={"backdrop-blur-md"} borderBottom={"solid"} writingMode={"horizontal-tb"} >
-        <Heading as={"h2"} paddingTop={"sm"} size={"md"} className={"font-bold"}>
+        <Heading as={"h2"} paddingTop={"sm"} size={"md"} className={"font-bold"} whiteSpace={"nowrap"}>
           <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
           Table of Contents
         </Heading>
@@ -48,7 +48,7 @@ export const ArticleTOCLarge = ({headings}: ArticleTOCProps) => {
       <Box className={"side-toc"} w={"full"} paddingTop={"sm"}>
         {headings?.map((heading) => (
           <AnchorLink to={`#${heading?.id}`} key={heading?.id}>
-            <Text paddingBottom={"sm"} textIndent={`${heading?.depth ?? 0}em`}>{heading?.value}</Text>
+            <Text textOverflow={"ellipsis"} paddingBottom={"sm"} textIndent={`${heading?.depth ?? 0}em`}>{heading?.value}</Text>
           </AnchorLink>
         ))}
       </Box>

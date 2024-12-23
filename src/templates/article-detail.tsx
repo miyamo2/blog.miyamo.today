@@ -164,7 +164,7 @@ export const query = graphql`
       nodes {
         id
         childImageSharp {
-          gatsbyImageData(width: 1280, height: 720, placeholder: BLURRED, quality: 100)
+          gatsbyImageData(width: 1400, height: 700, placeholder: BLURRED, quality: 100)
         }
       }
     }
