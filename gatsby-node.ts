@@ -66,7 +66,8 @@ const createArticleContentAndImageNode = async (
       {
         after: after,
         first: PER_PAGE,
-      }
+      },
+      {authorization: process.env.BLOG_API_MIYAMO_TODAY_TOKEN ? `Bearer ${process.env.BLOG_API_MIYAMO_TODAY_TOKEN}` : ""},
     );
     if (!data) {
       throw new Error("failed to get articles");

@@ -30,7 +30,11 @@ jobs:
         run: bun install
 
       - name: Auth blog miyamo today
-        run: exit 0
+        id: auth-blog-miyamo-today
+        run: |
+          ID_TOKEN=$(aws cognito-idp admin-initiate-auth --user-pool-id ${{ secrets.USER_POOL_ID }} --client-id ${{ secrets.USER_POOL_CLIENT_ID }} --auth-flow "ADMIN_USER_PASSWORD_AUTH" --auth-parameters USERNAME=${{ secrets.COGNITO_USER_NAME }},PASSWORD=${{ secrets.COGNITO_PASSWORD }} --query "AuthenticationResult.IdToken" | sed 's/"//g' | sed '/^$/d')
+          echo "::add-mask::$ID_TOKEN"
+          echo "idtoken=${ID_TOKEN}" >> $GITHUB_OUTPUT
 
       - name: Restore Gatsby cache
         id: cache-primes-restore
@@ -48,7 +52,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           BLOG_API_MIYAMO_TODAY_URL: ${{ secrets.BLOG_API_MIYAMO_TODAY_URL }}
-          BLOG_API_MIYAMO_TODAY_TOKEN: ""
+          BLOG_API_MIYAMO_TODAY_TOKEN: ${{ steps.auth-blog-miyamo-today.outputs.idtoken }}
           GITHUB_API_TOKEN:  ${{ secrets.READ_MY_REPO }}
           FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
           BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
