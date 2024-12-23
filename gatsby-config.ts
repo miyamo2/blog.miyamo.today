@@ -87,7 +87,8 @@ const config: GatsbyConfig = {
               quality: 100,
               backgroundColor: `transparent`,
             },
-          }
+          },
+          `@okaryo/gatsby-remark-link-card`,
         ],
       },
     },

@@ -30,6 +30,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
     "@giscus/react": "^3.0.0",
     "@graphql-codegen/typescript-graphql-request": "^6.2.0",
+    "@okaryo/gatsby-remark-link-card": "^1.0.4",
     "@types/react-scroll": "^1.8.10",
     "@yamada-ui/accordion": "^2.0.19",
     "@yamada-ui/button": "^1.0.53",
