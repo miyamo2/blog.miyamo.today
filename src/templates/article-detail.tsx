@@ -116,7 +116,7 @@ const ArticleDetail = ({
               <Separator paddingY={"sm"} />
               <Giscus
                 id={"comments"}
-                repo={"miyamo2/giscus-playground"}
+                repo={"miyamo2/comments.miyamo.today"}
                 repoId={"R_kgDONcgSBA"}
                 category={"Announcements"}
                 categoryId={"DIC_kwDONcgSBM4ClJ66"}
