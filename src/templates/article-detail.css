@@ -10,6 +10,11 @@
     }
 }
 
+code[class*='language-'],
+pre[class*='language-'] {
+    white-space: pre-wrap !important;
+}
+
 .article-detail {
     grid-template-areas:
           "title title title"
