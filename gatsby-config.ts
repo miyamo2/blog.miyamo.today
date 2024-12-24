@@ -254,7 +254,8 @@ const config: GatsbyConfig = {
     },
     {
       resolve: "gatsby-plugin-anchor-links",
-    }
+    },
+    `gatsby-plugin-sitemap`
   ],
 };
 
