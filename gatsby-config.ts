@@ -249,6 +249,10 @@ const config: GatsbyConfig = {
             ContentType: 'application/javascript',
             CacheControl: 'public, max-age=31536000, immutable'
           },
+          "sitemap-index.xml": {
+            ContentType: 'application/xml',
+            CacheControl: 'public, max-age=0, must-revalidate'
+          }
         },
       },
     },
