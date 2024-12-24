@@ -83,7 +83,7 @@ const ArticleDetail = ({
             <GridItem gridArea={"lnav"} alignSelf={"end"} h={"full"} w={"full"} className={"contain-paint hidden lg:block"}>
               <Box h={"full"} overflow={"visible"}>
                 <Box position={"sticky"} top={0}>
-                  <ShareButtons title={frontmatter.title ?? ""} url={location.host+location.pathname} stackType={"v"} buttonSize={32}/>
+                  <ShareButtons title={frontmatter.title ?? ""} url={`https://${location.host}${location.pathname}`} stackType={"v"} buttonSize={32}/>
                 </Box>
               </Box>
             </GridItem>
@@ -109,7 +109,7 @@ const ArticleDetail = ({
             </GridItem>
             <GridItem gridArea={"share"} className={"lg:hidden"} paddingTop={"md"}>
               <Flex justifyContent={"space-evenly"}>
-                <ShareButtons title={frontmatter.title ?? ""} url={location.host+location.pathname} stackType={"h"} buttonSize={32}/>
+                <ShareButtons title={frontmatter.title ?? ""} url={`https://${location.host}${location.pathname}`} stackType={"h"} buttonSize={32}/>
               </Flex>
             </GridItem>
             <GridItem gridArea={"comment"} justifySelf={"stretch"}>
