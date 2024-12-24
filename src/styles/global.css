@@ -24,10 +24,6 @@
     font-family: "UDEVGothicHS", "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol" !important;
 }
 
-.smooth-scroll {
-    scroll-behavior: smooth;
-}
-
 .contain-paint {
     contain: paint;
 }

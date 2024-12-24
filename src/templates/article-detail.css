@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 .smooth-scroll {
+    scroll-behavior: smooth;
     scroll-snap-type: y proximity !important;
     scroll-padding-top: 250px !important;
     @screen lg {
