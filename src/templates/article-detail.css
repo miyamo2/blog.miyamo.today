@@ -5,7 +5,7 @@
 .smooth-scroll {
     scroll-behavior: smooth;
     scroll-snap-type: y proximity !important;
-    scroll-padding-top: 250px !important;
+    scroll-padding-top: 300px !important;
     @screen lg {
         scroll-padding-top: unset !important;
     }
@@ -49,8 +49,8 @@ pre[class*='language-'] {
 }
 
 .gatsby-highlight {
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
     @screen lg {
         margin-top: 1rem;
         margin-bottom: 1rem;
