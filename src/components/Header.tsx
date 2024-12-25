@@ -29,16 +29,9 @@ const Header = (prop: HeaderProp) => {
           to="/"
           className={"btn btn-ghost no-animation whitespace-nowrap"}
         >
-          <div className={colorMode==="dark" ? "hidden" : ""}>
+          <div className={colorMode==="dark" ? "invert" : ""}>
             <StaticImage
               src={"../../static/logo.png"}
-              alt={"logo"}
-              style={{ width: "65px", height: "65px" }}
-              objectFit={"cover"} />
-          </div>
-          <div className={colorMode==="light" ? "hidden" : ""}>
-            <StaticImage
-              src={"../../static/logo_nega.png"}
               alt={"logo"}
               style={{ width: "65px", height: "65px" }}
               objectFit={"cover"} />
