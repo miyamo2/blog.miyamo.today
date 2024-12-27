@@ -8,7 +8,7 @@ const config: GatsbyConfig = {
   siteMetadata: {
     title: "blog.miyamo.today",
     siteUrl: "https://blog.miyamo.today",
-    description: "How was miyamo.today?",
+    description: "How was miyamo2's today?",
     twitterUsername: "@miyamo2_jp",
     image: "/ogp.png",
     icon: "/logo.png",
@@ -107,7 +107,7 @@ const config: GatsbyConfig = {
       options: {
         name: `blog.miyamo.today`,
         short_name: `blog.miyamo.today`,
-        description: `How was miyamo.today?`,
+        description: `How was miyamo2's today??`,
         start_url: `/?homescreen`,
         background_color: `#ffffff`,
         theme_color: `#3f3a3a`,
