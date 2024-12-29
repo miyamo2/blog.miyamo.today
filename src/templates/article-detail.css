@@ -12,8 +12,12 @@
 }
 
 code[class*='language-'],
+code[class*='language-'] *,
 pre[class*='language-'] {
-    white-space: pre-wrap !important;
+    white-space: normal !important;
+    word-wrap: normal !important;
+    word-break: break-word !important;
+    overflow: auto !important;
 }
 
 .article-detail {
