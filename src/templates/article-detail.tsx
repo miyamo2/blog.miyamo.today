@@ -97,13 +97,13 @@ const ArticleDetail = ({
             <GridItem gridArea={"toc"} position={"sticky"} top={0} className={"lg:hidden"} zIndex={2}>
               <ArticleTOCMedium headings={headings}></ArticleTOCMedium>
             </GridItem>
-            <GridItem gridArea={"content"} className={"scroll-offset"}>
+            <GridItem gridArea={"content"} className={"scroll-offset w-full"}>
               <article>
                 <div
                   dangerouslySetInnerHTML={{
                     __html: markdownRemark?.html ?? "",
                   }}
-                  className={"markdown-body"}
+                  className={"markdown-body w-full"}
                 ></div>
               </article>
             </GridItem>

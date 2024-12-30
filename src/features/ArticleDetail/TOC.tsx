@@ -15,7 +15,7 @@ export const ArticleTOCMedium = ({headings}: ArticleTOCProps) => {
   const [index, setIndex] = useState<AccordionProps["index"]>(-1)
 
   return (
-    <Accordion toggle={true} w={"full"} bg={["#0d1117", "#f6f8fa"]} borderRadius={"lg"} index={index} onChange={setIndex}
+    <Accordion toggle={true} w={"full"}bg={["#0d1117", "#f6f8fa"]} borderRadius={"lg"} index={index} onChange={setIndex}
       icon={({ expanded }) => {
         return <FontAwesomeIcon icon={expanded ? faMinus : faPlus} color={["#f6f8fa", "#010409"]} />
       }}>
@@ -24,12 +24,14 @@ export const ArticleTOCMedium = ({headings}: ArticleTOCProps) => {
           <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
           Table of Contents
         </AccordionLabel>
-        <AccordionPanel bg={["#f6f8fa", "#0d1117"]}>
-          {headings?.map((heading) => (
-            <AnchorLink to={`#${heading?.id}`} className={"pointer-events-auto"} onAnchorLinkClick={() => setIndex(-1)}>
-              <Text paddingBottom={"sm"} textIndent={`${heading?.depth ?? 0}em`}>{`${heading?.id}`}</Text>
-            </AnchorLink>
-          ))}
+        <AccordionPanel bg={["#f6f8fa", "#0d1117"]} h={"100vh"}>
+          <Box className={"side-toc"} w={"full"}>
+            {headings?.map((heading) => (
+                <AnchorLink to={`#${heading?.id}`} className={"pointer-events-auto"} onAnchorLinkClick={() => setIndex(-1)}>
+                  <Text paddingBottom={"sm"} textIndent={`${calcDepth(heading?.depth)}em`}>{`${heading?.id}`}</Text>
+                </AnchorLink>
+              ))}
+          </Box>
         </AccordionPanel>
       </AccordionItem>
     </Accordion>
@@ -48,10 +50,17 @@ export const ArticleTOCLarge = ({headings}: ArticleTOCProps) => {
       <Box className={"side-toc"} w={"full"} paddingTop={"sm"}>
         {headings?.map((heading) => (
           <AnchorLink to={`#${heading?.id}`} key={heading?.id}>
-            <Text textOverflow={"ellipsis"} paddingBottom={"sm"} textIndent={`${heading?.depth ?? 0}em`}>{heading?.value}</Text>
+            <Text textOverflow={"ellipsis"} paddingBottom={"sm"} textIndent={`${calcDepth(heading?.depth)}em`}>{heading?.value}</Text>
           </AnchorLink>
         ))}
       </Box>
     </Box>
   )
 };
+
+const calcDepth = (depth: number | null | undefined) => {
+  if (!depth) {
+    return 0
+  }
+  return depth - 1
+}

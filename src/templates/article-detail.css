@@ -5,19 +5,22 @@
 .smooth-scroll {
     scroll-behavior: smooth;
     scroll-snap-type: y proximity !important;
-    scroll-padding-top: 300px !important;
+    scroll-padding-top: 102vh !important;
     @screen lg {
         scroll-padding-top: unset !important;
     }
 }
 
+.side-toc {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 code[class*='language-'],
 code[class*='language-'] *,
 pre[class*='language-'] {
-    white-space: pre-wrap !important;
-    word-wrap: normal !important;
-    word-break: break-word !important;
-    overflow: auto !important;
+    overflow-x: scroll !important;
 }
 
 .article-detail {
@@ -31,6 +34,7 @@ pre[class*='language-'] {
           "content content content"
           "share share share"
           "comment comment comment";
+    grid-template-columns: 1fr 1fr 1fr;
     @screen lg {
         grid-template-areas:
         "title title title title title title"
@@ -42,6 +46,7 @@ pre[class*='language-'] {
         justify-content: start;
         align-items: start;
         contain: paint;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
     }
 }
 
