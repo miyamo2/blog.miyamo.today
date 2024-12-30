@@ -1,4 +1,5 @@
 import type { GatsbyConfig } from "gatsby";
+import { parse } from "@formkit/tempo";
 
 require("dotenv").config({
   path: `.env.${process.env.NODE_ENV}`,
@@ -137,15 +138,16 @@ const config: GatsbyConfig = {
             }
           }
         }`,
-        setup: (options) => ({ ...options, custom_namespaces: { media: "http://search.yahoo.com/mrss/", }, }),
+        setup: (options: any) => ({ ...options, custom_namespaces: { media: "http://search.yahoo.com/mrss/", }, }),
         feeds: [
           {
-            serialize: ({ query: { site, allMarkdownRemark } }) => {
+            serialize: ({ query: { site, allMarkdownRemark } }: { query: { site: ISiteMetadata, allMarkdownRemark: IAllMarkdownRemark } }) => {
               return allMarkdownRemark.nodes.map(node => {
+                console.log(node.frontmatter?.createdAt)
                 return {
                   title: node.frontmatter?.title ?? site?.siteMetadata?.title,
                   description: node.excerpt ?? site?.siteMetadata?.description,
-                  date: node.frontmatter?.createdAt,
+                  date: parse(node.frontmatter?.createdAt ?? "1970-01-01", "YYYY-MM-DDTHH:mm:ssZ", "en").toUTCString(),
                   url: `${site?.siteMetadata?.siteUrl}/articles/${node.frontmatter?.id ?? ""}`,
                   guid: `${site?.siteMetadata?.siteUrl}/articles/${node.frontmatter?.id ?? ""}`,
                   author: "miyamo2",
@@ -167,8 +169,6 @@ const config: GatsbyConfig = {
               allMarkdownRemark(filter: { frontmatter: { id: { ne: "Noop" } } }) {
                 nodes {
                   excerpt(pruneLength: 140, truncate: true)
-                  html
-                  tableOfContents
                   frontmatter {
                     id
                     title
@@ -264,3 +264,33 @@ const config: GatsbyConfig = {
 };
 
 export default config;
+
+interface IAllMarkdownRemark {
+  readonly nodes: ReadonlyArray<{
+    excerpt: string | null,
+    readonly frontmatter: {
+      readonly id: string | null,
+      readonly title: string | null,
+      readonly createdAt: string | null,
+      readonly updatedAt: string | null,
+      readonly tags: ReadonlyArray<
+        {
+          readonly id: string | null,
+          readonly name: string | null
+        } | null> | null
+    } | null }
+  >
+}
+
+interface ISiteMetadata {
+  readonly siteMetadata: {
+    readonly title: string | null,
+    readonly description: string | null,
+    readonly siteUrl: string | null,
+    readonly lang: string | null,
+    readonly image: string | null,
+    readonly icon: string | null,
+    readonly twitterUsername: string | null,
+    readonly facebookAppId: string | null
+  } | null
+}
