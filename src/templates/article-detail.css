@@ -37,16 +37,16 @@ pre[class*='language-'] {
     grid-template-columns: 1fr 1fr 1fr;
     @screen lg {
         grid-template-areas:
-        "title title title title title title"
-        "tag tag tag tag tag tag"
-        "date date date date date date"
-        "image image image image image image"
-        "lnav content content content content rnav"
-        "lnav comment comment comment comment rnav";
+        "title title title title title title title title title title"
+        "tag tag tag tag tag tag tag tag tag tag"
+        "date date date date date date date date date date"
+        "image image image image image image image image image image"
+        "lnav content content content content content content content content rnav"
+        "lnav comment comment comment comment comment comment comment comment rnav";
         justify-content: start;
         align-items: start;
         contain: paint;
-        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     }
 }
 

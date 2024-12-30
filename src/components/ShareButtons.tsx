@@ -32,20 +32,20 @@ const ShareButtons = ({title, url, stackType, buttonSize}: ShareButtonProps) => 
     <>
       {
         stackType === "v" ?
-          <VStack>
-            <FacebookShareButton url={url} className={"w-fit self-center"}>
+          <VStack className={"pl-4"}>
+            <FacebookShareButton url={url} className={"w-fit"}>
               <FacebookIcon size={buttonSize} round />
             </FacebookShareButton>
 
-            <TwitterShareButton title={title} url={url} className={"w-fit self-center"}>
+            <TwitterShareButton title={title} url={url} className={"w-fit"}>
               <XIcon size={buttonSize} round />
             </TwitterShareButton>
 
-            <LinkedinShareButton url={url} className={"w-fit self-center"}>
+            <LinkedinShareButton url={url} className={"w-fit"}>
               <LinkedinIcon size={buttonSize} round />
             </LinkedinShareButton>
 
-            <div className={"w-fit self-center"}>
+            <div className={"w-fit"}>
               <RedditShareButton
                 url={url}
                 title={title}
@@ -58,15 +58,15 @@ const ShareButtons = ({title, url, stackType, buttonSize}: ShareButtonProps) => 
               <RedditShareCount url={url} />
             </div>
 
-            <HatenaShareButton url={url} className={"w-fit self-center"}>
+            <HatenaShareButton url={url} className={"w-fit"}>
               <HatenaIcon size={buttonSize} round />
             </HatenaShareButton>
 
-            <LineShareButton url={url} className={"w-fit self-center"}>
+            <LineShareButton url={url} className={"w-fit"}>
               <LineIcon size={buttonSize} round />
             </LineShareButton>
 
-            <EmailShareButton url={url} className={"w-fit self-center"}>
+            <EmailShareButton url={url} className={"w-fit"}>
               <EmailIcon size={buttonSize} round />
             </EmailShareButton>
           </VStack>

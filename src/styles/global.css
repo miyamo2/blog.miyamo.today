@@ -27,3 +27,7 @@
 .contain-paint {
     contain: paint;
 }
+
+.scrollbar-offset {
+    padding-left: calc(100vw - 100%);
+}

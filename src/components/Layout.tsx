@@ -26,8 +26,10 @@ const Layout = ({
           "f f f f f f f f f"`}
           bg={["#ffffff", "#0d1117"]}
         >
-          <GridItem gridArea={"h"}>
-            <Header />
+          <GridItem gridArea={"h"} bg={["#f6f8fa", "#010409"]}>
+            <div className={"flex w-full justify-center"}>
+              <div className={"max-w-[1400px] w-full lg:w-[90vw] mx-4 lg:mx-0"}><Header /></div>
+            </div>
           </GridItem>
           <GridItem
             h={"full"}
@@ -36,8 +38,8 @@ const Layout = ({
             overflowX={"hidden"}
             className={"smooth-scroll"}
           >
-            <div className={"flex w-full justify-center"}>
-              <div className={"max-w-[1400px] lg:w-[90vw] mx-5 lg:mx-0"}>{children}</div>
+            <div className={"flex w-full justify-center scrollbar-offset"}>
+              <div className={"max-w-[1400px] w-full lg:w-[90vw] mx-5 lg:mx-0"}>{children}</div>
             </div>
           </GridItem>
           <GridItem w={"full"} h={"full"} gridArea={"f"}>
