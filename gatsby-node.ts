@@ -104,8 +104,8 @@ const createArticleContentAndImageNode = async (
       const content = `---
 id: "${articleNode.id}"
 title: "${articleNode.title}"
-createdAt: "${format(new Date(articleNode.createdAt), "YYYY/MM/DD")}"
-updatedAt: "${format(new Date(articleNode.updatedAt), "YYYY/MM/DD")}"
+createdAt: "${format(new Date(articleNode.createdAt), "YYYY-MM-DDTHH:mm:ssZ")}"
+updatedAt: "${format(new Date(articleNode.updatedAt), "YYYY-MM-DDTHH:mm:ssZ")}"
 tags: [${articleNode.tags.edges
         .map((edge) => {
           return `{"id": "${edge.cursor}", "name": "${edge.node.name}"}`;
