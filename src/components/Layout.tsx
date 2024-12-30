@@ -26,7 +26,7 @@ const Layout = ({
           "f f f f f f f f f"`}
           bg={["#ffffff", "#0d1117"]}
         >
-          <GridItem gridArea={"h"} bg={["#f6f8fa", "#010409"]}>
+          <GridItem gridArea={"h"} bg={["#f6f8fa", "#010409"]} className={"h-fit"}>
             <div className={"flex w-full justify-center"}>
               <div className={"max-w-[1400px] w-full lg:w-[90vw] mx-4 lg:mx-0"}><Header /></div>
             </div>
