@@ -1,0 +1,44 @@
+.popover {
+    max-height: 80vh;
+    overflow: scroll;
+    -webkit-overflow-scrolling: touch;
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    top: 100%;
+    margin-top: 0.5em;
+    width: 80vw;
+    max-width: 30em;
+    box-shadow: 0 0 5px 0;
+    padding: 1em;
+    border-radius: 2px;
+}
+
+.ais-PoweredBy {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 80%;
+
+    svg {
+        width: 130px;
+    }
+}
+
+.HitCount {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.Hits {
+    ol {
+        list-style: none;
+        margin-left: 0;
+        li[class*='ais-Hits-item'] {
+            margin-bottom: 1em;
+            h4 {
+                margin-top: 0;
+                margin-bottom: 0.2em;
+            }
+        }
+    }
+}

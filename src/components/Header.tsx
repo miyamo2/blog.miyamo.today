@@ -8,6 +8,7 @@ import { Button, IconButton } from "@yamada-ui/button";
 import { Menu, MenuButton, MenuItem, MenuList } from "@yamada-ui/menu";
 import React from "react";
 import DarkmodeToggle from "./DarkmodeToggle";
+import Search from "./search";
 
 interface HeaderProp {}
 
@@ -80,6 +81,7 @@ const Header = (prop: HeaderProp) => {
             >
               RSS
             </Button>
+            <Search indices={[{ name: `Pages`, title: `Pages` }]} />
           </HStack>
         </GridItem>
         <GridItem
@@ -91,6 +93,7 @@ const Header = (prop: HeaderProp) => {
         >
           <HStack className={"justify-end"}>
             <DarkmodeToggle />
+            <Search indices={[{ name: `Pages`, title: `Pages` }]} />
             <Menu>
               <MenuButton
                 as={IconButton}

@@ -141,7 +141,7 @@ const config: GatsbyConfig = {
         setup: (options: any) => ({ ...options, custom_namespaces: { media: "http://search.yahoo.com/mrss/", }, }),
         feeds: [
           {
-            serialize: ({ query: { site, allMarkdownRemark } }: { query: { site: ISiteMetadata, allMarkdownRemark: IAllMarkdownRemark } }) => {
+            serialize: ({ query: { site, allMarkdownRemark } }: { query: { site: SiteMetadataForRSS, allMarkdownRemark: GetAllArticlesForRSS } }) => {
               return allMarkdownRemark.nodes.map(node => {
                 console.log(node.frontmatter?.createdAt)
                 return {
@@ -259,13 +259,67 @@ const config: GatsbyConfig = {
     {
       resolve: "gatsby-plugin-anchor-links",
     },
-    `gatsby-plugin-sitemap`
+    `gatsby-plugin-sitemap`,
+    {
+      resolve: `gatsby-plugin-algolia`,
+      options: {
+        appId: process.env.GATSBY_ALGOLIA_APP_ID,
+        apiKey: process.env.ALGOLIA_API_KEY,
+        indexName: process.env.GATSBY_ALGOLIA_INDEX_NAME,
+        queries: [
+          {
+            query: `{
+              allMarkdownRemark(filter: { frontmatter: { id: { ne: "Noop" } } }) {
+                nodes {
+                  excerpt(pruneLength: 3000, truncate: true)
+                  frontmatter {
+                    id
+                    title
+                    tags
+                    createdAt
+                  }
+                }
+              }
+              site {
+                siteMetadata {
+                  title
+                  siteUrl
+                  lang
+                }
+              }
+            }`,
+            transformer: ({ data: { site, allMarkdownRemark } }: { data: { site: SiteMetadataForAlgolia, allMarkdownRemark: GetAllArticlesForAlgoria } }) =>
+              allMarkdownRemark.nodes.flatMap((node) => {
+                return {
+                  id: node.frontmatter?.id ?? "",
+                  content: node.excerpt ?? "",
+                  title: node.frontmatter?.title ?? "",
+                  publishedAt: parse(node.frontmatter?.createdAt ?? "1970-01-01T00:00:00Z", "YYYY-MM-DDTHH:mm:ssZ", "en"),
+                  tags: (() => {
+                    return node.frontmatter?.tags?.filter(tag => tag && typeof tag.name === "string" && tag.name.length > 0)
+                      .flatMap(tag => tag?.name ?? "")
+                      .map(tagName => tagName)
+                  })(),
+                  hierarchy: {
+                    lvl0: site?.siteMetadata?.title ?? "",
+                    lvl1: node.frontmatter?.title ?? "",
+                  },
+                  type: "lvl1",
+                  url: `${site?.siteMetadata?.siteUrl ?? ""}/articles/${node.frontmatter?.id ?? ""}`,
+                }
+              }),
+          },
+        ],
+        chunkSize: 10000,
+        dryRun: process.env.GATSBY_ALGOLIA_DRY_RUN,
+      },
+    },
   ],
 };
 
 export default config;
 
-interface IAllMarkdownRemark {
+interface GetAllArticlesForRSS {
   readonly nodes: ReadonlyArray<{
     excerpt: string | null,
     readonly frontmatter: {
@@ -282,7 +336,23 @@ interface IAllMarkdownRemark {
   >
 }
 
-interface ISiteMetadata {
+interface GetAllArticlesForAlgoria {
+  readonly nodes: ReadonlyArray<{
+    excerpt: string | null,
+    readonly frontmatter: {
+      readonly id: string | null,
+      readonly title: string | null,
+      readonly createdAt: string | null,
+      readonly tags: ReadonlyArray<
+        {
+          readonly id: string | null,
+          readonly name: string | null
+        } | null> | null
+    } | null }
+  >
+}
+
+interface SiteMetadataForRSS {
   readonly siteMetadata: {
     readonly title: string | null,
     readonly description: string | null,
@@ -292,5 +362,13 @@ interface ISiteMetadata {
     readonly icon: string | null,
     readonly twitterUsername: string | null,
     readonly facebookAppId: string | null
+  } | null
+}
+
+interface SiteMetadataForAlgolia {
+  readonly siteMetadata: {
+    readonly title: string | null,
+    readonly siteUrl: string | null,
+    readonly lang: string | null,
   } | null
 }
