@@ -263,9 +263,9 @@ const config: GatsbyConfig = {
     {
       resolve: `gatsby-plugin-algolia`,
       options: {
-        appId: process.env.GATSBY_ALGOLIA_APP_ID,
-        apiKey: process.env.ALGOLIA_API_KEY,
-        indexName: process.env.GATSBY_ALGOLIA_INDEX_NAME,
+        appId: process.env.ALGOLIA_APP_ID,
+        apiKey: process.env.ALGOLIA_ADMIN_KEY,
+        indexName: process.env.ALGOLIA_INDEX_NAME,
         queries: [
           {
             query: `{
@@ -275,7 +275,10 @@ const config: GatsbyConfig = {
                   frontmatter {
                     id
                     title
-                    tags
+                    tags {
+                      name
+                    }
+                    thumbnail
                     createdAt
                   }
                 }
@@ -304,14 +307,22 @@ const config: GatsbyConfig = {
                     lvl0: site?.siteMetadata?.title ?? "",
                     lvl1: node.frontmatter?.title ?? "",
                   },
+                  thumbnail: node.frontmatter?.thumbnail ?? "",
                   type: "lvl1",
                   url: `${site?.siteMetadata?.siteUrl ?? ""}/articles/${node.frontmatter?.id ?? ""}`,
                 }
               }),
           },
         ],
+        settings: {
+          searchableAttributes: ['title', 'content', 'tags'],
+          indexLanguages: ['ja'],
+          queryLanguages: ['ja'],
+          attributesToSnippet: [`content:20`],
+        },
+        mergeSettings: true,
         chunkSize: 10000,
-        dryRun: process.env.GATSBY_ALGOLIA_DRY_RUN,
+        dryRun: process.env.ALGOLIA_DRY_RUN,
       },
     },
   ],
@@ -327,11 +338,6 @@ interface GetAllArticlesForRSS {
       readonly title: string | null,
       readonly createdAt: string | null,
       readonly updatedAt: string | null,
-      readonly tags: ReadonlyArray<
-        {
-          readonly id: string | null,
-          readonly name: string | null
-        } | null> | null
     } | null }
   >
 }
@@ -342,10 +348,10 @@ interface GetAllArticlesForAlgoria {
     readonly frontmatter: {
       readonly id: string | null,
       readonly title: string | null,
+      readonly thumbnail: string | null,
       readonly createdAt: string | null,
       readonly tags: ReadonlyArray<
         {
-          readonly id: string | null,
           readonly name: string | null
         } | null> | null
     } | null }

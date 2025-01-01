@@ -71,11 +71,6 @@ pre[class*='language-'] {
     z-index: 0 !important;
 }
 
-.transform-scaleup-then-hover:hover img {
-    transition: transform .6s ease;
-    transform:scale(1.1);
-}
-
 .markdown-body {
     --base-size-4: 0.25rem;
     --base-size-8: 0.5rem;

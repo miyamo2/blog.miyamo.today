@@ -1,37 +1,31 @@
-import React from "react"
+import React from "react";
 import { useSearchBox } from "react-instantsearch"
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faCancel } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
-import { FormControl } from "@yamada-ui/form-control";
-import { Input } from "@yamada-ui/input";
-import "./Search.css";
+import { Input, InputGroup, InputLeftElement, InputRightElement } from "@yamada-ui/input";
+import { IconButton } from "@yamada-ui/button";
 
-export interface SearchBoxProps {
-  onFocus?:  React.FocusEventHandler<HTMLInputElement>
-  onChange: (query: string) => void;
-  hasFocus: boolean;
-}
+export interface SearchBoxProps {}
 
-const SearchBox = ({ onFocus, onChange, hasFocus } : SearchBoxProps) => {
+const SearchBox = (props: SearchBoxProps) => {
   const { query, refine } = useSearchBox()
 
   return (
-    <FormControl className={"flex flex-row-reverse item-center mb-0"}>
-        <Input
-          className={hasFocus ? "border-auto" : "border-none"}
-          type="text"
-          placeholder="Search"
-          aria-label="Search"
-          onChange={e => {
-            refine(e.target.value)
-            onChange(e.target.value)
-          }}
-          value={query}
-          onFocus={onFocus}
-          style={{ outline: "none", fontSize: "1em", transition: "100ms", borderRadius: "2px" }}
+      <InputGroup className={"w-full"}>
+        <InputLeftElement>
+          <FontAwesomeIcon icon={faSearch} />
+        </InputLeftElement>
+        <Input value={query} placeholder={"search articles by algolia"} rounded="3xl" bg={["#ffffff", "#0d1117"]} onChange={(e) => {
+          e.preventDefault()
+          refine(e.target.value)
+        }}
         />
-        <FontAwesomeIcon icon={faSearch} className={"w-[1em] m-[0.3em] pointer-events-none"} />
-    </FormControl>
+        <InputRightElement w="4.5rem" clickable>
+          <IconButton icon={<FontAwesomeIcon icon={faCancel} />} h="1.75rem" size="sm" onClick={() => {
+            refine("")
+          }} />
+        </InputRightElement>
+      </InputGroup>
   )
 }
 

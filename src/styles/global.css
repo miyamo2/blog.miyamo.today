@@ -31,3 +31,8 @@
 .scrollbar-offset {
     padding-left: calc(100vw - 100%);
 }
+
+.transform-scaleup-then-hover:hover img {
+    transition: transform .6s ease;
+    transform:scale(1.1);
+}

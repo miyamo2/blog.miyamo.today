@@ -8,7 +8,7 @@ import { Button, IconButton } from "@yamada-ui/button";
 import { Menu, MenuButton, MenuItem, MenuList } from "@yamada-ui/menu";
 import React from "react";
 import DarkmodeToggle from "./DarkmodeToggle";
-import Search from "./search";
+import SearchForm from "./search/Form";
 
 interface HeaderProp {}
 
@@ -20,20 +20,18 @@ const Header = (prop: HeaderProp) => {
         <GridItem
           w={"full"}
           h={"full"}
-          paddingTop={"lg:md"}
           justifySelf={"start"}
+          className={`${colorMode==="dark" ? "invert" : ""}`}
         >
           <Link
             to="/"
             className={"btn btn-ghost no-animation whitespace-nowrap"}
           >
-            <div className={colorMode==="dark" ? "invert" : ""}>
-              <StaticImage
-                src={"../../static/logo.png"}
-                alt={"logo"}
-                style={{ width: "65px", height: "65px" }}
-                objectFit={"cover"} />
-            </div>
+            <StaticImage
+              src={"../../static/logo.png"}
+              alt={"logo"}
+              style={{ width: "65px", height: "65px" }}
+              objectFit={"cover"}/>
           </Link>
         </GridItem>
         <GridItem
@@ -43,14 +41,13 @@ const Header = (prop: HeaderProp) => {
           justifySelf={"end"}
           className={"hidden lg:block"}
         >
-          <HStack className={"justify-end"}>
-            <DarkmodeToggle />
+          <HStack h={"full"} className={"justify-end align-center"}>
             <Button
               startIcon={<FontAwesomeIcon icon={faHome} />}
               variant="ghost"
               as={Link}
               to="/"
-              className={"text-lg font-bold"}
+              className={"text-md font-bold"}
             >
               Home
             </Button>
@@ -59,7 +56,7 @@ const Header = (prop: HeaderProp) => {
               variant="ghost"
               as={Link}
               to="/tags"
-              className={"text-lg font-bold"}
+              className={"text-md font-bold"}
             >
               Tags
             </Button>
@@ -68,7 +65,7 @@ const Header = (prop: HeaderProp) => {
               variant="ghost"
               as={Link}
               to="/about"
-              className={"text-lg font-bold"}
+              className={"text-md font-bold"}
             >
               About
             </Button>
@@ -77,11 +74,12 @@ const Header = (prop: HeaderProp) => {
               variant="ghost"
               as={Link}
               to="/feed/rss.xml"
-              className={"text-lg font-bold"}
+              className={"text-md font-bold"}
             >
               RSS
             </Button>
-            <Search indices={[{ name: `Pages`, title: `Pages` }]} />
+            <DarkmodeToggle />
+            <SearchForm />
           </HStack>
         </GridItem>
         <GridItem
@@ -92,14 +90,14 @@ const Header = (prop: HeaderProp) => {
           className={"lg:hidden"}
         >
           <HStack className={"justify-end"}>
+            <SearchForm />
             <DarkmodeToggle />
-            <Search indices={[{ name: `Pages`, title: `Pages` }]} />
             <Menu>
               <MenuButton
                 as={IconButton}
                 icon={<FontAwesomeIcon icon={faBars} />}
                 variant="ghost"
-                className={"text-lg font-bold"}
+                className={"text-2xl font-bold"}
                 aria-label={"menu-button"}
               />
               <MenuList>

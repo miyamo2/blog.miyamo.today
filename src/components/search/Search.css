@@ -1,14 +1,12 @@
 .popover {
     max-height: 80vh;
-    overflow: scroll;
+    overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
-    position: absolute;
-    z-index: 2;
+    z-index: 10;
     right: 0;
     top: 100%;
     margin-top: 0.5em;
-    width: 80vw;
-    max-width: 30em;
+    width: 100% !important;
     box-shadow: 0 0 5px 0;
     padding: 1em;
     border-radius: 2px;
@@ -30,6 +28,7 @@
 }
 
 .Hits {
+    width: 100% !important;
     ol {
         list-style: none;
         margin-left: 0;
