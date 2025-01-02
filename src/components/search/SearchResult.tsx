@@ -16,7 +16,7 @@ import { Heading, Text } from "@yamada-ui/typography";
 import { Image } from "@yamada-ui/image";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faTags } from "@fortawesome/free-solid-svg-icons";
-import { Link } from "gatsby";
+import { navigate } from "gatsby";
 import "./Search.css";
 
 const HitCount = () => {
@@ -45,9 +45,10 @@ interface HitCardProps {
 const HitCard = ({ hit, onLinkClick }: HitCardProps) => {
   return (
     <Card
-      as={Link}
-      onClick={onLinkClick}
-      to={`/articles/${hit.objectID}`}
+      onClick={() => {
+        navigate(`/articles/${hit.objectID}`);
+        onLinkClick();
+      }}
       flexDirection={{ base: "row", md: "column" }}
       variant="outline"
       className={"transform-scaleup-then-hover"}
