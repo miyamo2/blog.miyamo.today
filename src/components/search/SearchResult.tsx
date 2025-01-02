@@ -50,12 +50,11 @@ const HitCard = ({ hit, onLinkClick }: HitCardProps) => {
         navigate(`/articles/${hit.objectID}`);
         onLinkClick();
       }}
-      flexDirection={{ base: "row", md: "column" }}
       variant="outline"
-      className={"transform-scaleup-then-hover"}
+      className={"transform-scaleup-then-hover flex-col lg:flex-row"}
       overflow={"hidden"}
     >
-      <Image src={hit.thumbnail} objectFit="cover" className={"h-[30%] lg:w-[30%] lg:h-auto"} />
+      <Image src={hit.thumbnail} objectFit="cover" className={"h-[20%] lg:w-[30%] lg:h-auto"} />
       <VStack gap="0">
         <CardHeader>
           <Heading size="md">
@@ -86,15 +85,11 @@ const PageHit = (props: PageHitProps) => {
   const { items, banner } = useHits(props);
 
   return (
-    <div className={"w-full"}>
-      <ol>
-        {items.map((hit) => (
-          <li key={`Algolia Hit: ${hit.objectID}`}>
-            <HitCard hit={hit} onLinkClick={props.onLinkClick} />
-          </li>
-        ))}
-      </ol>
-    </div>
+    <Flex direction={"column"} alignItems={"stretch"} className={"w-full"}>
+      {items.map((hit) => (
+          <HitCard hit={hit} onLinkClick={props.onLinkClick} />
+      ))}
+    </Flex>
   );
 };
 
