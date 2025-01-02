@@ -18,6 +18,7 @@ import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faTags } from "@fortawesome/free-solid-svg-icons";
 import { navigate } from "gatsby";
 import "./Search.css";
+import Pager from "./Pager";
 
 const HitCount = () => {
   const { nbHits } = useStats();
@@ -121,6 +122,7 @@ const SearchResult = ({ refine, query, closeModal }: SearchResultProps) => {
           <div className="Hits">
             <PageHit onLinkClick={handleResetSearchWords} />
           </div>
+          <Pager />
           <PoweredBy />
         </Box>
       ) : (
