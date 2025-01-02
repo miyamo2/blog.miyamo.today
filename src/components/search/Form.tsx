@@ -7,8 +7,8 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { Box, HStack } from "@yamada-ui/layouts";
 import SearchModal from "./Modal";
 
-const SearchForm= () => {
-  const { open, onOpen, onClose } = useDisclosure()
+const SearchForm = () => {
+  const { open, onOpen, onClose } = useDisclosure();
 
   return (
     <>
@@ -36,6 +36,6 @@ const SearchForm= () => {
       <SearchModal open={open} onClose={onClose} />
     </>
   );
-}
+};
 
 export default SearchForm;

@@ -12,13 +12,9 @@ interface SearchModalProps extends ModalProps {
 
 const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
   const algoliaClient = useMemo(
-    () =>
-      algoliasearch(
-        process.env.ALGOLIA_APP_ID ?? "",
-        process.env.ALGOLIA_SEARCH_KEY ?? ""
-      ),
+    () => algoliasearch(process.env.ALGOLIA_APP_ID ?? "", process.env.ALGOLIA_SEARCH_KEY ?? ""),
     []
-  )
+  );
 
   return (
     <Modal
@@ -40,6 +36,6 @@ const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
       </InstantSearch>
     </Modal>
   );
-}
+};
 
 export default SearchModal;

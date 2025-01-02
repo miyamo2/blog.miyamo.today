@@ -17,30 +17,34 @@ export interface ArticleCardData {
 }
 
 interface ArticleCardRemarkNode {
-  readonly excerpt: string | null,
+  readonly excerpt: string | null;
   readonly frontmatter: {
-    readonly id: string | null,
-    readonly title: string | null,
-    readonly createdAt: string | null,
-    readonly updatedAt: string | null,
+    readonly id: string | null;
+    readonly title: string | null;
+    readonly createdAt: string | null;
+    readonly updatedAt: string | null;
     readonly tags: ReadonlyArray<{
-      readonly id: string | null,
-      readonly name: string | null,
-    } | null> | null,
-  } | null
+      readonly id: string | null;
+      readonly name: string | null;
+    } | null> | null;
+  } | null;
 }
 
 interface FileEdge {
   readonly node: {
-    readonly id: string,
+    readonly id: string;
     readonly childImageSharp: {
-      readonly gatsbyImageData: IGatsbyImageData,
-    } | null
-  }
+      readonly gatsbyImageData: IGatsbyImageData;
+    } | null;
+  };
 }
 
-export const useArticleCardList = (articleCardRemarkNodes: ReadonlyArray<ArticleCardRemarkNode>, allFileEdges: ReadonlyArray<FileEdge>) => {
-  return articleCardRemarkNodes.map((node): ArticleCardData | undefined => {
+export const useArticleCardList = (
+  articleCardRemarkNodes: ReadonlyArray<ArticleCardRemarkNode>,
+  allFileEdges: ReadonlyArray<FileEdge>
+) => {
+  return articleCardRemarkNodes
+    .map((node): ArticleCardData | undefined => {
       const frontmatter = node.frontmatter;
       if (!frontmatter) {
         return undefined;

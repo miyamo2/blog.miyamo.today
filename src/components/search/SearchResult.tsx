@@ -20,14 +20,14 @@ import { Link } from "gatsby";
 import "./Search.css";
 
 const HitCount = () => {
-  const { nbHits } = useStats()
+  const { nbHits } = useStats();
 
   return nbHits > 0 ? (
     <Flex justifyContent={"flex-end"}>
       {nbHits} result{nbHits !== 1 ? "s" : ""}
     </Flex>
-  ) : null
-}
+  ) : null;
+};
 
 export interface HitDoc {
   objectID: string;
@@ -53,14 +53,12 @@ const HitCard = ({ hit, onLinkClick }: HitCardProps) => {
       className={"transform-scaleup-then-hover"}
       overflow={"hidden"}
     >
-      <Image
-        src={hit.thumbnail}
-        objectFit="cover"
-        className={"h-[30%] lg:w-[30%] lg:h-auto"}
-      />
+      <Image src={hit.thumbnail} objectFit="cover" className={"h-[30%] lg:w-[30%] lg:h-auto"} />
       <VStack gap="0">
         <CardHeader>
-          <Heading size="md"><Highlight hit={hit} attribute={"title"} /></Heading>
+          <Heading size="md">
+            <Highlight hit={hit} attribute={"title"} />
+          </Heading>
         </CardHeader>
 
         <CardBody overflow="hidden">
@@ -68,12 +66,15 @@ const HitCard = ({ hit, onLinkClick }: HitCardProps) => {
         </CardBody>
 
         <CardFooter>
-          <Text><FontAwesomeIcon icon={faTags} paddingRight={"sm"} /><Highlight hit={hit} attribute={`tags`} /></Text>
+          <Text>
+            <FontAwesomeIcon icon={faTags} paddingRight={"sm"} />
+            <Highlight hit={hit} attribute={`tags`} />
+          </Text>
         </CardFooter>
       </VStack>
     </Card>
-  )
-}
+  );
+};
 
 interface PageHitProps extends UseHitsProps<HitDoc> {
   onLinkClick: () => void;
@@ -86,22 +87,20 @@ const PageHit = (props: PageHitProps) => {
     <div className={"w-full"}>
       <ol>
         {items.map((hit) => (
-          <li
-            key={`Algolia Hit: ${hit.objectID}`}
-          >
+          <li key={`Algolia Hit: ${hit.objectID}`}>
             <HitCard hit={hit} onLinkClick={props.onLinkClick} />
           </li>
         ))}
       </ol>
     </div>
-  )
-}
+  );
+};
 
 interface SearchResultProps extends SearchBoxRenderState {
   closeModal: () => void;
 }
 
-const SearchResult = ({ refine, query, closeModal }: SearchResultProps ) => {
+const SearchResult = ({ refine, query, closeModal }: SearchResultProps) => {
   const [isShow, setShow] = useState<boolean>(true);
 
   useEffect(() => {
@@ -109,22 +108,23 @@ const SearchResult = ({ refine, query, closeModal }: SearchResultProps ) => {
   }, [query]);
 
   const handleResetSearchWords = useCallback(() => {
-    refine('');
+    refine("");
     closeModal();
   }, [refine]);
 
   return (
     <>
-      {
-        isShow ?
-          <Box className={`popover w-full`} bg={["#ffffff", "#0d1117"]}>
-            <HitCount />
-            <div className="Hits">
-              <PageHit onLinkClick={handleResetSearchWords} />
-            </div>
-            <PoweredBy />
-          </Box> : <></>
-      }
+      {isShow ? (
+        <Box className={`popover w-full`} bg={["#ffffff", "#0d1117"]}>
+          <HitCount />
+          <div className="Hits">
+            <PageHit onLinkClick={handleResetSearchWords} />
+          </div>
+          <PoweredBy />
+        </Box>
+      ) : (
+        <></>
+      )}
     </>
   );
 };
@@ -133,9 +133,9 @@ interface WrappedSearchResultProps {
   closeModal: () => void;
 }
 
-const WrappedSearchResult = ({ closeModal }: WrappedSearchResultProps ) => {
+const WrappedSearchResult = ({ closeModal }: WrappedSearchResultProps) => {
   const searchBoxApi = useSearchBox();
   return SearchResult({ ...searchBoxApi, closeModal });
-}
+};
 
-export default WrappedSearchResult
+export default WrappedSearchResult;
