@@ -5,7 +5,7 @@ import React from "react";
 
 interface PagerProps extends UsePaginationProps {}
 
-const Pager = (props: UsePaginationProps) => {
+const Pager = (props: PagerProps) => {
   const {
     currentRefinement,
     nbPages,
@@ -22,9 +22,8 @@ const Pager = (props: UsePaginationProps) => {
           size="lg"
           withEdges
           onChange={(v) => {
-            refine(v+1);
+            refine(v-1);
           }}
-          itemProps={{disabled: true}}
           controlNextProps={{disabled: nbPages === currentRefinement+1}}
           controlPrevProps={{disabled: currentRefinement === 0}}
           edgeFirstProps={{disabled: currentRefinement === 0}}

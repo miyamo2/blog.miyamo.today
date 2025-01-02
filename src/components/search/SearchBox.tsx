@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSearchBox } from "react-instantsearch";
+import { useSearchBox, UseSearchBoxProps } from "react-instantsearch";
 import { faSearch, faCancel } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { Input, InputGroup, InputLeftElement, InputRightElement } from "@yamada-ui/input";
@@ -8,7 +8,7 @@ import { IconButton } from "@yamada-ui/button";
 export interface SearchBoxProps {}
 
 const SearchBox = (props: SearchBoxProps) => {
-  const { query, refine } = useSearchBox();
+  const { query, refine, clear } = useSearchBox();
   const [ enteredValue, setEnteredValue ] = useState(query);
   const [ compositionOngoing, setCompositionOngoing ] = useState(false);
 
@@ -42,7 +42,7 @@ const SearchBox = (props: SearchBoxProps) => {
           size="sm"
           onClick={() => {
             setEnteredValue("");
-            refine("");
+            clear();
           }}
         />
       </InputRightElement>

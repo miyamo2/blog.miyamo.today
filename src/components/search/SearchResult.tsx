@@ -3,6 +3,7 @@ import {
   Highlight,
   PoweredBy,
   useSearchBox,
+  UseSearchBoxProps,
   UseHitsProps,
   useHits,
   Snippet,
@@ -82,7 +83,7 @@ interface PageHitProps extends UseHitsProps<HitDoc> {
 }
 
 const PageHit = (props: PageHitProps) => {
-  const { items, banner } = useHits(props);
+  const { items } = useHits(props);
 
   return (
     <Flex direction={"column"} alignItems={"stretch"} className={"w-full"}>
@@ -97,7 +98,7 @@ interface SearchResultProps extends SearchBoxRenderState {
   closeModal: () => void;
 }
 
-const SearchResult = ({ refine, query, closeModal }: SearchResultProps) => {
+const SearchResult = ({ refine, query, clear, closeModal }: SearchResultProps) => {
   const [isShow, setShow] = useState<boolean>(true);
 
   useEffect(() => {
@@ -105,7 +106,7 @@ const SearchResult = ({ refine, query, closeModal }: SearchResultProps) => {
   }, [query]);
 
   const handleResetSearchWords = useCallback(() => {
-    refine("");
+    clear();
     closeModal();
   }, [refine]);
 
@@ -127,13 +128,18 @@ const SearchResult = ({ refine, query, closeModal }: SearchResultProps) => {
   );
 };
 
-interface WrappedSearchResultProps {
+interface WrappedSearchResultProps extends UseSearchBoxProps {
   closeModal: () => void;
 }
 
-const WrappedSearchResult = ({ closeModal }: WrappedSearchResultProps) => {
-  const searchBoxApi = useSearchBox();
-  return SearchResult({ ...searchBoxApi, closeModal });
+const WrappedSearchResult = (props: WrappedSearchResultProps) => {
+  const {
+    query,
+    refine,
+    clear,
+    isSearchStalled,
+  } = useSearchBox(props);
+  return <SearchResult closeModal={props.closeModal} query={query} refine={refine} clear={clear} isSearchStalled={isSearchStalled} />;
 };
 
 export default WrappedSearchResult;
