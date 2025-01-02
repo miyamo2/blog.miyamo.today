@@ -17,13 +17,15 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
     <Layout scroll={true}>
       <div className={"hidden lg:block w-full"}>
         <main>
-          <Grid templateAreas={`
+          <Grid
+            templateAreas={`
           ". title ."
           ". image ."
           ". name ."
           ". bio ."
           ". social ."`}
-          className={"justify-between"}>
+            className={"justify-between"}
+          >
             <GridItem gridArea={"title"}>
               <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
                 About
@@ -72,12 +74,14 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
       </div>
       <div className={"lg:hidden w-full"}>
         <main>
-          <Grid templateAreas={`
+          <Grid
+            templateAreas={`
           "title title title title"
           "image image . name"
           "image image . bio"
           "social social social social"`}
-                className={"justify-between"}>
+            className={"justify-between"}
+          >
             <GridItem gridArea={"title"}>
               <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
                 About
@@ -160,28 +164,28 @@ const SocialAccountLink = (url: string) => {
 };
 
 export const query = graphql`
-    query AboutQuery {
-        allFile(filter: { id: { eq: "GitHubAvatar:miyamo2" } }) {
-            nodes {
-                id
-                childImageSharp {
-                    gatsbyImageData(width: 350, height: 350, placeholder: BLURRED, quality: 100)
-                }
-            }
+  query AboutQuery {
+    allFile(filter: { id: { eq: "GitHubAvatar:miyamo2" } }) {
+      nodes {
+        id
+        childImageSharp {
+          gatsbyImageData(width: 350, height: 350, placeholder: BLURRED, quality: 100)
         }
-        github {
-            user(login: "miyamo2") {
-                login
-                url
-                bio
-                socialAccounts(first: 10) {
-                    nodes {
-                        url
-                    }
-                }
-            }
-        }
+      }
     }
+    github {
+      user(login: "miyamo2") {
+        login
+        url
+        bio
+        socialAccounts(first: 10) {
+          nodes {
+            url
+          }
+        }
+      }
+    }
+  }
 `;
 
 export default About;

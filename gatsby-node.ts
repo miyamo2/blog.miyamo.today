@@ -33,12 +33,7 @@ export const sourceNodes: GatsbyNode["sourceNodes"] = async ({
   createContentDigest,
 }) => {
   const { createNode, createNodeField } = actions;
-  await createArticleContentAndImageNode(
-    createNode,
-    createNodeField,
-    cache,
-    createContentDigest
-  );
+  await createArticleContentAndImageNode(createNode, createNodeField, cache, createContentDigest);
   await createGitHubAvatarNode(createNode, createNodeField, cache);
 };
 
@@ -67,7 +62,11 @@ const createArticleContentAndImageNode = async (
         after: after,
         first: PER_PAGE,
       },
-      {authorization: process.env.BLOG_API_MIYAMO_TODAY_TOKEN ? `Bearer ${process.env.BLOG_API_MIYAMO_TODAY_TOKEN}` : ""},
+      {
+        authorization: process.env.BLOG_API_MIYAMO_TODAY_TOKEN
+          ? `Bearer ${process.env.BLOG_API_MIYAMO_TODAY_TOKEN}`
+          : "",
+      }
     );
     if (!data) {
       throw new Error("failed to get articles");
@@ -75,7 +74,11 @@ const createArticleContentAndImageNode = async (
 
     data.articles.edges.map(async (edge) => {
       const articleNode = edge.node;
-      if (articleNode.thumbnailUrl === null || articleNode.thumbnailUrl === undefined || articleNode.thumbnailUrl.length === 0) {
+      if (
+        articleNode.thumbnailUrl === null ||
+        articleNode.thumbnailUrl === undefined ||
+        articleNode.thumbnailUrl.length === 0
+      ) {
         return;
       }
 
@@ -106,6 +109,7 @@ id: "${articleNode.id}"
 title: "${articleNode.title}"
 createdAt: "${format(new Date(articleNode.createdAt), "YYYY-MM-DDTHH:mm:ssZ")}"
 updatedAt: "${format(new Date(articleNode.updatedAt), "YYYY-MM-DDTHH:mm:ssZ")}"
+thumbnail: "${articleNode.thumbnailUrl}"
 tags: [${articleNode.tags.edges
         .map((edge) => {
           return `{"id": "${edge.cursor}", "name": "${edge.node.name}"}`;
@@ -188,9 +192,9 @@ const createGitHubAvatarNode = async (
 
 export const createPages: GatsbyNode["createPages"] = async ({ actions, graphql }) => {
   const { createPage } = actions;
-    await articleListPage(createPage, graphql);
-    await articleDetailPage(createPage, graphql);
-    await taggedArticlesPage(createPage, graphql);
+  await articleListPage(createPage, graphql);
+  await articleDetailPage(createPage, graphql);
+  await taggedArticlesPage(createPage, graphql);
 };
 
 export interface ArticleListPageContext {
@@ -357,39 +361,42 @@ const taggedArticlesPage = async (
   const articlePageInfoEdges = taggedArticlesPageInfoQuery.data.miyamotoday.tags.edges;
 
   // TODO: support last paging of tag-articles in Backend
-  articlePageInfoEdges.slice().reverse().map((tagEdge) => {
-    const { id: tagId, name: tagName } = tagEdge.node;
-    const { edges: articleEdges, totalCount: totalArticles } = tagEdge.node.articles;
+  articlePageInfoEdges
+    .slice()
+    .reverse()
+    .map((tagEdge) => {
+      const { id: tagId, name: tagName } = tagEdge.node;
+      const { edges: articleEdges, totalCount: totalArticles } = tagEdge.node.articles;
 
-    range(1, Math.ceil(totalArticles / PER_PAGE)).map((number, index) => {
-      const cursors = articleEdges
-        .slice((number - 1) * PER_PAGE, number * PER_PAGE)
-        .map((edge) => edge.cursor);
+      range(1, Math.ceil(totalArticles / PER_PAGE)).map((number, index) => {
+        const cursors = articleEdges
+          .slice((number - 1) * PER_PAGE, number * PER_PAGE)
+          .map((edge) => edge.cursor);
 
-      const imageCursors = articleEdges
-        .slice((number - 1) * PER_PAGE, number * PER_PAGE)
-        .map((edge) => `ArticleImage:${edge.cursor}`);
+        const imageCursors = articleEdges
+          .slice((number - 1) * PER_PAGE, number * PER_PAGE)
+          .map((edge) => `ArticleImage:${edge.cursor}`);
 
-      const ctx: TaggedArticlesPageContext = {
-        tagName: tagName,
-        perPage: PER_PAGE,
-        totalItems: totalArticles,
-        currentPage: number,
-        markdownCursors: cursors,
-        imageCursors: imageCursors,
-      };
-      if (index === 0) {
+        const ctx: TaggedArticlesPageContext = {
+          tagName: tagName,
+          perPage: PER_PAGE,
+          totalItems: totalArticles,
+          currentPage: number,
+          markdownCursors: cursors,
+          imageCursors: imageCursors,
+        };
+        if (index === 0) {
+          createPage({
+            path: `/tags/${tagId}`,
+            component: path.resolve("./src/templates/tagged-articles.tsx"),
+            context: ctx,
+          });
+        }
         createPage({
-          path: `/tags/${tagId}`,
+          path: `/tags/${tagId}/${number}/`,
           component: path.resolve("./src/templates/tagged-articles.tsx"),
           context: ctx,
         });
-      }
-      createPage({
-        path: `/tags/${tagId}/${number}/`,
-        component: path.resolve("./src/templates/tagged-articles.tsx"),
-        context: ctx,
       });
     });
-  });
 };

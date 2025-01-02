@@ -55,7 +55,7 @@ const SEO: FC<SeoProps> = ({ path, title, description, image, lang }: SeoProps) 
       <meta name="twitter:url" content={seo.url} />
       <meta name="twitter:card" content="summary_large_image" />
       <link rel={"icon"} href={`${defaultSiteUrl}${icon}`} />
-      </>
+    </>
   );
 };
 

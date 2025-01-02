@@ -9,15 +9,15 @@ import "./src/styles/global.css";
 const injectColorModeScript = () => {
   const scriptContent = getColorModeScript({
     initialColorMode: "system",
-  })
+  });
 
-  const script = document.createElement("script")
+  const script = document.createElement("script");
 
-  script.textContent = scriptContent
+  script.textContent = scriptContent;
 
-  document.head.appendChild(script)
-}
-injectColorModeScript()
+  document.head.appendChild(script);
+};
+injectColorModeScript();
 
 export const wrapPageElement: GatsbyBrowser["wrapPageElement"] = ({ element }) => {
   return <UIProvider>{element}</UIProvider>;

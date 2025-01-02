@@ -1,7 +1,7 @@
-import type { GatsbySSR } from 'gatsby'
-import React from 'react'
+import type { GatsbySSR } from "gatsby";
+import React from "react";
 
-export const onRenderBody: GatsbySSR['onRenderBody'] = ({setHeadComponents}) => {
+export const onRenderBody: GatsbySSR["onRenderBody"] = ({ setHeadComponents }) => {
   setHeadComponents([
     <link
       rel="preload"
@@ -18,5 +18,6 @@ export const onRenderBody: GatsbySSR['onRenderBody'] = ({setHeadComponents}) => 
       type="font/woff2"
       crossOrigin="anonymous"
       key="interFont"
-    />])
-}
+    />,
+  ]);
+};

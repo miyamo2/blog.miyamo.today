@@ -15,12 +15,7 @@ interface ImageProps {
   className?: string;
 }
 
-const Image = ({
-  allFileConnectrion,
-  alt,
-  objectFit,
-  className,
-}: ImageProps) => {
+const Image = ({ allFileConnectrion, alt, objectFit, className }: ImageProps) => {
   const node = allFileConnectrion?.nodes?.at(0);
   if (!node) {
     return <></>;

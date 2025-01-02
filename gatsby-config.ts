@@ -14,7 +14,7 @@ const config: GatsbyConfig = {
     image: "/ogp.png",
     icon: "/logo.png",
     lang: "ja",
-    facebookAppId: `${process.env.FACEBOOK_APP_ID}`
+    facebookAppId: `${process.env.FACEBOOK_APP_ID}`,
   },
   // More easily incorporate content into your pages through automatic TypeScript type generation and better GraphQL IntelliSense.
   // If you use VSCode you can also use the GraphQL plugin
@@ -99,9 +99,9 @@ const config: GatsbyConfig = {
       options: {
         trackingIds: ["G-F1N7VJ0ZX9"],
         pluginConfig: {
-          head: true
-        }
-      }
+          head: true,
+        },
+      },
     },
     {
       resolve: `gatsby-plugin-manifest`,
@@ -120,10 +120,10 @@ const config: GatsbyConfig = {
     `gatsby-plugin-lodash`,
     `gatsby-plugin-fix-fouc`,
     {
-      resolve: 'gatsby-plugin-html-attributes',
+      resolve: "gatsby-plugin-html-attributes",
       options: {
-        lang: 'ja'
-      }
+        lang: "ja",
+      },
     },
     {
       resolve: `gatsby-plugin-feed`,
@@ -138,32 +138,44 @@ const config: GatsbyConfig = {
             }
           }
         }`,
-        setup: (options: any) => ({ ...options, custom_namespaces: { media: "http://search.yahoo.com/mrss/", }, }),
+        setup: (options: any) => ({
+          ...options,
+          custom_namespaces: { media: "http://search.yahoo.com/mrss/" },
+        }),
         feeds: [
           {
-            serialize: ({ query: { site, allMarkdownRemark } }: { query: { site: ISiteMetadata, allMarkdownRemark: IAllMarkdownRemark } }) => {
-              return allMarkdownRemark.nodes.map(node => {
-                console.log(node.frontmatter?.createdAt)
+            serialize: ({
+              query: { site, allMarkdownRemark },
+            }: {
+              query: { site: SiteMetadataForRSS; allMarkdownRemark: GetAllArticlesForRSS };
+            }) => {
+              return allMarkdownRemark.nodes.map((node) => {
+                console.log(node.frontmatter?.createdAt);
                 return {
                   title: node.frontmatter?.title ?? site?.siteMetadata?.title,
                   description: node.excerpt ?? site?.siteMetadata?.description,
-                  date: parse(node.frontmatter?.createdAt ?? "1970-01-01", "YYYY-MM-DDTHH:mm:ssZ", "en").toUTCString(),
+                  date: parse(
+                    node.frontmatter?.createdAt ?? "1970-01-01",
+                    "YYYY-MM-DDTHH:mm:ssZ",
+                    "en"
+                  ).toUTCString(),
                   url: `${site?.siteMetadata?.siteUrl}/articles/${node.frontmatter?.id ?? ""}`,
                   guid: `${site?.siteMetadata?.siteUrl}/articles/${node.frontmatter?.id ?? ""}`,
                   author: "miyamo2",
-                  custom_elements: [{
-                    "media:content": {
-                      _attr:
-                        {
+                  custom_elements: [
+                    {
+                      "media:content": {
+                        _attr: {
                           url: `${site?.siteMetadata?.siteUrl}/static/ogp.png`,
                           width: 1200,
                           height: 630,
-                          media: "image"
-                        }
+                          media: "image",
+                        },
+                      },
                     },
-                  }]
-                }
-              })
+                  ],
+                };
+              });
             },
             query: `query GetAllArticlesForRSS {
               allMarkdownRemark(filter: { frontmatter: { id: { ne: "Noop" } } }) {
@@ -182,10 +194,10 @@ const config: GatsbyConfig = {
             title: "blog.miyamo.today :: RSS feed",
             feed_url: "https://blog.miyamo.today/feed/rss.xml",
             site_url: "https://blog.miyamo.today",
-            language: "ja"
-          }
-        ]
-      }
+            language: "ja",
+          },
+        ],
+      },
     },
     {
       resolve: `gatsby-plugin-s3`,
@@ -199,98 +211,190 @@ const config: GatsbyConfig = {
         acl: null,
         params: {
           "*/*.webp": {
-            CacheControl: 'public, max-age=31536000, immutable'
+            CacheControl: "public, max-age=31536000, immutable",
           },
           "/page-data/**/.json": {
-            ContentType: 'application/json',
-            CacheControl: 'public, max-age=0, must-revalidate'
+            ContentType: "application/json",
+            CacheControl: "public, max-age=0, must-revalidate",
           },
           "*/index.html": {
-            ContentType: 'text/html',
-            CacheControl: 'public, max-age=0, must-revalidate'
+            ContentType: "text/html",
+            CacheControl: "public, max-age=0, must-revalidate",
           },
           "/*.webmanifest": {
-            ContentType: 'application/manifest+json',
-            CacheControl: 'public, max-age=0, must-revalidate'
+            ContentType: "application/manifest+json",
+            CacheControl: "public, max-age=0, must-revalidate",
           },
           "/workbox-v4.3.1/**": {
-            ContentType: 'application/javascript',
-            CacheControl: 'public, max-age=31536000, immutable'
+            ContentType: "application/javascript",
+            CacheControl: "public, max-age=31536000, immutable",
           },
           "/~partytown/**": {
-            ContentType: 'application/javascript',
-            CacheControl: 'public, max-age=0, must-revalidate'
+            ContentType: "application/javascript",
+            CacheControl: "public, max-age=0, must-revalidate",
           },
           "/*.css": {
-            ContentType: 'text/css',
-            CacheControl: 'public, max-age=31536000, immutable'
+            ContentType: "text/css",
+            CacheControl: "public, max-age=31536000, immutable",
           },
           "/webpack.stats.json": {
-            ContentType: 'application/json',
-            CacheControl: 'public, max-age=0, must-revalidate'
+            ContentType: "application/json",
+            CacheControl: "public, max-age=0, must-revalidate",
           },
           "chunk-map.json": {
-            ContentType: 'application/json',
-            CacheControl: 'public, max-age=0, must-revalidate'
+            ContentType: "application/json",
+            CacheControl: "public, max-age=0, must-revalidate",
           },
           "/feed/rss.xml": {
-            ContentType: 'application/rss+xml',
-            CacheControl: 'public, max-age=0, must-revalidate'
+            ContentType: "application/rss+xml",
+            CacheControl: "public, max-age=0, must-revalidate",
           },
           "/sw.js": {
-            ContentType: 'application/javascript',
-            CacheControl: 'public, max-age=0, must-revalidate'
+            ContentType: "application/javascript",
+            CacheControl: "public, max-age=0, must-revalidate",
           },
           "/*.js": {
-            ContentType: 'application/javascript',
-            CacheControl: 'public, max-age=31536000, immutable'
+            ContentType: "application/javascript",
+            CacheControl: "public, max-age=31536000, immutable",
           },
           "/*.js.map": {
-            ContentType: 'application/javascript',
-            CacheControl: 'public, max-age=31536000, immutable'
+            ContentType: "application/javascript",
+            CacheControl: "public, max-age=31536000, immutable",
           },
           "sitemap-index.xml": {
-            ContentType: 'application/xml',
-            CacheControl: 'public, max-age=0, must-revalidate'
-          }
+            ContentType: "application/xml",
+            CacheControl: "public, max-age=0, must-revalidate",
+          },
         },
       },
     },
     {
       resolve: "gatsby-plugin-anchor-links",
     },
-    `gatsby-plugin-sitemap`
+    `gatsby-plugin-sitemap`,
+    {
+      resolve: `gatsby-plugin-algolia`,
+      options: {
+        appId: process.env.ALGOLIA_APP_ID,
+        apiKey: process.env.ALGOLIA_ADMIN_KEY,
+        indexName: process.env.ALGOLIA_INDEX_NAME,
+        queries: [
+          {
+            query: `{
+              allMarkdownRemark(filter: { frontmatter: { id: { ne: "Noop" } } }) {
+                nodes {
+                  excerpt(pruneLength: 3000, truncate: true)
+                  frontmatter {
+                    id
+                    title
+                    tags {
+                      name
+                    }
+                    thumbnail
+                    createdAt
+                  }
+                }
+              }
+              site {
+                siteMetadata {
+                  title
+                  siteUrl
+                  lang
+                }
+              }
+            }`,
+            transformer: ({
+              data: { site, allMarkdownRemark },
+            }: {
+              data: { site: SiteMetadataForAlgolia; allMarkdownRemark: GetAllArticlesForAlgoria };
+            }) =>
+              allMarkdownRemark.nodes.flatMap((node) => {
+                return {
+                  id: node.frontmatter?.id ?? "",
+                  content: node.excerpt ?? "",
+                  title: node.frontmatter?.title ?? "",
+                  publishedAt: parse(
+                    node.frontmatter?.createdAt ?? "1970-01-01T00:00:00Z",
+                    "YYYY-MM-DDTHH:mm:ssZ",
+                    "en"
+                  ),
+                  tags: (() => {
+                    return node.frontmatter?.tags
+                      ?.filter((tag) => tag && typeof tag.name === "string" && tag.name.length > 0)
+                      .flatMap((tag) => tag?.name ?? "")
+                      .map((tagName) => tagName);
+                  })(),
+                  hierarchy: {
+                    lvl0: site?.siteMetadata?.title ?? "",
+                    lvl1: node.frontmatter?.title ?? "",
+                  },
+                  thumbnail: node.frontmatter?.thumbnail ?? "",
+                  type: "lvl1",
+                  url: `${site?.siteMetadata?.siteUrl ?? ""}/articles/${node.frontmatter?.id ?? ""}`,
+                };
+              }),
+          },
+        ],
+        settings: {
+          searchableAttributes: ["title", "content", "tags"],
+          indexLanguages: ["ja"],
+          queryLanguages: ["ja"],
+          attributesToSnippet: [`content:10`],
+        },
+        mergeSettings: true,
+        chunkSize: 10000,
+        dryRun: process.env.ALGOLIA_DRY_RUN,
+      },
+    },
   ],
 };
 
 export default config;
 
-interface IAllMarkdownRemark {
+interface GetAllArticlesForRSS {
   readonly nodes: ReadonlyArray<{
-    excerpt: string | null,
+    excerpt: string | null;
     readonly frontmatter: {
-      readonly id: string | null,
-      readonly title: string | null,
-      readonly createdAt: string | null,
-      readonly updatedAt: string | null,
-      readonly tags: ReadonlyArray<
-        {
-          readonly id: string | null,
-          readonly name: string | null
-        } | null> | null
-    } | null }
-  >
+      readonly id: string | null;
+      readonly title: string | null;
+      readonly createdAt: string | null;
+      readonly updatedAt: string | null;
+    } | null;
+  }>;
 }
 
-interface ISiteMetadata {
+interface GetAllArticlesForAlgoria {
+  readonly nodes: ReadonlyArray<{
+    excerpt: string | null;
+    readonly frontmatter: {
+      readonly id: string | null;
+      readonly title: string | null;
+      readonly thumbnail: string | null;
+      readonly createdAt: string | null;
+      readonly tags: ReadonlyArray<{
+        readonly name: string | null;
+      } | null> | null;
+    } | null;
+  }>;
+}
+
+interface SiteMetadataForRSS {
   readonly siteMetadata: {
-    readonly title: string | null,
-    readonly description: string | null,
-    readonly siteUrl: string | null,
-    readonly lang: string | null,
-    readonly image: string | null,
-    readonly icon: string | null,
-    readonly twitterUsername: string | null,
-    readonly facebookAppId: string | null
-  } | null
+    readonly title: string | null;
+    readonly description: string | null;
+    readonly siteUrl: string | null;
+    readonly lang: string | null;
+    readonly image: string | null;
+    readonly icon: string | null;
+    readonly twitterUsername: string | null;
+    readonly facebookAppId: string | null;
+  } | null;
+}
+
+interface SiteMetadataForAlgolia {
+  readonly siteMetadata: {
+    readonly title: string | null;
+    readonly siteUrl: string | null;
+    readonly lang: string | null;
+  } | null;
 }

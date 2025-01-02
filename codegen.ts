@@ -10,7 +10,7 @@ const config: CodegenConfig = {
       config: {
         skipTypename: false,
         withHOC: false,
-        withComponent: false, //出力するファイルを一つに設定する
+        withComponent: false,
         scalars: {
           uniqueidentifier: "string",
         },

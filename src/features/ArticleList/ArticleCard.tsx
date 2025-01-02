@@ -82,7 +82,8 @@ const ArticleCard = (props: ArticleCardProps) => {
       </GridItem>
       <GridItem>
         <Text>
-          <FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />{createdAt}
+          <FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />
+          {createdAt}
         </Text>
       </GridItem>
     </Grid>
