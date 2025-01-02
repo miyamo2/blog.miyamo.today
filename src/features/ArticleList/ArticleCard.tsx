@@ -32,7 +32,6 @@ const ArticleCard = (props: ArticleCardProps) => {
         image={image}
         alt={`ArticleImage:${props.id}`}
         objectFit={"cover"}
-        className={"transform-scaleup-then-hover"}
       />
     ) : (
       <></>

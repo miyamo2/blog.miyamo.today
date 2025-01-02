@@ -11,8 +11,7 @@ import {
 import { SearchBoxRenderState } from "instantsearch.js/es/connectors/search-box/connectSearchBox";
 import { useStats } from "react-instantsearch";
 import { Hit as AlgoliaHit } from "instantsearch.js";
-import { Box, Flex, VStack } from "@yamada-ui/layouts";
-import { Card, CardBody, CardFooter, CardHeader } from "@yamada-ui/card";
+import { Box, Flex, Grid, GridItem } from "@yamada-ui/layouts";
 import { Heading, Text } from "@yamada-ui/typography";
 import { Image } from "@yamada-ui/image";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
@@ -46,35 +45,38 @@ interface HitCardProps {
 
 const HitCard = ({ hit, onLinkClick }: HitCardProps) => {
   return (
-    <Card
-      onClick={() => {
-        navigate(`/articles/${hit.objectID}`);
-        onLinkClick();
-      }}
-      variant="outline"
-      className={"transform-scaleup-then-hover flex-col lg:flex-row"}
-      overflow={"hidden"}
-    >
-      <Image src={hit.thumbnail} objectFit="cover" className={"h-[20%] lg:w-[30%] lg:h-auto"} />
-      <VStack gap="0">
-        <CardHeader>
-          <Heading size="md">
+    <GridItem>
+      <Grid
+        boxShadow={"md"}
+        onClick={() => {
+          navigate(`/articles/${hit.objectID}`);
+          onLinkClick();
+        }}
+        aria-label={`link: ${hit.title}`}
+        bg={["#f6f8fa", "#151b23"]}
+        w={"full"}
+        className={"w-full h-full index-hit-card transform-scaleup-then-hover"}
+        overflow={"hidden"}
+      >
+        <GridItem overflow={"hidden"} className={"transform-scaleup-then-hover-img-wrapper"} gridArea={"image"}>
+          <Image src={hit.thumbnail} objectFit="cover" className={"h-full"} />
+        </GridItem>
+        <GridItem gridArea={"title"}>
+          <Heading as="h2" size={"md"}>
             <Highlight hit={hit} attribute={"title"} />
           </Heading>
-        </CardHeader>
-
-        <CardBody overflow="hidden">
+        </GridItem>
+        <GridItem gridArea={"content"} alignSelf={"start"}>
           <Snippet hit={hit} attribute={"content"} />
-        </CardBody>
-
-        <CardFooter>
+        </GridItem>
+        <GridItem gridArea={"tag"} alignSelf={"end"}>
           <Text>
             <FontAwesomeIcon icon={faTags} paddingRight={"sm"} />
             <Highlight hit={hit} attribute={`tags`} />
           </Text>
-        </CardFooter>
-      </VStack>
-    </Card>
+        </GridItem>
+      </Grid>
+    </GridItem>
   );
 };
 
@@ -86,11 +88,11 @@ const PageHit = (props: PageHitProps) => {
   const { items } = useHits(props);
 
   return (
-    <Flex direction={"column"} alignItems={"stretch"} className={"w-full"}>
+    <Grid templateRows={"repeat(auto, minmax(280px, 1fr))"} className={"w-full"} gap={"sm"}>
       {items.map((hit) => (
           <HitCard hit={hit} onLinkClick={props.onLinkClick} />
       ))}
-    </Flex>
+    </Grid>
   );
 };
 

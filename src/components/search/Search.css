@@ -41,3 +41,11 @@
         }
     }
 }
+
+.index-hit-card {
+    grid-template-areas:
+        "image title title"
+        "image content content"
+        "image tag tag";
+    grid-template-columns: 1fr 1fr 1fr;
+}
