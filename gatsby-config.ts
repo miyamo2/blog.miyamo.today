@@ -339,7 +339,7 @@ const config: GatsbyConfig = {
           searchableAttributes: ["title", "content", "tags"],
           indexLanguages: ["ja"],
           queryLanguages: ["ja"],
-          attributesToSnippet: [`content:20`],
+          attributesToSnippet: [`content:10`],
         },
         mergeSettings: true,
         chunkSize: 10000,
