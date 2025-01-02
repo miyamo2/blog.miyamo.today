@@ -19,7 +19,7 @@ const SearchBox = (props: SearchBoxProps) => {
       </InputLeftElement>
       <Input
         value={enteredValue}
-        placeholder={"search articles by algolia"}
+        placeholder={"search articles with algolia"}
         rounded="3xl"
         bg={["#ffffff", "#0d1117"]}
         onChange={(e) => {
