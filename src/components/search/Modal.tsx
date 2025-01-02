@@ -1,9 +1,10 @@
 import React, { useMemo } from "react";
-import algoliasearch from "algoliasearch/lite";
 import { Modal, ModalOverlay, ModalProps } from "@yamada-ui/modal";
 import { Configure, InstantSearch } from "react-instantsearch";
+import type { SearchClient } from "instantsearch.js";
 import SearchBox from "./SearchBox";
 import WrappedSearchResult from "./SearchResult";
+import { UseSearchClient } from "../../hooks/search/useSearchClient";
 
 interface SearchModalProps extends ModalProps {
   open: boolean;
@@ -11,10 +12,7 @@ interface SearchModalProps extends ModalProps {
 }
 
 const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
-  const algoliaClient = useMemo(
-    () => algoliasearch(process.env.GATSBY_ALGOLIA_APP_ID ?? "", process.env.GATSBY_ALGOLIA_SEARCH_KEY ?? ""),
-    []
-  );
+  const searchClient: SearchClient = useMemo(UseSearchClient, []);
 
   return (
     <Modal
@@ -29,7 +27,7 @@ const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
       bg={"transparent"}
     >
       <ModalOverlay backdropFilter="blur(10px)" />
-      <InstantSearch searchClient={algoliaClient} indexName={process.env.GATSBY_ALGOLIA_INDEX_NAME ?? ""}>
+      <InstantSearch searchClient={searchClient} indexName={process.env.GATSBY_ALGOLIA_INDEX_NAME ?? ""}>
         <Configure hitsPerPage={5} />
         <SearchBox />
         <WrappedSearchResult closeModal={onClose} />
