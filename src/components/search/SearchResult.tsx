@@ -59,9 +59,9 @@ const HitCard = ({ hit, onLinkClick }: HitCardProps) => {
         overflow={"hidden"}
       >
         <GridItem overflow={"hidden"} className={"transform-scaleup-then-hover-img-wrapper"} gridArea={"image"}>
-          <Image src={hit.thumbnail} objectFit="cover" className={"h-full"} />
+          <Image src={hit.thumbnail} objectFit="cover" className={"h-full w-full"} />
         </GridItem>
-        <GridItem gridArea={"title"}>
+        <GridItem overflow={"hidden"} gridArea={"title"}>
           <Heading as="h2" size={"md"}>
             <Highlight hit={hit} attribute={"title"} />
           </Heading>
@@ -88,7 +88,7 @@ const PageHit = (props: PageHitProps) => {
   const { items } = useHits(props);
 
   return (
-    <Grid templateRows={"repeat(auto, minmax(280px, 1fr))"} className={"w-full"} gap={"sm"}>
+    <Grid templateRows={`repeat(${items.length}, 1fr)`} gap={"sm"}>
       {items.map((hit) => (
           <HitCard hit={hit} onLinkClick={props.onLinkClick} />
       ))}

@@ -1,12 +1,11 @@
 .popover {
     max-height: 80vh;
     overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
+    overflow-x: clip;
     z-index: 10;
     right: 0;
     top: 100%;
     margin-top: 0.5em;
-    width: 100% !important;
     box-shadow: 0 0 5px 0;
     padding: 1em;
     border-radius: 2px;
@@ -27,25 +26,10 @@
     justify-content: flex-end;
 }
 
-.Hits {
-    width: 100% !important;
-    ol {
-        list-style: none;
-        margin-left: 0;
-        li[class*='ais-Hits-item'] {
-            margin-bottom: 1em;
-            h4 {
-                margin-top: 0;
-                margin-bottom: 0.2em;
-            }
-        }
-    }
-}
-
 .index-hit-card {
     grid-template-areas:
         "image title title"
         "image content content"
-        "image tag tag";
-    grid-template-columns: 1fr 1fr 1fr;
+        "image tag tag" !important;
+    grid-template-columns: 1fr 1fr 1fr !important;
 }
