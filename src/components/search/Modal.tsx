@@ -5,6 +5,10 @@ import type { SearchClient } from "instantsearch.js";
 import SearchBox from "./SearchBox";
 import WrappedSearchResult from "./SearchResult";
 import { UseSearchClient } from "../../hooks/search/useSearchClient";
+import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { IconButton } from "@yamada-ui/button";
+import { HStack } from "@yamada-ui/layouts";
 
 interface SearchModalProps extends ModalProps {
   open: boolean;
@@ -31,7 +35,14 @@ const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
       <ModalOverlay backdropFilter="blur(10px)" />
       <InstantSearch searchClient={searchClient} indexName={process.env.GATSBY_ALGOLIA_INDEX_NAME ?? ""}>
         <Configure hitsPerPage={5} />
-        <SearchBox />
+        <HStack>
+          <SearchBox closeModal={onClose} />
+          <IconButton
+            icon={<FontAwesomeIcon icon={faXmark} />}
+            size="sm"
+            onClick={onClose}
+          />
+        </HStack>
         <WrappedSearchResult closeModal={onClose} />
       </InstantSearch>
     </Modal>
