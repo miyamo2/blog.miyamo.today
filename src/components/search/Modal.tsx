@@ -25,6 +25,8 @@ const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
       className={"h-fit"}
       lockFocusAcrossFrames={true}
       bg={"transparent"}
+      animation={"bottom"}
+      duration={0.3}
     >
       <ModalOverlay backdropFilter="blur(10px)" />
       <InstantSearch searchClient={searchClient} indexName={process.env.GATSBY_ALGOLIA_INDEX_NAME ?? ""}>
