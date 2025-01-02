@@ -12,7 +12,7 @@ interface SearchModalProps extends ModalProps {
 
 const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
   const algoliaClient = useMemo(
-    () => algoliasearch(process.env.ALGOLIA_APP_ID ?? "", process.env.ALGOLIA_SEARCH_KEY ?? ""),
+    () => algoliasearch(process.env.GATSBY_ALGOLIA_APP_ID ?? "", process.env.GATSBY_ALGOLIA_SEARCH_KEY ?? ""),
     []
   );
 
@@ -29,7 +29,7 @@ const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
       bg={"transparent"}
     >
       <ModalOverlay backdropFilter="blur(10px)" />
-      <InstantSearch searchClient={algoliaClient} indexName={process.env.ALGOLIA_INDEX_NAME ?? ""}>
+      <InstantSearch searchClient={algoliaClient} indexName={process.env.GATSBY_ALGOLIA_INDEX_NAME ?? ""}>
         <Configure hitsPerPage={5} />
         <SearchBox />
         <WrappedSearchResult closeModal={onClose} />
