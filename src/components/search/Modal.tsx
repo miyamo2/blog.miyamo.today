@@ -36,7 +36,7 @@ const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
       <InstantSearch searchClient={searchClient} indexName={process.env.GATSBY_ALGOLIA_INDEX_NAME ?? ""}>
         <Configure hitsPerPage={5} />
         <HStack>
-          <SearchBox closeModal={onClose} />
+          <SearchBox />
           <IconButton
             icon={<FontAwesomeIcon icon={faXmark} />}
             size="sm"
