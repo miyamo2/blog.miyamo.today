@@ -33,12 +33,8 @@ export const sourceNodes: GatsbyNode["sourceNodes"] = async ({
   createContentDigest,
 }) => {
   const { createNode, createNodeField } = actions;
-  await Promise.all(
-    [
-      createArticleContentAndImageNode(createNode, createNodeField, cache, createContentDigest),
-      createGitHubAvatarNode(createNode, createNodeField, cache),
-    ]
-  )
+  await createArticleContentAndImageNode(createNode, createNodeField, cache, createContentDigest);
+  await createGitHubAvatarNode(createNode, createNodeField, cache);
 };
 
 const createArticleContentAndImageNode = async (
@@ -196,12 +192,9 @@ const createGitHubAvatarNode = async (
 
 export const createPages: GatsbyNode["createPages"] = async ({ actions, graphql }) => {
   const { createPage } = actions;
-  await Promise.all(
-    [
-      articleListPage(createPage, graphql),
-      articleDetailPage(createPage, graphql),
-      taggedArticlesPage(createPage, graphql),
-    ])
+  await articleListPage(createPage, graphql);
+  await articleDetailPage(createPage, graphql);
+  await taggedArticlesPage(createPage, graphql);
 };
 
 export interface ArticleListPageContext {
