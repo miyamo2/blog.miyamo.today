@@ -150,7 +150,6 @@ const config: GatsbyConfig = {
               query: { site: SiteMetadataForRSS; allMarkdownRemark: GetAllArticlesForRSS };
             }) => {
               return allMarkdownRemark.nodes.map((node) => {
-                console.log(node.frontmatter?.createdAt);
                 return {
                   title: node.frontmatter?.title ?? site?.siteMetadata?.title,
                   description: node.excerpt ?? site?.siteMetadata?.description,
@@ -178,7 +177,10 @@ const config: GatsbyConfig = {
               });
             },
             query: `query GetAllArticlesForRSS {
-              allMarkdownRemark(filter: { frontmatter: { id: { ne: "Noop" } } }) {
+              allMarkdownRemark(
+                filter: { frontmatter: { id: { ne: "Noop" } } }, 
+                sort: { frontmatter: { id: DESC } }
+              ) {
                 nodes {
                   excerpt(pruneLength: 140, truncate: true)
                   frontmatter {
