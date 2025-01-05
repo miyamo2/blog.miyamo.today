@@ -6,10 +6,10 @@ import {
   UseSearchBoxProps,
   UseHitsProps,
   useHits,
+  useStats,
   Snippet,
 } from "react-instantsearch";
 import { SearchBoxRenderState } from "instantsearch.js/es/connectors/search-box/connectSearchBox";
-import { useStats } from "react-instantsearch";
 import { Hit as AlgoliaHit } from "instantsearch.js";
 import { Box, Flex, Grid, GridItem } from "@yamada-ui/layouts";
 import { Heading, Text } from "@yamada-ui/typography";
@@ -100,33 +100,23 @@ interface SearchResultProps extends SearchBoxRenderState {
   closeModal: () => void;
 }
 
-const SearchResult = ({ refine, query, clear, closeModal }: SearchResultProps) => {
-  const [isShow, setShow] = useState<boolean>(true);
+const SearchResult = ({ refine, clear, closeModal }: SearchResultProps) => {
+  const { nbHits, nbPages } = useStats();
 
-  useEffect(() => {
-    setShow(!!query);
-  }, [query]);
-
-  const handleResetSearchWords = useCallback(() => {
+  const onCardClick = useCallback(() => {
     clear();
     closeModal();
   }, [refine]);
 
   return (
-    <>
-      {isShow ? (
-        <Box className={`popover w-full`} bg={["#ffffff", "#0d1117"]}>
-          <HitCount />
-          <div className="Hits">
-            <PageHit onLinkClick={handleResetSearchWords} />
-          </div>
-          <Pager />
-          <PoweredBy />
-        </Box>
-      ) : (
-        <></>
-      )}
-    </>
+    <Box className={`popover w-full ${nbHits === 0 && nbPages === 0  ? "hidden" : ""}`} bg={["#ffffff", "#0d1117"]}>
+      <HitCount />
+      <div className="Hits">
+        <PageHit onLinkClick={onCardClick} />
+      </div>
+      <Pager />
+      <PoweredBy />
+    </Box>
   );
 };
 
