@@ -33,7 +33,8 @@
 }
 
 .transform-scaleup-then-hover:hover img,
-.transform-scaleup-then-hover:hover transform-scaleup-then-hover-img-wrapper img {
+.transform-scaleup-then-hover:hover transform-scaleup-then-hover-img-wrapper img,
+.transform-scaleup-then-hover:hover transform-scaleup-then-hover-img-wrapper transform-scaleup-then-hover-img-container img {
     transition: transform .6s ease;
     transform:scale(1.1);
 }

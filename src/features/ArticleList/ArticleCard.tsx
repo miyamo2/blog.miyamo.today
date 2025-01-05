@@ -32,7 +32,7 @@ const ArticleCard = (props: ArticleCardProps) => {
         image={image}
         alt={`ArticleImage:${props.id}`}
         objectFit={"cover"}
-        className={"transform-scaleup-then-hover"}
+        className={"transform-scaleup-then-hover-img-container"}
       />
     ) : (
       <></>
@@ -53,9 +53,10 @@ const ArticleCard = (props: ArticleCardProps) => {
       aria-label={`link: ${props.title}`}
       bg={["#f6f8fa", "#151b23"]}
       w={"full"}
-      className={"max-w-[750px] lg:max-w-[303px]"}
+      className={"max-w-[750px] lg:max-w-[303px] transform-scaleup-then-hover"}
+      overflow={"hidden"}
     >
-      <GridItem>{gatsbyImage}</GridItem>
+      <GridItem className={"transform-scaleup-then-hover-img-wrapper"}>{gatsbyImage}</GridItem>
       <GridItem>
         {props.tags.map((tag) => (
           <Tag
