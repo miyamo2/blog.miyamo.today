@@ -53,7 +53,7 @@ const ArticleCard = (props: ArticleCardProps) => {
       aria-label={`link: ${props.title}`}
       bg={["#f6f8fa", "#151b23"]}
       w={"full"}
-      className={"max-w-[750px] lg:max-w-[303px] transform-scaleup-then-hover"}
+      className={"max-w-[750px] lg:max-w-[303px] transform-scaleup-then-hover isolate"}
       overflow={"hidden"}
     >
       <GridItem className={"transform-scaleup-then-hover-img-wrapper"}>{gatsbyImage}</GridItem>
