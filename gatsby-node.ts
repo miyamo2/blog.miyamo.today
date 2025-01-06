@@ -1,17 +1,12 @@
 import path from "path";
 import { GatsbyCache, GatsbyNode } from "gatsby";
-import { createFileNodeFromBuffer, createRemoteFileNode } from "gatsby-source-filesystem";
+import { createRemoteFileNode } from "gatsby-source-filesystem";
 import { request } from "graphql-request";
-import { format } from "@formkit/tempo";
 import {
-  SourceNodesQuery,
-  SourceNodesDocument,
-  SourceNodesQueryVariables,
   GitHubAvatarQuery,
   GitHubAvatarDocument,
   GitHubAvatarQueryVariables,
 } from "./src/generates/graphql";
-import InputMaybe = Queries.InputMaybe;
 
 const PER_PAGE = (() => {
   let v = process.env.GATSBY_ARTICLE_PER_PAGE;
@@ -30,123 +25,9 @@ const range = (start: number, end: number) => [...Array(end - start + 1)].map((_
 export const sourceNodes: GatsbyNode["sourceNodes"] = async ({
   actions,
   cache,
-  createContentDigest,
 }) => {
   const { createNode, createNodeField } = actions;
-  await createArticleContentAndImageNode(createNode, createNodeField, cache, createContentDigest);
   await createGitHubAvatarNode(createNode, createNodeField, cache);
-};
-
-const createArticleContentAndImageNode = async (
-  createNode: Parameters<NonNullable<GatsbyNode["sourceNodes"]>>["0"]["actions"]["createNode"],
-  createNodeField: Parameters<
-    NonNullable<GatsbyNode["sourceNodes"]>
-  >["0"]["actions"]["createNodeField"],
-  cache: GatsbyCache,
-  createContentDigest: Parameters<
-    NonNullable<GatsbyNode["sourceNodes"]>
-  >["0"]["createContentDigest"]
-) => {
-  const endpoint = process.env.BLOG_API_MIYAMO_TODAY_URL;
-  if (!endpoint || typeof endpoint !== "string") {
-    throw new Error("endpoint must not to be null or undefined");
-  }
-
-  let doContinue = true;
-  let after: InputMaybe<string> | undefined = undefined;
-  while (doContinue) {
-    const data: SourceNodesQuery = await request<SourceNodesQuery, SourceNodesQueryVariables>(
-      endpoint,
-      SourceNodesDocument,
-      {
-        after: after,
-        first: PER_PAGE,
-      },
-      {
-        authorization: process.env.BLOG_API_MIYAMO_TODAY_TOKEN
-          ? `Bearer ${process.env.BLOG_API_MIYAMO_TODAY_TOKEN}`
-          : "",
-      }
-    );
-    if (!data) {
-      throw new Error("failed to get articles");
-    }
-
-    data.articles.edges.map(async (edge) => {
-      const articleNode = edge.node;
-      if (
-        articleNode.thumbnailUrl === null ||
-        articleNode.thumbnailUrl === undefined ||
-        articleNode.thumbnailUrl.length === 0
-      ) {
-        return;
-      }
-
-      const thumbnailNode = await createRemoteFileNode({
-        url: articleNode.thumbnailUrl,
-        cache,
-        createNode: createNode,
-        createNodeId: (): string => {
-          return `ArticleImage:${articleNode.id}`;
-        },
-      });
-
-      createNodeField({
-        node: thumbnailNode,
-        name: "ArticleImage",
-        value: "true",
-      });
-
-      createNodeField({
-        node: thumbnailNode,
-        name: "link",
-        value: articleNode.thumbnailUrl,
-      });
-
-      const rawContent = articleNode.content.replaceAll(`\\n`, `\n`);
-      const content = `---
-id: "${articleNode.id}"
-title: "${articleNode.title}"
-createdAt: "${format(new Date(articleNode.createdAt), "YYYY-MM-DDTHH:mm:ssZ")}"
-updatedAt: "${format(new Date(articleNode.updatedAt), "YYYY-MM-DDTHH:mm:ssZ")}"
-thumbnail: "${articleNode.thumbnailUrl}"
-tags: [${articleNode.tags.edges
-        .map((edge) => {
-          return `{"id": "${edge.cursor}", "name": "${edge.node.name}"}`;
-        })
-        .join(", ")}]
----
-${rawContent}`;
-
-      const contentNode = await createFileNodeFromBuffer({
-        buffer: Buffer.from(content),
-        cache,
-        createNode,
-        createNodeId: (): string => {
-          return `ArticleContent:${articleNode.id}`;
-        },
-        hash: createContentDigest(content),
-        ext: ".md",
-      });
-
-      createNodeField({
-        node: contentNode,
-        name: "ArticleContent",
-        value: "true",
-      });
-
-      createNodeField({
-        node: contentNode,
-        name: "link",
-        value: content,
-      });
-      return;
-    });
-
-    const { hasNextPage, endCursor } = data.articles.pageInfo;
-    doContinue = hasNextPage ?? false;
-    after = endCursor;
-  }
 };
 
 const createGitHubAvatarNode = async (
@@ -283,7 +164,7 @@ const articleDetailPage = async (
 ) => {
   const getAllArticles = await graphql<Queries.GetAllArticlesQuery>(`
     query GetAllArticles {
-      allMarkdownRemark(filter: { frontmatter: { id: { ne: "Noop" } } }) {
+      allMarkdownRemark {
         nodes {
           frontmatter {
             id

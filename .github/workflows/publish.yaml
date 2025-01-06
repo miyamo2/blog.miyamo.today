@@ -27,6 +27,8 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun install
 
       - name: Set up aws cli

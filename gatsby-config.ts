@@ -58,6 +58,13 @@ const config: GatsbyConfig = {
         path: `${__dirname}/static/`,
       },
     },
+    {
+      resolve: `@miyamo2/gatsby-source-blogapi-miyamo-today`,
+      options: {
+        url: process.env.BLOG_API_MIYAMO_TODAY_URL,
+        token: process.env.BLOG_API_MIYAMO_TODAY_TOKEN,
+      },
+    },
     "gatsby-plugin-postcss",
     `gatsby-plugin-image`,
     `gatsby-plugin-sharp`,
@@ -108,7 +115,7 @@ const config: GatsbyConfig = {
       options: {
         name: `blog.miyamo.today`,
         short_name: `blog.miyamo.today`,
-        description: `How was miyamo2's today??`,
+        description: `miyamo2's personal blog; How was miyamo2's today?`,
         start_url: `/?homescreen`,
         background_color: `#ffffff`,
         theme_color: `#3f3a3a`,
@@ -178,7 +185,6 @@ const config: GatsbyConfig = {
             },
             query: `query GetAllArticlesForRSS {
               allMarkdownRemark(
-                filter: { frontmatter: { id: { ne: "Noop" } } }, 
                 sort: { frontmatter: { id: DESC } }
               ) {
                 nodes {
@@ -283,7 +289,7 @@ const config: GatsbyConfig = {
         queries: [
           {
             query: `{
-              allMarkdownRemark(filter: { frontmatter: { id: { ne: "Noop" } } }) {
+              allMarkdownRemark {
                 nodes {
                   excerpt(pruneLength: 3000, truncate: true)
                   frontmatter {
