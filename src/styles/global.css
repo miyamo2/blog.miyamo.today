@@ -38,3 +38,28 @@
     transition: transform .6s ease;
     transform:scale(1.1);
 }
+
+#bmc-iframe {
+    top: 0;
+    right: 0 !important;
+    @screen lg {
+        right: 18px !important;
+    }
+    max-height: 100% !important;
+    max-width: 100% !important;
+}
+
+@media(min-width: 1401px) {
+    #bmc-wbtn {
+        right: calc((100% - 1400px) / 2) !important;
+    }
+    #bmc-iframe {
+        right: calc((100% - 1400px) / 2) !important;
+    }
+}
+
+#bmc-close-btn {
+    @screen lg {
+        display: none !important;
+    }
+}
