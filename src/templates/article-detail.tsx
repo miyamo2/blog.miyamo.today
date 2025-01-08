@@ -69,13 +69,14 @@ const ArticleDetail = ({
               {createdAt}
             </Box>
           </GridItem>
-          <GridItem gridArea={"image"}>
-            <Image
-              allFileConnectrion={allFile}
-              alt={`ArticleImage:${pageContext.cursor}`}
-              objectFit={"cover"}
-            />
-          </GridItem>
+          <GridItem
+            as={Image}
+            gridArea={"image"}
+            justifySelf={"center"}
+            allFileConnectrion={allFile}
+            alt={`ArticleImage:${pageContext.cursor}`}
+            objectFit={"cover"}
+          />
           <GridItem
             gridArea={"lnav"}
             alignSelf={"end"}
@@ -111,7 +112,7 @@ const ArticleDetail = ({
             <ArticleTOCMedium headings={headings}></ArticleTOCMedium>
           </GridItem>
           <GridItem gridArea={"content"} className={"scroll-offset w-full"}>
-            <article>
+          <article>
               <div
                 dangerouslySetInnerHTML={{
                   __html: markdownRemark?.html ?? "",
@@ -182,7 +183,7 @@ export const query = graphql`
       nodes {
         id
         childImageSharp {
-          gatsbyImageData(width: 1400, height: 700, placeholder: BLURRED, quality: 100)
+          gatsbyImageData(width: 1000, height: 500, placeholder: BLURRED, quality: 100)
         }
       }
     }
