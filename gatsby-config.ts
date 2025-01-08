@@ -249,7 +249,7 @@ const config: GatsbyConfig = {
             ContentType: "application/json",
             CacheControl: "public, max-age=0, must-revalidate",
           },
-          "chunk-map.json": {
+          "/chunk-map.json": {
             ContentType: "application/json",
             CacheControl: "public, max-age=0, must-revalidate",
           },
@@ -270,6 +270,10 @@ const config: GatsbyConfig = {
             CacheControl: "public, max-age=31536000, immutable",
           },
           "sitemap-index.xml": {
+            ContentType: "application/xml",
+            CacheControl: "public, max-age=0, must-revalidate",
+          },
+          "sitemap-0.xml": {
             ContentType: "application/xml",
             CacheControl: "public, max-age=0, must-revalidate",
           },
