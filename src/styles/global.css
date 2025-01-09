@@ -49,7 +49,7 @@
     max-width: 100% !important;
 }
 
-@media(min-width: 1401px) {
+@media(min-width: 1400px) {
     #bmc-wbtn {
         right: calc((100% - 1400px) / 2) !important;
     }
