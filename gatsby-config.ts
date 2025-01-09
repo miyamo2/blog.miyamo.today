@@ -9,7 +9,7 @@ const config: GatsbyConfig = {
   siteMetadata: {
     title: "blog.miyamo.today",
     siteUrl: "https://blog.miyamo.today",
-    description: "How was miyamo2's today?",
+    description: "miyamo2's personal blog. How was miyamo2's today?",
     twitterUsername: "@miyamo2_jp",
     image: "/ogp.png",
     icon: "/logo.png",
