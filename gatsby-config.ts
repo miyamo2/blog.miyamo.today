@@ -277,6 +277,10 @@ const config: GatsbyConfig = {
             ContentType: "application/xml",
             CacheControl: "public, max-age=0, must-revalidate",
           },
+          "robots.txt": {
+            ContentType: "text/plain",
+            CacheControl: "public, max-age=0, must-revalidate",
+          },
         },
       },
     },
