@@ -40,6 +40,7 @@ const SEO: FC<SeoProps> = ({ path, title, description, image, lang }: SeoProps) 
     <>
       <title>{seo.title}</title>
       <meta name="description" content={seo.description} />
+      <meta name="author" content="miyamo2" />
       <meta property="og:title" content={seo.title} />
       <meta property="og:site_name" content={defaultTitle ?? ""} />
       <meta property="og:description" content={seo.description} />
