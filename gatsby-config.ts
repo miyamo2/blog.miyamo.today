@@ -358,6 +358,14 @@ const config: GatsbyConfig = {
         dryRun: process.env.ALGOLIA_DRY_RUN,
       },
     },
+    {
+      resolve: 'gatsby-plugin-robots-txt',
+      options: {
+        host: 'https://blog.miyamo.today',
+        sitemap: 'https://blog.miyamo.today/sitemap-0.xml',
+        policy: [{userAgent: '*', allow: '/'}]
+      }
+    }
   ],
 };
 
