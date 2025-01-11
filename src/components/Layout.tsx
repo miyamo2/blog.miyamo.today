@@ -35,10 +35,11 @@ const Layout = ({ children, scroll }: LayoutProps) => {
           <div className={"flex w-full justify-center scrollbar-offset"}>
             <div className={"max-w-[1400px] w-full lg:w-[90vw] mx-5 lg:mx-0"}>
               {children}
+              <div className={"lg:hidden"}>
+                <Footer />
+              </div>
             </div>
-          </div>
-          <div className={"lg:hidden scrollbar-offset"}>
-            <Footer />
+
           </div>
         </GridItem>
         <GridItem w={"full"} h={"full"} gridArea={"f"} className={"hidden lg:block"}>

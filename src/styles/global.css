@@ -50,6 +50,15 @@
     padding-left: calc(100vw - 100%);
 }
 
+.smooth-scroll {
+    scroll-behavior: smooth;
+    scroll-snap-type: y proximity !important;
+    scroll-padding-top: 102vh !important;
+    @screen lg {
+        scroll-padding-top: unset !important;
+    }
+}
+
 .transform-scaleup-then-hover:hover img,
 .transform-scaleup-then-hover:hover transform-scaleup-then-hover-img-wrapper img,
 .transform-scaleup-then-hover:hover transform-scaleup-then-hover-img-wrapper transform-scaleup-then-hover-img-container img {
