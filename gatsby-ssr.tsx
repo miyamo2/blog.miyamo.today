@@ -19,6 +19,22 @@ export const onRenderBody: GatsbySSR["onRenderBody"] = ({ setHeadComponents, set
       crossOrigin="anonymous"
       key="interFont"
     />,
+    <link
+      rel="preload"
+      href="/fonts/UDEVGothicHS-Italic-Subset.woff2"
+      as="font"
+      type="font/woff2"
+      crossOrigin="anonymous"
+      key="interFont"
+    />,
+    <link
+      rel="preload"
+      href="/fonts/UDEVGothicHS-BoldItalic-Subset.woff2"
+      as="font"
+      type="font/woff2"
+      crossOrigin="anonymous"
+      key="interFont"
+    />,
   ]);
   setPostBodyComponents([
     <script
