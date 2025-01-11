@@ -133,7 +133,7 @@ const articleListPage = async (
       markdownCursors: cursors,
       imageCursors: imageCursors,
     };
-    if (index === 0) {
+    if (number === 1) {
       createRedirect({
         fromPath: "/",
         toPath: "/pages/1",
@@ -268,10 +268,10 @@ const taggedArticlesPage = async (
           markdownCursors: cursors,
           imageCursors: imageCursors,
         };
-        if (index === 0) {
+        if (number === 1) {
           createRedirect({
-            fromPath: `/tags/${tagId}`,
-            toPath: `/tags/${tagId}/1`,
+            fromPath: `/tags/${tagId}/`,
+            toPath: `/tags/${tagId}/1/`,
             isPermanent: true,
           })
         }
