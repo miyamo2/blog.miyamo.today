@@ -72,10 +72,10 @@ const createGitHubAvatarNode = async (
 };
 
 export const createPages: GatsbyNode["createPages"] = async ({ actions, graphql }) => {
-  const { createPage } = actions;
-  await articleListPage(createPage, graphql);
+  const { createPage, createRedirect } = actions;
+  await articleListPage(createPage, createRedirect, graphql);
   await articleDetailPage(createPage, graphql);
-  await taggedArticlesPage(createPage, graphql);
+  await taggedArticlesPage(createPage, createRedirect, graphql);
 };
 
 export interface ArticleListPageContext {
@@ -88,6 +88,7 @@ export interface ArticleListPageContext {
 
 const articleListPage = async (
   createPage: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["actions"]["createPage"],
+  createRedirect: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["actions"]["createRedirect"],
   graphql: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["graphql"]
 ) => {
   // TODO: partitional fetch by cursor
@@ -133,10 +134,10 @@ const articleListPage = async (
       imageCursors: imageCursors,
     };
     if (index === 0) {
-      createPage({
-        path: "/",
-        component: path.resolve("./src/templates/article-list.tsx"),
-        context: ctx,
+      createRedirect({
+        fromPath: "/",
+        toPath: "/pages/1",
+        isPermanent: true,
       });
     }
     createPage({
@@ -210,6 +211,7 @@ export interface TaggedArticlesPageContext {
 
 const taggedArticlesPage = async (
   createPage: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["actions"]["createPage"],
+  createRedirect: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["actions"]["createRedirect"],
   graphql: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["graphql"]
 ) => {
   const taggedArticlesPageInfoQuery = await graphql<Queries.GetTaggedArticlesPageInfoQuery>(`
@@ -267,11 +269,11 @@ const taggedArticlesPage = async (
           imageCursors: imageCursors,
         };
         if (index === 0) {
-          createPage({
-            path: `/tags/${tagId}`,
-            component: path.resolve("./src/templates/tagged-articles.tsx"),
-            context: ctx,
-          });
+          createRedirect({
+            fromPath: `/tags/${tagId}`,
+            toPath: `/tags/${tagId}/1`,
+            isPermanent: true,
+          })
         }
         createPage({
           path: `/tags/${tagId}/${number}/`,
