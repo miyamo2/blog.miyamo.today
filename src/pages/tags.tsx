@@ -14,7 +14,7 @@ const Tags = ({ data }: PageProps<Queries.TagListQueryQuery>) => {
           <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
             Tags
           </Heading>
-          <Grid templateColumns={"repeat(auto-fill, minmax(120px, auto))"} gap={"sm"}>
+          <Grid templateColumns={"repeat(auto-fill, minmax(10rem, 1fr))"} gap={"sm"}>
             {data.miyamotoday.tags.edges.map((edge, i) => (
               <Tag as={Link} to={`/tags/${edge.cursor}`} bg={["#ddf4ff", "#121d2f"]}>
                 #{edge.node.name}({edge.node.articles.totalCount})
