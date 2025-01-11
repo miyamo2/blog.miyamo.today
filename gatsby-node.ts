@@ -133,12 +133,18 @@ const articleListPage = async (
       markdownCursors: cursors,
       imageCursors: imageCursors,
     };
-    if (number === 1) {
+    if (index === 0) {
+      createPage({
+        path: "/",
+        component: path.resolve("./src/templates/article-list.tsx"),
+        context: ctx,
+      });
       createRedirect({
-        fromPath: "/",
-        toPath: "/pages/1",
+        fromPath: "/pages/1",
+        toPath: "/",
         isPermanent: true,
       });
+      return;
     }
     createPage({
       path: `/pages/${number}`,
@@ -268,15 +274,21 @@ const taggedArticlesPage = async (
           markdownCursors: cursors,
           imageCursors: imageCursors,
         };
-        if (number === 1) {
+        if (index === 0) {
+          createPage({
+            path: `/tags/${tagId}`,
+            component: path.resolve("./src/templates/tagged-articles.tsx"),
+            context: ctx,
+          });
           createRedirect({
-            fromPath: `/tags/${tagId}/`,
-            toPath: `/tags/${tagId}/1/`,
+            fromPath: `/tags/${tagId}/1`,
+            toPath: `/tags/${tagId}`,
             isPermanent: true,
           })
+          return
         }
         createPage({
-          path: `/tags/${tagId}/${number}/`,
+          path: `/tags/${tagId}/${number}`,
           component: path.resolve("./src/templates/tagged-articles.tsx"),
           context: ctx,
         });
