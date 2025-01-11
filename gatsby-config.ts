@@ -369,7 +369,6 @@ const config: GatsbyConfig = {
     {
       resolve: 'gatsby-plugin-robots-txt',
       options: {
-        host: 'https://blog.miyamo.today',
         sitemap: 'https://blog.miyamo.today/sitemap-0.xml',
         policy: [{userAgent: '*', allow: '/'}]
       }
