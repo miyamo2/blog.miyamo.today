@@ -15,16 +15,7 @@ const Layout = ({ children, scroll }: LayoutProps) => {
       <Grid
         w={"full"}
         h={"100vh"}
-        className={"smooth-scroll"}
-        templateAreas={`
-          "h h h h h h h h h"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "m m m m m m m m m"
-          "f f f f f f f f f"`}
+        className={"layout smooth-scroll"}
         bg={["#ffffff", "#0d1117"]}
       >
         <GridItem gridArea={"h"} bg={["#f6f8fa", "#010409"]} className={"h-fit"}>
@@ -46,14 +37,12 @@ const Layout = ({ children, scroll }: LayoutProps) => {
               {children}
             </div>
           </div>
-          <div className={"lg:hidden"}>
+          <div className={"lg:hidden scrollbar-offset"}>
             <Footer />
           </div>
         </GridItem>
-        <GridItem w={"full"} h={"full"} gridArea={"f"}>
-          <div className={"hidden lg:block"}>
-            <Footer />
-          </div>
+        <GridItem w={"full"} h={"full"} gridArea={"f"} className={"hidden lg:block"}>
+          <Footer />
         </GridItem>
       </Grid>
     </>

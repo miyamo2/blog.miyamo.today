@@ -81,3 +81,20 @@
         display: none !important;
     }
 }
+
+.layout {
+    grid-template-areas:
+          "h"
+          "m";
+    grid-template-columns: 1fr;
+    @screen lg {
+        grid-template-areas:
+          "h"
+          "m"
+          "f";
+        justify-content: start;
+        align-items: start;
+        contain: paint;
+        grid-template-columns: 1fr;
+    }
+}
