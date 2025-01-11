@@ -281,6 +281,10 @@ const config: GatsbyConfig = {
             ContentType: "text/plain",
             CacheControl: "public, max-age=0, must-revalidate",
           },
+          "/fonts/**": {
+            ContentType: "font/woff2",
+            CacheControl: "public, max-age=0, must-revalidate",
+          }
         },
       },
     },
