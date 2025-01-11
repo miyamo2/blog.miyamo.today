@@ -5,7 +5,7 @@ export const onRenderBody: GatsbySSR["onRenderBody"] = ({ setHeadComponents, set
   setHeadComponents([
     <link
       rel="preload"
-      href="/fonts/UDEVGothicHS-Regular-Subset.woff2"
+      href="/fonts/UDEVGothic35HS-Regular-Subset.woff2"
       as="font"
       type="font/woff2"
       crossOrigin="anonymous"
@@ -13,7 +13,7 @@ export const onRenderBody: GatsbySSR["onRenderBody"] = ({ setHeadComponents, set
     />,
     <link
       rel="preload"
-      href="/fonts/UDEVGothicHS-Bold-Subset.woff2"
+      href="/fonts/UDEVGothic35HS-Bold-Subset.woff2"
       as="font"
       type="font/woff2"
       crossOrigin="anonymous"
@@ -21,7 +21,7 @@ export const onRenderBody: GatsbySSR["onRenderBody"] = ({ setHeadComponents, set
     />,
     <link
       rel="preload"
-      href="/fonts/UDEVGothicHS-Italic-Subset.woff2"
+      href="/fonts/UDEVGothic35HS-Italic-Subset.woff2"
       as="font"
       type="font/woff2"
       crossOrigin="anonymous"
@@ -29,7 +29,7 @@ export const onRenderBody: GatsbySSR["onRenderBody"] = ({ setHeadComponents, set
     />,
     <link
       rel="preload"
-      href="/fonts/UDEVGothicHS-BoldItalic-Subset.woff2"
+      href="/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2"
       as="font"
       type="font/woff2"
       crossOrigin="anonymous"
