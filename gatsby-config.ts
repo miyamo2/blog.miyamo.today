@@ -373,7 +373,8 @@ const config: GatsbyConfig = {
         sitemap: 'https://blog.miyamo.today/sitemap-0.xml',
         policy: [{userAgent: '*', allow: '/'}]
       }
-    }
+    },
+    `gatsby-plugin-client-side-redirect`,
   ],
 };
 
