@@ -23,10 +23,6 @@ export const wrapPageElement: GatsbyBrowser["wrapPageElement"] = ({ element }) =
   return <UIProvider>{element}</UIProvider>;
 };
 
-export const onServiceWorkerUpdateReady = () => {
-  window.location.reload();
-}
-
 export const onServiceWorkerUpdateFound = () => {
   window.location.reload();
 }
