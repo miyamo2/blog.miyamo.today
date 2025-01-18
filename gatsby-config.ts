@@ -1,4 +1,4 @@
-import type { GatsbyConfig } from "gatsby";
+import type { GatsbyConfig, Node } from "gatsby";
 import { parse } from "@formkit/tempo";
 
 require("dotenv").config({
@@ -123,7 +123,19 @@ const config: GatsbyConfig = {
         icon: `static/pwa_logo.png`,
       },
     },
-    `gatsby-plugin-offline`,
+    {
+      resolve: 'gatsby-plugin-offline',
+      options: {
+        workboxConfig: {
+          runtimeCaching: [
+            {
+              urlPattern: /^https?:.*\/page-data\/.*\.json/,
+              handler: 'NetworkFirst',
+            },
+          ],
+        },
+      },
+    },
     `gatsby-plugin-lodash`,
     `gatsby-plugin-fix-fouc`,
     {
