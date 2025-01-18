@@ -82,7 +82,7 @@ const ArticleDetail = ({
             alignSelf={"end"}
             h={"full"}
             w={"full"}
-            className={"contain-paint hidden lg:block"}
+            className={"hidden lg:block"}
           >
             <Box h={"full"} overflow={"visible"}>
               <Box position={"sticky"} top={0}>

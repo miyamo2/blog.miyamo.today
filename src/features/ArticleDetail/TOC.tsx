@@ -88,7 +88,10 @@ export const ArticleTOCLarge = ({ headings }: ArticleTOCProps) => {
         {headings?.map((heading) => (
           <AnchorLink to={`#${heading?.id}`} key={heading?.id}>
             <Text
+              whiteSpace={"nowrap"}
+              overflow={"hidden"}
               textOverflow={"ellipsis"}
+              width={"full"}
               paddingBottom={"sm"}
               textIndent={`${calcDepth(heading?.depth)}em`}
             >
