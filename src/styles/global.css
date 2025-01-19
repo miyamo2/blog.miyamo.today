@@ -57,17 +57,12 @@ div:has(> #toc-modal) {
     contain: paint;
 }
 
-.smooth-scroll {
-    scroll-behavior: smooth;
+:root {
+    scroll-behavior: smooth !important;
     scroll-snap-type: y proximity !important;
-}
-
-.scroll-padding {
-    scroll-padding-top: 70px;
-}
-
-.scrollbar-offset {
-    padding-left: calc(100vw - 100%);
+    scroll-padding-top: 70px !important;
+    padding-left: calc(100vw - 100%) !important;
+    overflow-y: scroll !important;
 }
 
 .transform-scaleup-then-hover:hover img,

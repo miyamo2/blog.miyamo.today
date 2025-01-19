@@ -25,8 +25,6 @@ const Layout = ({ children }: LayoutProps) => {
           "m m m m m m m m m"
           "f f f f f f f f f"`}
         bg={["#ffffff", "#0d1117"]}
-        overflowY={"auto"}
-        overflowX={"hidden"}
       >
         <GridItem gridArea={"h"} h={"70px"} bg={["#f6f8fa", "#010409"]} className={"header"} alignSelf={"start"}>
           <div className={"flex w-full justify-center"} >
