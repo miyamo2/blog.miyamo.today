@@ -8,7 +8,7 @@ import SEO from "../components/SEO";
 
 const Tags = ({ data }: PageProps<Queries.TagListQueryQuery>) => {
   return (
-    <Layout scroll={true}>
+    <Layout>
       <div className={"w-full"}>
         <main>
           <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>

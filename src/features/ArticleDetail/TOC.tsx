@@ -24,7 +24,7 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
 
   return (
     <>
-      <div className={"toc-modal-button-wrapper"}>
+      <div className={"toc-modal-button-wrapper lg:hidden"}>
         <Button onClick={() => {
           onOpen();
           setVisibility(false);
@@ -33,17 +33,16 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
           <FontAwesomeIcon icon={faListUl} h={"36px"} w={"36px"} />
         </Button>
       </div>
-
-      <Modal open={open} onClose={() => {
+      <Modal id={"toc-modal"} open={open} onClose={() => {
         onClose();
         setVisibility(true);
-      }} duration={0.4} placement={"bottom"} size={"full"} scrollBehavior={"inside"} className={"toc-modal"}>
-        <ModalHeader>
+      }} duration={0.4} placement={"bottom"} size={"full"} className={"lg:hidden"}>
+        <ModalHeader id={"toc-modal-header"}>
           <Heading size={"lg"} className={"font-bold"}>
             Table of Contents
           </Heading>
         </ModalHeader>
-        <ModalBody>
+        <ModalBody id={"toc-modal-body"}>
           <Box w={"full"}>
             {headings?.map((heading) => (
               <AnchorLink
@@ -55,7 +54,7 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
                     onClose();
                     setVisibility(true);
                   }
-              }>
+                }>
                 <Text
                   whiteSpace={"nowrap"}
                   overflow={"hidden"}
@@ -72,6 +71,29 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
         </ModalBody>
       </Modal>
     </>
+  )
+}
+
+interface ArticleTOCModalButtonProps {
+  open: boolean;
+  onOpen: () => void;
+  setBuyMeACoffeeVisibility: (visibility: boolean) => void;
+}
+
+export const ArticleTOCModalButton = ({ headings }: ArticleTOCProps) => {
+  const { open, onOpen } = useDisclosure()
+  const { setVisibility } = useBuyMeACoffee();
+
+  return (
+    <div className={"toc-modal-button-wrapper lg:hidden"}>
+      <Button onClick={() => {
+        onOpen();
+        setVisibility(false);
+      }} borderRadius={"32px"} h={"64px"} w={"64px"} display={open ? "none" : "inline-flex"}
+              bg={"#186bf2"}>
+        <FontAwesomeIcon icon={faListUl} h={"36px"} w={"36px"} />
+      </Button>
+    </div>
   )
 }
 

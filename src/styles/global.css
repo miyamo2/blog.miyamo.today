@@ -38,12 +38,32 @@
     src: url(/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2) format("woff2");
 }
 
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 999999;
+}
+
+div:has(> #toc-modal) {
+    z-index: 9999999 !important;
+    opacity: unset !important;
+}
+
 #___gatsby #gatsby-focus-wrapper * {
     font-family: "UDEVGothicHS", "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol" !important;
 }
 
 .contain-paint {
     contain: paint;
+}
+
+.smooth-scroll {
+    scroll-behavior: smooth;
+    scroll-snap-type: y proximity !important;
+}
+
+.scroll-padding {
+    scroll-padding-top: 70px;
 }
 
 .scrollbar-offset {

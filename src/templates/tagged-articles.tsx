@@ -32,7 +32,7 @@ const TaggedArticleList = ({
   const articleCardDataList = useArticleCardList(data.allMarkdownRemark.nodes);
 
   return (
-    <Layout scroll={true}>
+    <Layout>
       <div className={"w-full"}>
         <main>
           <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>

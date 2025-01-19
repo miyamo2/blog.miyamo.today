@@ -39,130 +39,130 @@ const ArticleDetail = ({
   const createdAt = format(new Date(frontmatter.createdAt ?? ""), "YYYY/MM/DD");
 
   return (
-    <Layout scroll={true}>
-      <main>
-        <Grid className={"article-detail"}>
-          <GridItem gridArea={"title"}>
-            <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
-              {frontmatter.title}
-            </Heading>
-          </GridItem>
-          <GridItem gridArea={"tag"}>
-            <Box>
-              {frontmatter.tags
-                ?.filter((v) => v)
-                .map((tag) => (
-                  <Tag
-                    as={Link}
-                    size={"md"}
-                    id={`${tag?.id}-${tag?.id}`}
-                    to={`/tags/${tag?.id}`}
-                    bg={["#ddf4ff", "#121d2f"]}
-                  >
-                    #{tag?.name}
-                  </Tag>
-                ))}
-            </Box>
-          </GridItem>
-          <GridItem gridArea={"date"}>
-            <Box paddingTop={"md"} paddingBottom={"md"}>
-              <FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />
-              {createdAt}
-            </Box>
-          </GridItem>
-          <GridItem
-            as={GatsbyImage}
-            image={thumbnail?.childImageSharp?.gatsbyImageData}
-            gridArea={"image"}
-            justifySelf={"center"}
-            alt={`ArticleImage:${pageContext.cursor}`}
-            objectFit={"cover"}
-          />
-          <GridItem
-            gridArea={"lnav"}
-            alignSelf={"end"}
-            h={"full"}
-            className={"hidden lg:block "}
-          >
-            <Box h={"full"} w={"full"} overflow={"visible"}>
-              <Box position={"sticky"} top={0}>
+    <>
+      <Layout>
+        <main>
+          <Grid className={"article-detail"}>
+            <GridItem gridArea={"title"}>
+              <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
+                {frontmatter.title}
+              </Heading>
+            </GridItem>
+            <GridItem gridArea={"tag"}>
+              <Box>
+                {frontmatter.tags
+                  ?.filter((v) => v)
+                  .map((tag) => (
+                    <Tag
+                      as={Link}
+                      size={"md"}
+                      id={`${tag?.id}-${tag?.id}`}
+                      to={`/tags/${tag?.id}`}
+                      bg={["#ddf4ff", "#121d2f"]}
+                    >
+                      #{tag?.name}
+                    </Tag>
+                  ))}
+              </Box>
+            </GridItem>
+            <GridItem gridArea={"date"}>
+              <Box paddingTop={"md"} paddingBottom={"md"}>
+                <FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />
+                {createdAt}
+              </Box>
+            </GridItem>
+            <GridItem
+              as={GatsbyImage}
+              image={thumbnail?.childImageSharp?.gatsbyImageData}
+              gridArea={"image"}
+              justifySelf={"center"}
+              alt={`ArticleImage:${pageContext.cursor}`}
+              objectFit={"cover"}
+            />
+            <GridItem
+              gridArea={"lnav"}
+              alignSelf={"end"}
+              h={"full"}
+              className={"hidden lg:block "}
+            >
+              <Box h={"full"} w={"full"} overflow={"visible"}>
+                <Box position={"sticky"} top={71}>
+                  <ShareButtons
+                    title={frontmatter.title ?? ""}
+                    url={`https://${location.host}${location.pathname}`}
+                    stackType={"v"}
+                    buttonSize={32}
+                  />
+                </Box>
+              </Box>
+            </GridItem>
+            <GridItem
+              gridArea={"rnav"}
+              alignSelf={"start"}
+              h={"full"}
+              w={"full"}
+              className={"contain-paint hidden lg:block"}
+            >
+              <Box h={"full"} overflow={"visible"}>
+                <Box position={"sticky"} top={71}>
+                  <ArticleTOCLarge headings={headings}></ArticleTOCLarge>
+                  <ReccomendArticles reccomends={markdownRemark?.recommends} />
+                </Box>
+              </Box>
+            </GridItem>
+            <GridItem gridArea={"content"} className={"scroll-offset w-full"}>
+              <article>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: markdownRemark?.html ?? "",
+                  }}
+                  className={"markdown-body w-full"}
+                ></div>
+              </article>
+            </GridItem>
+            <GridItem gridArea={"share"} className={"lg:hidden"} paddingTop={"md"}>
+              <Flex justifyContent={"space-evenly"}>
                 <ShareButtons
                   title={frontmatter.title ?? ""}
                   url={`https://${location.host}${location.pathname}`}
-                  stackType={"v"}
+                  stackType={"h"}
                   buttonSize={32}
                 />
-              </Box>
-            </Box>
-          </GridItem>
-          <GridItem
-            gridArea={"rnav"}
-            alignSelf={"start"}
-            h={"full"}
-            w={"full"}
-            className={"contain-paint hidden lg:block"}
-          >
-            <Box h={"full"} overflow={"visible"}>
-              <Box position={"sticky"} top={0}>
-                <ArticleTOCLarge headings={headings}></ArticleTOCLarge>
-                <ReccomendArticles reccomends={markdownRemark?.recommends} />
-              </Box>
-            </Box>
-          </GridItem>
-          <GridItem gridArea={"content"} className={"scroll-offset w-full"}>
-          <article>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: markdownRemark?.html ?? "",
-                }}
-                className={"markdown-body w-full"}
-              ></div>
-            </article>
-          </GridItem>
-          <GridItem gridArea={"share"} className={"lg:hidden"} paddingTop={"md"}>
-            <Flex justifyContent={"space-evenly"}>
-              <ShareButtons
-                title={frontmatter.title ?? ""}
-                url={`https://${location.host}${location.pathname}`}
-                stackType={"h"}
-                buttonSize={32}
+              </Flex>
+            </GridItem>
+            <GridItem gridArea={"comment"} justifySelf={"stretch"}>
+              <Separator paddingY={"sm"} />
+              <Giscus
+                id={"comments"}
+                repo={"miyamo2/comments.miyamo.today"}
+                repoId={"R_kgDONcgSBA"}
+                category={"Announcements"}
+                categoryId={"DIC_kwDONcgSBM4ClJ66"}
+                mapping={"pathname"}
+                term={"Welcome to @giscus/react component!"}
+                reactionsEnabled={"1"}
+                emitMetadata={"0"}
+                inputPosition={"top"}
+                theme={colorMode}
+                lang={"ja"}
+                loading={"lazy"}
+                strict={"1"}
               />
-            </Flex>
-          </GridItem>
-          <GridItem gridArea={"comment"} justifySelf={"stretch"}>
-            <Separator paddingY={"sm"} />
-            <Giscus
-              id={"comments"}
-              repo={"miyamo2/comments.miyamo.today"}
-              repoId={"R_kgDONcgSBA"}
-              category={"Announcements"}
-              categoryId={"DIC_kwDONcgSBM4ClJ66"}
-              mapping={"pathname"}
-              term={"Welcome to @giscus/react component!"}
-              reactionsEnabled={"1"}
-              emitMetadata={"0"}
-              inputPosition={"top"}
-              theme={colorMode}
-              lang={"ja"}
-              loading={"lazy"}
-              strict={"1"}
-            />
-          </GridItem>
-          <GridItem gridArea={"recommend"} justifySelf={"stretch"} className={"lg:hidden"}>
-            <ReccomendArticles reccomends={markdownRemark?.recommends} />
-          </GridItem>
-        </Grid>
-      </main>
-      <div className={"lg:hidden"}>
-        <ArticleTOCModal headings={headings} />
-      </div>
-    </Layout>
+            </GridItem>
+            <GridItem gridArea={"recommend"} justifySelf={"stretch"} className={"lg:hidden"}>
+              <ReccomendArticles reccomends={markdownRemark?.recommends} />
+            </GridItem>
+          </Grid>
+        </main>
+      </Layout>
+      <ArticleTOCModal headings={headings} />
+    </>
   );
 };
 
 export const query = graphql`
-  query ArticleDetailQuery($cursor: String) {
-    allMarkdownRemark(filter: { frontmatter: { id: { eq: $cursor } } }) {
+    query ArticleDetailQuery($cursor: String) {
+        allMarkdownRemark(filter: { frontmatter: { id: { eq: $cursor } } }) {
       nodes {
         excerpt(pruneLength: 140, truncate: true)
         html

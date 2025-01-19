@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.smooth-scroll {
-    scroll-behavior: smooth;
-    scroll-snap-type: y proximity !important;
-}
-
 .side-toc {
     overflow: hidden;
     text-overflow: ellipsis;

@@ -14,7 +14,7 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
   const allFileConnection = data.allFile;
 
   return (
-    <Layout scroll={true}>
+    <Layout>
       <div className={"hidden lg:block w-full"}>
         <main>
           <Grid

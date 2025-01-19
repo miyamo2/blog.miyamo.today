@@ -6,16 +6,15 @@ import { Grid, GridItem } from "@yamada-ui/layouts";
 
 interface LayoutProps {
   children: ReactNode;
-  scroll?: boolean;
 }
 
-const Layout = ({ children, scroll }: LayoutProps) => {
+const Layout = ({ children }: LayoutProps) => {
   return (
     <>
       <Grid
         w={"full"}
         h={"100vh"}
-        className={"smooth-scroll"}
+        className={"smooth-scroll scroll-padding scrollbar-offset"}
         templateAreas={`
           "h h h h h h h h h"
           "m m m m m m m m m"
@@ -26,9 +25,11 @@ const Layout = ({ children, scroll }: LayoutProps) => {
           "m m m m m m m m m"
           "f f f f f f f f f"`}
         bg={["#ffffff", "#0d1117"]}
+        overflowY={"auto"}
+        overflowX={"hidden"}
       >
-        <GridItem gridArea={"h"} bg={["#f6f8fa", "#010409"]} className={"h-fit"}>
-          <div className={"flex w-full justify-center"}>
+        <GridItem gridArea={"h"} h={"70px"} bg={["#f6f8fa", "#010409"]} className={"header"} alignSelf={"start"}>
+          <div className={"flex w-full justify-center"} >
             <div className={"max-w-[1400px] w-full lg:w-[90vw] mx-4 lg:mx-0"}>
               <Header />
             </div>
@@ -37,23 +38,15 @@ const Layout = ({ children, scroll }: LayoutProps) => {
         <GridItem
           h={"full"}
           gridArea={"m"}
-          overflowY={scroll ? "auto" : "hidden"}
-          overflowX={"hidden"}
-          className={"smooth-scroll"}
         >
-          <div className={"flex w-full justify-center scrollbar-offset"}>
-            <div className={"max-w-[1400px] w-full lg:w-[90vw] mx-5 lg:mx-0 pb-[64px] lg:pb-0"}>
+          <div className={"flex w-full h-full justify-center"}>
+            <div className={"max-w-[1400px] w-full h-full lg:w-[90vw] mx-5 lg:mx-0 pb-[64px] lg:pb-0"}>
               {children}
             </div>
           </div>
-          <div className={"lg:hidden"}>
-            <Footer />
-          </div>
         </GridItem>
-        <GridItem w={"full"} h={"full"} gridArea={"f"}>
-          <div className={"hidden lg:block"}>
-            <Footer />
-          </div>
+        <GridItem w={"full"} h={"full"} gridArea={"f"} alignSelf={"end"}>
+          <Footer />
         </GridItem>
       </Grid>
     </>
