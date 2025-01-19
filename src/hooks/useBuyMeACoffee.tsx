@@ -1,4 +1,11 @@
 export const useBuyMeACoffee = () => {
+  if (typeof window === "undefined") {
+    return {
+      setVisibility: (visibility: boolean) => {},
+      toggleVisibility: () => {}
+    }
+  }
+
   const buyMeACoffeeWidget = document.getElementById("bmc-wbtn");
 
   return {
