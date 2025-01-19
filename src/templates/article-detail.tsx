@@ -16,7 +16,7 @@ import SEO from "../components/SEO";
 import "./article-detail.css";
 import { ArticleTOCLarge, ArticleTOCMedium } from "../features/ArticleDetail/TOC";
 import ShareButtons from "../components/ShareButtons";
-import { ReccomendArticles } from "../features/ArticleDetail/RecommendArticleCard";
+import { ReccomendArticles } from "../features/ArticleDetail/Recommend";
 
 const ArticleDetail = ({
   location,
