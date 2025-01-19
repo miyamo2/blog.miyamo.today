@@ -13,7 +13,7 @@ import { GatsbyImage, getSrc } from "gatsby-plugin-image";
 import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import "./article-detail.css";
-import { ArticleTOCLarge, ArticleTOCMedium } from "../features/ArticleDetail/TOC";
+import { ArticleTOCLarge, ArticleTOCModal } from "../features/ArticleDetail/TOC";
 import ShareButtons from "../components/ShareButtons";
 import { ReccomendArticles } from "../features/ArticleDetail/Recommend";
 
@@ -109,9 +109,6 @@ const ArticleDetail = ({
               </Box>
             </Box>
           </GridItem>
-          <GridItem gridArea={"toc"} position={"sticky"} top={0} className={"lg:hidden"} zIndex={2}>
-            <ArticleTOCMedium headings={headings}></ArticleTOCMedium>
-          </GridItem>
           <GridItem gridArea={"content"} className={"scroll-offset w-full"}>
           <article>
               <div
@@ -156,6 +153,9 @@ const ArticleDetail = ({
           </GridItem>
         </Grid>
       </main>
+      <div className={"lg:hidden"}>
+        <ArticleTOCModal headings={headings} />
+      </div>
     </Layout>
   );
 };

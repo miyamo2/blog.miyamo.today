@@ -1,17 +1,14 @@
 import { Box } from "@yamada-ui/layouts";
 import { Heading, Text } from "@yamada-ui/typography";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
-import { faListUl, faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
+import { faListUl } from "@fortawesome/free-solid-svg-icons";
 import * as React from "react";
-import { useState } from "react";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionLabel,
-  AccordionPanel,
-  AccordionProps,
-} from "@yamada-ui/accordion";
 import { AnchorLink } from "gatsby-plugin-anchor-links";
+import { useDisclosure } from "@yamada-ui/use-disclosure";
+import { Button } from "@yamada-ui/button";
+import { Modal, ModalBody, ModalHeader } from "@yamada-ui/modal";
+import "./TOC.css";
+import { useBuyMeACoffee } from "../../hooks/useBuyMeACoffee";
 
 export interface ArticleTOCProps {
   headings?: ReadonlyArray<{
@@ -21,48 +18,61 @@ export interface ArticleTOCProps {
   } | null> | null;
 }
 
-export const ArticleTOCMedium = ({ headings }: ArticleTOCProps) => {
-  const [index, setIndex] = useState<AccordionProps["index"]>(-1);
+export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
+  const { open, onOpen, onClose } = useDisclosure()
+  const { setVisibility } = useBuyMeACoffee();
 
   return (
-    <Accordion
-      toggle={true}
-      w={"full"}
-      bg={["#0d1117", "#f6f8fa"]}
-      borderRadius={"lg"}
-      index={index}
-      onChange={setIndex}
-      icon={({ expanded }) => {
-        return (
-          <FontAwesomeIcon icon={expanded ? faMinus : faPlus} color={["#f6f8fa", "#010409"]} />
-        );
-      }}
-    >
-      <AccordionItem w={"full"}>
-        <AccordionLabel color={["#f6f8fa", "#010409"]}>
-          <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
-          Table of Contents
-        </AccordionLabel>
-        <AccordionPanel bg={["#f6f8fa", "#0d1117"]} h={"100vh"}>
-          <Box className={"side-toc"} w={"full"}>
+    <>
+      <div className={"toc-modal-button-wrapper"}>
+        <Button onClick={() => {
+          onOpen();
+          setVisibility(false);
+        }} borderRadius={"32px"} h={"64px"} w={"64px"} display={ open ? "none" : "inline-flex" }>
+          <FontAwesomeIcon icon={faListUl} h={"36px"} w={"36px"} />
+        </Button>
+      </div>
+
+      <Modal open={open} onClose={() => {
+        onClose();
+        setVisibility(true);
+      }} duration={0.4} placement={"bottom"} size={"full"} scrollBehavior={"inside"} className={"toc-modal"}>
+        <ModalHeader>
+          <Heading size={"lg"} className={"font-bold"}>
+            Table of Contents
+          </Heading>
+        </ModalHeader>
+        <ModalBody>
+          <Box w={"full"}>
             {headings?.map((heading) => (
               <AnchorLink
                 to={`#${heading?.id}`}
+                key={heading?.id}
                 className={"pointer-events-auto"}
-                onAnchorLinkClick={() => setIndex(-1)}
-              >
+                onAnchorLinkClick={
+                  () => {
+                    onClose();
+                    setVisibility(true);
+                  }
+              }>
                 <Text
+                  whiteSpace={"nowrap"}
+                  overflow={"hidden"}
+                  textOverflow={"ellipsis"}
+                  width={"full"}
                   paddingBottom={"sm"}
                   textIndent={`${calcDepth(heading?.depth)}em`}
-                >{`${heading?.id}`}</Text>
+                >
+                  {heading?.value}
+                </Text>
               </AnchorLink>
             ))}
           </Box>
-        </AccordionPanel>
-      </AccordionItem>
-    </Accordion>
-  );
-};
+        </ModalBody>
+      </Modal>
+    </>
+  )
+}
 
 export const ArticleTOCLarge = ({ headings }: ArticleTOCProps) => {
   return (
