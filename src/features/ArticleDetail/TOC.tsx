@@ -66,7 +66,7 @@ export const ArticleTOCMedium = ({ headings }: ArticleTOCProps) => {
 
 export const ArticleTOCLarge = ({ headings }: ArticleTOCProps) => {
   return (
-    <Box w={"full"}>
+    <Box w={"full"} paddingLeft={"0.5em"}>
       <Box
         w={"full"}
         className={"backdrop-blur-md"}

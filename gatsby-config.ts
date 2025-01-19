@@ -387,6 +387,30 @@ const config: GatsbyConfig = {
       }
     },
     `gatsby-plugin-client-side-redirect`,
+    {
+      resolve: `gatsby-plugin-recommend-article`,
+      options: {
+        qdrant: {
+          url: "http://localhost:6333",
+          onDisk: true,
+        },
+        openai: {
+          apiKey: `${process.env.OPENAI_API_KEY}`,
+          embeddingModel:"text-embedding-3-large",
+          embeddingSize: 3072,
+        },
+        limit: 2,
+        toPayload: (node: MarkdownRemarkForReccomendPayload) => {
+          return JSON.stringify({
+            title: node.frontmatter?.title ?? "",
+            content: node.rawMarkdownBody,
+            tags: node.frontmatter?.tags?.
+            map((tag) => tag?.name ?? "").
+            filter((v) => v.length != 0) ?? [],
+          })
+        },
+      },
+    },
   ],
 };
 
@@ -437,5 +461,15 @@ interface SiteMetadataForAlgolia {
     readonly title: string | null;
     readonly siteUrl: string | null;
     readonly lang: string | null;
+  } | null;
+}
+
+interface MarkdownRemarkForReccomendPayload {
+  rawMarkdownBody: string | null;
+  readonly frontmatter: {
+    readonly title: string | null;
+    readonly tags: ReadonlyArray<{
+      readonly name: string | null;
+    } | null> | null;
   } | null;
 }

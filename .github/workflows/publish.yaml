@@ -17,6 +17,12 @@ permissions: write-all
 jobs:
   publish:
     runs-on: ubuntu-latest
+    services:
+      qdrant:
+        image: qdrant/qdrant:latest
+        ports:
+          - "6333:6333"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -71,6 +77,7 @@ jobs:
           ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
           GATSBY_ALGOLIA_INDEX_NAME: ${{ secrets.ALGOLIA_INDEX_NAME }}
           GATSBY_CPU_COUNT: 2
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: bun run build
 
       - name: Save Gatsby cache

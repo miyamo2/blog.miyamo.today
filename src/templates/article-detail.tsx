@@ -16,6 +16,7 @@ import SEO from "../components/SEO";
 import "./article-detail.css";
 import { ArticleTOCLarge, ArticleTOCMedium } from "../features/ArticleDetail/TOC";
 import ShareButtons from "../components/ShareButtons";
+import { ReccomendArticles } from "../features/ArticleDetail/RecommendArticleCard";
 
 const ArticleDetail = ({
   location,
@@ -81,10 +82,9 @@ const ArticleDetail = ({
             gridArea={"lnav"}
             alignSelf={"end"}
             h={"full"}
-            w={"full"}
-            className={"hidden lg:block"}
+            className={"hidden lg:block "}
           >
-            <Box h={"full"} overflow={"visible"}>
+            <Box h={"full"} w={"full"} overflow={"visible"}>
               <Box position={"sticky"} top={0}>
                 <ShareButtons
                   title={frontmatter.title ?? ""}
@@ -105,6 +105,7 @@ const ArticleDetail = ({
             <Box h={"full"} overflow={"visible"}>
               <Box position={"sticky"} top={0}>
                 <ArticleTOCLarge headings={headings}></ArticleTOCLarge>
+                <ReccomendArticles reccomends={markdownRemark?.recommends} />
               </Box>
             </Box>
           </GridItem>
@@ -150,6 +151,9 @@ const ArticleDetail = ({
               strict={"1"}
             />
           </GridItem>
+          <GridItem gridArea={"recommend"} justifySelf={"stretch"} className={"lg:hidden"}>
+            <ReccomendArticles reccomends={markdownRemark?.recommends} />
+          </GridItem>
         </Grid>
       </main>
     </Layout>
@@ -175,6 +179,18 @@ export const query = graphql`
           tags {
             id
             name
+          }
+        }
+        recommends {
+          frontmatter {
+            id
+            title
+            createdAt
+            updatedAt
+            tags {
+                id
+                name
+            }
           }
         }
       }

@@ -11,6 +11,12 @@
     }
 }
 
+.side-toc {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 code[class*='language-'],
 code[class*='language-'] *,
 pre[class*='language-'] {
@@ -27,7 +33,8 @@ pre[class*='language-'] {
           "content content content"
           "content content content"
           "share share share"
-          "comment comment comment";
+          "comment comment comment"
+          "recommend recommend recommend";
     grid-template-columns: 1fr 1fr 1fr;
     @screen lg {
         grid-template-areas:
@@ -40,7 +47,7 @@ pre[class*='language-'] {
         justify-content: start;
         align-items: start;
         contain: paint;
-        grid-template-columns: 10% 70% 20%;
+        grid-template-columns: 10% 65% 25%;
     }
 }
 
