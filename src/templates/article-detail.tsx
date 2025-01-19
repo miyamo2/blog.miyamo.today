@@ -9,9 +9,8 @@ import { useColorMode } from "@yamada-ui/core";
 import Giscus from "@giscus/react";
 import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
 import { format } from "@formkit/tempo";
-import { getSrc } from "gatsby-plugin-image";
+import { GatsbyImage, getSrc } from "gatsby-plugin-image";
 import Layout from "../components/Layout";
-import Image from "../components/Image";
 import SEO from "../components/SEO";
 import "./article-detail.css";
 import { ArticleTOCLarge, ArticleTOCMedium } from "../features/ArticleDetail/TOC";
@@ -24,12 +23,13 @@ const ArticleDetail = ({
   pageContext,
 }: PageProps<Queries.ArticleDetailQueryQuery, ArticleDetailPageContext>) => {
   const { colorMode } = useColorMode();
-  const { allFile, allMarkdownRemark } = data;
+  const { allMarkdownRemark } = data;
 
   const markdownRemark = allMarkdownRemark.nodes.at(0);
-  const { frontmatter, headings } = markdownRemark ?? {
+  const { frontmatter, headings, thumbnail } = markdownRemark ?? {
     frontmatter: undefined,
     headings: undefined,
+    thumbnail: undefined,
   };
 
   if (!frontmatter) {
@@ -71,10 +71,10 @@ const ArticleDetail = ({
             </Box>
           </GridItem>
           <GridItem
-            as={Image}
+            as={GatsbyImage}
+            image={thumbnail?.childImageSharp?.gatsbyImageData}
             gridArea={"image"}
             justifySelf={"center"}
-            allFileConnectrion={allFile}
             alt={`ArticleImage:${pageContext.cursor}`}
             objectFit={"cover"}
           />
@@ -161,7 +161,7 @@ const ArticleDetail = ({
 };
 
 export const query = graphql`
-  query ArticleDetailQuery($cursor: String, $imageCursor: String) {
+  query ArticleDetailQuery($cursor: String) {
     allMarkdownRemark(filter: { frontmatter: { id: { eq: $cursor } } }) {
       nodes {
         excerpt(pruneLength: 140, truncate: true)
@@ -192,14 +192,16 @@ export const query = graphql`
                 name
             }
           }
+          thumbnail {
+            childImageSharp {
+              gatsbyImageData(width: 480, height: 380, placeholder: BLURRED, quality: 100)
+            }
+          }
         }
-      }
-    }
-    allFile(filter: { id: { eq: $imageCursor } }) {
-      nodes {
-        id
-        childImageSharp {
-          gatsbyImageData(width: 1000, height: 500, placeholder: BLURRED, quality: 100)
+        thumbnail {
+          childImageSharp {
+            gatsbyImageData(width: 1000, height: 500, placeholder: BLURRED, quality: 100)
+          }
         }
       }
     }
@@ -213,13 +215,13 @@ export const Head = ({
   pageContext,
   location,
 }: HeadProps<Queries.ArticleDetailQueryQuery, ArticleDetailPageContext>) => {
-  const { allMarkdownRemark, allFile } = data;
+  const { allMarkdownRemark } = data;
   const markdownRemark = allMarkdownRemark.nodes.at(0);
 
   const title = markdownRemark?.frontmatter?.title ?? undefined;
   const description = markdownRemark?.excerpt ?? undefined;
 
-  const childImageSharp = allFile?.nodes.at(0)?.childImageSharp;
+  const childImageSharp = markdownRemark?.thumbnail?.childImageSharp;
   const imageSrc = childImageSharp ? getSrc(childImageSharp) : undefined;
 
   const path = location.pathname;

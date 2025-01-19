@@ -29,8 +29,7 @@ const TaggedArticleList = ({
   data,
   pageContext,
 }: PageProps<Queries.TaggedArticleListQueryQuery, TaggedArticlesPageContext>) => {
-  useArticleCardList(data.allMarkdownRemark.nodes, data.allFile.edges);
-  const articleCardDataList = useArticleCardList(data.allMarkdownRemark.nodes, data.allFile.edges);
+  const articleCardDataList = useArticleCardList(data.allMarkdownRemark.nodes);
 
   return (
     <Layout scroll={true}>
@@ -59,7 +58,7 @@ const TaggedArticleList = ({
 };
 
 export const query = graphql`
-  query TaggedArticleListQuery($imageCursors: [String], $markdownCursors: [String]) {
+  query TaggedArticleListQuery($markdownCursors: [String]) {
     allMarkdownRemark(
       filter: { frontmatter: { id: { in: $markdownCursors } } }
       sort: { frontmatter: { id: DESC } }
@@ -76,12 +75,7 @@ export const query = graphql`
             name
           }
         }
-      }
-    }
-    allFile(filter: { id: { in: $imageCursors } }) {
-      edges {
-        node {
-          id
+        thumbnail {
           childImageSharp {
             gatsbyImageData(
               width: 750

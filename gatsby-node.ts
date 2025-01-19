@@ -1,12 +1,8 @@
 import path from "path";
-import { GatsbyCache, GatsbyNode } from "gatsby";
+import { CreateResolversArgs, GatsbyCache, GatsbyNode, Node } from "gatsby";
 import { createRemoteFileNode } from "gatsby-source-filesystem";
 import { request } from "graphql-request";
-import {
-  GitHubAvatarQuery,
-  GitHubAvatarDocument,
-  GitHubAvatarQueryVariables,
-} from "./src/generates/graphql";
+import { GitHubAvatarDocument, GitHubAvatarQuery, GitHubAvatarQueryVariables } from "./src/generates/graphql";
 
 const PER_PAGE = (() => {
   let v = process.env.GATSBY_ARTICLE_PER_PAGE;
@@ -71,6 +67,33 @@ const createGitHubAvatarNode = async (
   });
 };
 
+export const createResolvers: GatsbyNode["createResolvers"] = async (
+  { reporter, createResolvers }: CreateResolversArgs
+) => {
+  reporter.info("createResolvers@blog.miyamo.today");
+  createResolvers({
+    "MarkdownRemark": {
+      thumbnail: {
+        type: `File`,
+        resolve: async (
+          source: { frontmatter: { id: any; }; },
+          args: any,
+          context: {
+            nodeModel: { findOne: (arg0: { type: string; query: { filter: { id: { eq: string; }; }; }; }) => Promise<Node | null>; };
+          },
+          info: any
+        ) => {
+          return await context.nodeModel.findOne({
+            type: `File`,
+            query: { filter: { id: { eq: `ArticleImage:${source.frontmatter.id}` } } },
+          });
+        }
+      }
+    }
+  });
+  reporter.success("createResolvers@blog.miyamo.today");
+};
+
 export const createPages: GatsbyNode["createPages"] = async ({ actions, graphql }) => {
   const { createPage, createRedirect } = actions;
   await articleListPage(createPage, createRedirect, graphql);
@@ -83,7 +106,6 @@ export interface ArticleListPageContext {
   totalItems: number;
   currentPage: number;
   markdownCursors: string[];
-  imageCursors: string[];
 }
 
 const articleListPage = async (
@@ -122,16 +144,11 @@ const articleListPage = async (
       .slice((number - 1) * PER_PAGE, number * PER_PAGE)
       .map((edge) => edge.cursor);
 
-    const imageCursors = articlePageInfoEdges
-      .slice((number - 1) * PER_PAGE, number * PER_PAGE)
-      .map((edge) => `ArticleImage:${edge.cursor}`);
-
     const ctx: ArticleListPageContext = {
       perPage: PER_PAGE,
       totalItems: totalArticles,
       currentPage: number,
       markdownCursors: cursors,
-      imageCursors: imageCursors,
     };
     if (index === 0) {
       createPage({
@@ -155,14 +172,8 @@ const articleListPage = async (
   });
 };
 
-export interface ArticleDetailPageTag {
-  id?: string;
-  name?: string;
-}
-
 export interface ArticleDetailPageContext {
   cursor: string;
-  imageCursor?: string;
 }
 
 const articleDetailPage = async (
@@ -196,7 +207,6 @@ const articleDetailPage = async (
     }
     const context: ArticleDetailPageContext = {
       cursor: id,
-      imageCursor: `ArticleImage:${id}`,
     };
     createPage({
       path: `/articles/${id}`,
@@ -212,7 +222,6 @@ export interface TaggedArticlesPageContext {
   totalItems: number;
   currentPage: number;
   markdownCursors: string[];
-  imageCursors: string[];
 }
 
 const taggedArticlesPage = async (
@@ -262,17 +271,12 @@ const taggedArticlesPage = async (
           .slice((number - 1) * PER_PAGE, number * PER_PAGE)
           .map((edge) => edge.cursor);
 
-        const imageCursors = articleEdges
-          .slice((number - 1) * PER_PAGE, number * PER_PAGE)
-          .map((edge) => `ArticleImage:${edge.cursor}`);
-
         const ctx: TaggedArticlesPageContext = {
           tagName: tagName,
           perPage: PER_PAGE,
           totalItems: totalArticles,
           currentPage: number,
           markdownCursors: cursors,
-          imageCursors: imageCursors,
         };
         if (index === 0) {
           createPage({

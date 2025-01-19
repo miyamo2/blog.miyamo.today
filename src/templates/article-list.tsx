@@ -29,7 +29,7 @@ const ArticleList = ({
   data,
   pageContext,
 }: PageProps<Queries.ArticleListQueryQuery, ArticleListPageContext>) => {
-  const articleCardDataList = useArticleCardList(data.allMarkdownRemark.nodes, data.allFile.edges);
+  const articleCardDataList = useArticleCardList(data.allMarkdownRemark.nodes);
 
   return (
     <Layout scroll={true}>
@@ -58,7 +58,7 @@ const ArticleList = ({
 };
 
 export const query = graphql`
-  query ArticleListQuery($imageCursors: [String], $markdownCursors: [String]) {
+  query ArticleListQuery($markdownCursors: [String]) {
     allMarkdownRemark(
       filter: { frontmatter: { id: { in: $markdownCursors } } }
       sort: { frontmatter: { id: DESC } }
@@ -75,12 +75,7 @@ export const query = graphql`
             name
           }
         }
-      }
-    }
-    allFile(filter: { id: { in: $imageCursors } }) {
-      edges {
-        node {
-          id
+        thumbnail {
           childImageSharp {
             gatsbyImageData(
               width: 750

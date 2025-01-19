@@ -1,6 +1,5 @@
 import { Link } from "gatsby";
-import { ImageDataLike } from "gatsby-plugin-image/dist/src/components/hooks";
-import { GatsbyImage, getImage } from "gatsby-plugin-image";
+import { GatsbyImage, getImage, IGatsbyImageData } from "gatsby-plugin-image";
 import { format } from "@formkit/tempo";
 import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
@@ -20,16 +19,15 @@ interface ArticleCardProps {
   createdAt: string;
   updatedAt: string;
   tags: Tag[];
-  imageData?: ImageDataLike;
+  imageData: IGatsbyImageData | null;
   articleExcerpt?: string;
 }
 
 const ArticleCard = (props: ArticleCardProps) => {
   const gatsbyImage = (() => {
-    const image = props.imageData ? getImage(props.imageData) : undefined;
-    return image ? (
+    return props.imageData ? (
       <GatsbyImage
-        image={image}
+        image={props.imageData}
         alt={`ArticleImage:${props.id}`}
         objectFit={"cover"}
         className={"transform-scaleup-then-hover-img-container"}

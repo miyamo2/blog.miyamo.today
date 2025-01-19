@@ -12,7 +12,7 @@ export interface ArticleCardData {
   createdAt: string;
   updatedAt: string;
   tags: Tag[];
-  imageData?: ImageDataLike;
+  imageData: IGatsbyImageData | null;
   articleExcerpt?: string;
 }
 
@@ -28,20 +28,15 @@ interface ArticleCardRemarkNode {
       readonly name: string | null;
     } | null> | null;
   } | null;
-}
-
-interface FileEdge {
-  readonly node: {
-    readonly id: string;
+  readonly thumbnail: {
     readonly childImageSharp: {
       readonly gatsbyImageData: IGatsbyImageData;
     } | null;
-  };
+  } | null;
 }
 
 export const useArticleCardList = (
-  articleCardRemarkNodes: ReadonlyArray<ArticleCardRemarkNode>,
-  allFileEdges: ReadonlyArray<FileEdge>
+  articleCardRemarkNodes: ReadonlyArray<ArticleCardRemarkNode>
 ) => {
   return articleCardRemarkNodes
     .map((node): ArticleCardData | undefined => {
@@ -50,10 +45,6 @@ export const useArticleCardList = (
         return undefined;
       }
 
-      const imageDataEdge = allFileEdges.find(
-        (edge: { node: { id: string } }) => edge.node.id === `ArticleImage:${frontmatter.id}`
-      );
-      const imageData = imageDataEdge?.node.childImageSharp || undefined;
       const articleExcerpt = node.excerpt ?? undefined;
 
       const { id, title, createdAt, updatedAt, tags } = frontmatter;
@@ -72,7 +63,7 @@ export const useArticleCardList = (
             .map((tag) => {
               return { id: tag.id ?? "", name: tag.name ?? "" };
             }) ?? Array.of<Tag>(),
-        imageData: imageData,
+        imageData: node.thumbnail?.childImageSharp?.gatsbyImageData ?? null,
         articleExcerpt: articleExcerpt,
       };
       return articleCardData;

@@ -19,24 +19,16 @@ interface RecommendArticleProps {
             readonly id: string | null,
             readonly name: string | null,
           } | null> | null
-      } | null
+      } | null;
+      readonly thumbnail: {
+        readonly childImageSharp: {
+          readonly gatsbyImageData: IGatsbyImageData;
+        } | null;
+      } | null;
     } | null> | null
 }
 
 export const ReccomendArticles = (props: RecommendArticleProps) => {
-  const { allFile: recommendArticleCardImages } = useStaticQuery<Queries.RecommendArticleCardImagesQuery>(graphql`
-      query RecommendArticleCardImages {
-          allFile(filter: {id: {regex: "/ArticleImage.*/"}}) {
-              nodes {
-                  id
-                  childImageSharp {
-                      gatsbyImageData(width: 480, height: 380, placeholder: BLURRED, quality: 100)
-                  }
-              }
-          }
-      }
-  `)
-
   return (
     <Box w={"full"} paddingLeft={"0.5em"} className={"lg:pl-[0.5em]"}>
       <Box
@@ -61,9 +53,7 @@ export const ReccomendArticles = (props: RecommendArticleProps) => {
             <Recommend
               id={recommend?.frontmatter?.id ?? ""}
               title={recommend?.frontmatter?.title ?? ""}
-              gatsbyImageData={
-              recommendArticleCardImages.nodes.find(
-                (node) => { return node.id === `ArticleImage:${recommend?.frontmatter?.id}`})?.childImageSharp?.gatsbyImageData ?? null}
+              gatsbyImageData={recommend?.thumbnail?.childImageSharp?.gatsbyImageData}
             />
           );
         })
@@ -76,7 +66,7 @@ export const ReccomendArticles = (props: RecommendArticleProps) => {
 interface RecommendArticleCardProps {
   id: string;
   title: string;
-  readonly gatsbyImageData: IGatsbyImageData | null;
+  readonly gatsbyImageData?: IGatsbyImageData;
 }
 
 const Recommend = (props: RecommendArticleCardProps) => {
