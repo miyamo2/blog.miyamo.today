@@ -3,9 +3,6 @@
   bottom: 18px !important;
   left: 18px !important;
   z-index: 9999 !important;
-  button {
-    background-color: #186bf2 !important;
-  }
 }
 
 .toc-modal {

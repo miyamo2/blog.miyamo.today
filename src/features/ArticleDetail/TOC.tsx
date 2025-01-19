@@ -28,7 +28,8 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
         <Button onClick={() => {
           onOpen();
           setVisibility(false);
-        }} borderRadius={"32px"} h={"64px"} w={"64px"} display={ open ? "none" : "inline-flex" }>
+        }} borderRadius={"32px"} h={"64px"} w={"64px"} display={ open ? "none" : "inline-flex" }
+        bg={"#186bf2"}>
           <FontAwesomeIcon icon={faListUl} h={"36px"} w={"36px"} />
         </Button>
       </div>
