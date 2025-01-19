@@ -57,11 +57,18 @@ div:has(> #toc-modal) {
     contain: paint;
 }
 
-:root {
-    scroll-behavior: smooth !important;
+.smooth-scroll {
+    scroll-behavior: smooth;
     scroll-snap-type: y proximity !important;
-    scroll-padding-top: 70px !important;
-    padding-left: calc(100vw - 100%) !important;
+}
+.scroll-padding {
+    scroll-padding-top: 70px;
+}
+.scrollbar-offset {
+    padding-left: calc(100vw - 100%);
+}
+
+:root {
     overflow-y: scroll !important;
 }
 
