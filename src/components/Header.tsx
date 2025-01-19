@@ -16,7 +16,7 @@ const Header = (prop: HeaderProp) => {
   const { colorMode } = useColorMode();
 
   return (
-    <Grid templateRows={"subgrid"} templateColumns={"1fr 1fr"}>
+    <Grid templateColumns={"1fr 1fr"}>
       <GridItem
         w={"full"}
         h={"full"}
