@@ -108,7 +108,6 @@ export const ArticleTOCLarge = ({ headings }: ArticleTOCProps) => {
       >
         <Heading
           as={"h2"}
-          paddingTop={"sm"}
           size={"md"}
           className={"font-bold"}
           whiteSpace={"nowrap"}
