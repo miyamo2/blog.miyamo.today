@@ -39,7 +39,7 @@ const ArticleDetail = ({
   const createdAt = format(new Date(frontmatter.createdAt ?? ""), "YYYY/MM/DD");
 
   return (
-    <>
+    <Box bg={["#f6f8fa", "#010409"]}>
       <Layout>
         <main>
           <Grid className={"article-detail"}>
@@ -156,7 +156,7 @@ const ArticleDetail = ({
         </main>
       </Layout>
       <ArticleTOCModal headings={headings} />
-    </>
+    </Box>
   );
 };
 
