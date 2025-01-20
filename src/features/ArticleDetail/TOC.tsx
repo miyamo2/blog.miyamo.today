@@ -74,29 +74,6 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
   )
 }
 
-interface ArticleTOCModalButtonProps {
-  open: boolean;
-  onOpen: () => void;
-  setBuyMeACoffeeVisibility: (visibility: boolean) => void;
-}
-
-export const ArticleTOCModalButton = ({ headings }: ArticleTOCProps) => {
-  const { open, onOpen } = useDisclosure()
-  const { setVisibility } = useBuyMeACoffee();
-
-  return (
-    <div className={"toc-modal-button-wrapper lg:hidden"}>
-      <Button onClick={() => {
-        onOpen();
-        setVisibility(false);
-      }} borderRadius={"32px"} h={"64px"} w={"64px"} display={open ? "none" : "inline-flex"}
-              bg={"#186bf2"}>
-        <FontAwesomeIcon icon={faListUl} h={"36px"} w={"36px"} />
-      </Button>
-    </div>
-  )
-}
-
 export const ArticleTOCLarge = ({ headings }: ArticleTOCProps) => {
   return (
     <Box w={"full"} paddingLeft={"0.5em"}>
