@@ -13,7 +13,7 @@ const Layout = ({ children }: LayoutProps) => {
     <div id={"layout"} className={"smooth-scroll"}>
       <Box h={"70px"} w={"full"} bg={["#f6f8fa", "#010409"]} className={"header"}>
         <div className={"flex w-full justify-center"} >
-          <div className={"max-w-[1400px] w-full lg:w-[90vw] mx-4 lg:mx-0"}>
+          <div className={"max-w-[1400px] w-full lg:w-[95vw] mx-4 lg:mx-0"}>
             <Header />
           </div>
         </div>
@@ -31,7 +31,7 @@ const Layout = ({ children }: LayoutProps) => {
           gridArea={"m"}
         >
           <div className={"flex w-full justify-center"}>
-            <div className={"max-w-[1400px] w-full lg:w-[90vw] mx-5 lg:mx-0 pb-[64px] lg:pb-0"}>
+            <div className={"max-w-[1400px] w-full lg:w-[95vw] mx-5 lg:mx-0 pb-[64px] lg:pb-0"}>
               {children}
             </div>
           </div>
