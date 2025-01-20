@@ -28,16 +28,15 @@ const Layout = ({ children }: LayoutProps) => {
         bg={["#ffffff", "#0d1117"]}
       >
         <GridItem
-          h={"full"}
           gridArea={"m"}
         >
-          <div className={"flex w-full h-full justify-center"}>
-            <div className={"max-w-[1400px] w-full h-full lg:w-[90vw] mx-5 lg:mx-0 pb-[64px] lg:pb-0"}>
+          <div className={"flex w-full justify-center"}>
+            <div className={"max-w-[1400px] w-full lg:w-[90vw] mx-5 lg:mx-0 pb-[64px] lg:pb-0"}>
               {children}
             </div>
           </div>
         </GridItem>
-        <GridItem w={"full"} h={"full"} gridArea={"f"} alignSelf={"end"}>
+        <GridItem w={"full"} gridArea={"f"} alignSelf={"end"}>
           <Footer />
         </GridItem>
       </Grid>
