@@ -39,7 +39,9 @@
 }
 
 .header {
-    position: fixed;
+    position: sticky;
+    top: 0;
+    left: 0;
     z-index: 999999;
 }
 
@@ -71,10 +73,6 @@ div:has(> #toc-modal) {
     height: 100vh !important;
     scroll-padding-top: 80px !important;
     overflow-y: scroll !important;
-}
-
-#content {
-    margin-top: 72px !important;
 }
 
 .transform-scaleup-then-hover:hover img,
