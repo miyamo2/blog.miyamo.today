@@ -38,7 +38,11 @@
   src: url(/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2) format("woff2");
 }
 
-:root, html, body, #___gatsby, #gatsby-focus-wrapper {
+:root,
+html,
+body,
+#___gatsby,
+#gatsby-focus-wrapper {
   overflow: hidden !important;
 }
 
@@ -55,11 +59,15 @@
 }
 
 #content {
-    padding-top: calc(70px + 1rem);
+  padding-top: calc(70px + 1rem);
 }
 
 #footer {
   padding-top: 80px;
+  padding-bottom: 80px;
+  @screen lg {
+    padding-bottom: 1em;
+  }
 }
 
 div:has(> #toc-modal) {
