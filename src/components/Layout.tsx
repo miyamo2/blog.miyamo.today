@@ -37,15 +37,11 @@ const Layout = ({ children }: LayoutProps) => {
           </div>
         </GridItem>
         <GridItem w={"full"} gridArea={"f"} alignSelf={"end"}>
-          <div className={"flex w-full justify-center"}>
-            <div className={"max-w-[1400px] w-full lg:w-[95vw] mx-5 lg:mx-0"}>
-              <Footer />
-            </div>
-          </div>
+          <Footer />
         </GridItem>
       </Grid>
     </div>
-);
+  );
 };
 
 export default Layout;
