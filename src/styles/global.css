@@ -39,7 +39,8 @@
 }
 
 .header {
-    position: fixed;
+    position: sticky;
+    top: 0;
     z-index: 999999;
 }
 
@@ -57,24 +58,18 @@ div:has(> #toc-modal) {
 }
 
 .smooth-scroll {
-    scroll-behavior: smooth !important;
+    scroll-behavior: smooth;
     scroll-snap-type: y proximity !important;
 }
 .scroll-padding {
-    scroll-padding-top: 80px !important;
+    scroll-padding-top: 70px;
 }
 .scrollbar-offset {
     padding-left: calc(100vw - 100%);
 }
 
-#layout {
-    scroll-padding-top: 80px !important;
+:root {
     overflow-y: scroll !important;
-}
-
-#content {
-    height: calc(100vh - 72px) !important;
-    margin-top: 72px !important;
 }
 
 .transform-scaleup-then-hover:hover img,
