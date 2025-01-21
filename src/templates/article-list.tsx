@@ -32,30 +32,28 @@ const ArticleList = ({
   const articleCardDataList = useArticleCardList(data.allMarkdownRemark.nodes);
 
   return (
-    <Box bg={["#f6f8fa", "#010409"]}>
-      <Layout>
-        <div className={"w-full"}>
-          <main>
-            <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
-              Articles
-            </Heading>
-            <Grid templateColumns={"repeat(auto-fill, minmax(280px, 1fr))"} gap={"sm"}>
-              {articleCardDataList.map((data, i) => (
-                <ArticleCard {...data} />
-              ))}
-            </Grid>
-            <Box paddingTop={"lg"} paddingBottom={"sm"}>
-              <Pager
-                currentPage={pageContext.currentPage}
-                pagePrefix={"pages"}
-                perPage={pageContext.perPage}
-                totalItems={pageContext.totalItems}
-              />
-            </Box>
-          </main>
-        </div>
-      </Layout>
-    </Box>
+    <Layout>
+      <div className={"w-full"}>
+        <main>
+          <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
+            Articles
+          </Heading>
+          <Grid templateColumns={"repeat(auto-fill, minmax(280px, 1fr))"} gap={"sm"}>
+            {articleCardDataList.map((data, i) => (
+              <ArticleCard {...data} />
+            ))}
+          </Grid>
+          <Box paddingTop={"lg"} paddingBottom={"sm"}>
+            <Pager
+              currentPage={pageContext.currentPage}
+              pagePrefix={"pages"}
+              perPage={pageContext.perPage}
+              totalItems={pageContext.totalItems}
+            />
+          </Box>
+        </main>
+      </div>
+    </Layout>
   );
 };
 
