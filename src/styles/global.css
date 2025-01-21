@@ -38,10 +38,13 @@
     src: url(/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2) format("woff2");
 }
 
-.header {
-    position: sticky;
-    top: 0;
-    z-index: 999999;
+:root, body, #layout {
+    overflow-y: visible !important;
+    overflow-x: clip !important;
+}
+
+#footer {
+    padding-top: 70px;
 }
 
 div:has(> #toc-modal) {
@@ -66,10 +69,6 @@ div:has(> #toc-modal) {
 }
 .scrollbar-offset {
     padding-left: calc(100vw - 100%);
-}
-
-:root {
-    overflow-y: scroll !important;
 }
 
 .transform-scaleup-then-hover:hover img,
