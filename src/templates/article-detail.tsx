@@ -79,12 +79,7 @@ const ArticleDetail = ({
               alt={`ArticleImage:${pageContext.cursor}`}
               objectFit={"cover"}
             />
-            <GridItem
-              gridArea={"lnav"}
-              alignSelf={"end"}
-              h={"full"}
-              className={"hidden lg:block "}
-            >
+            <GridItem gridArea={"lnav"} alignSelf={"end"} h={"full"} className={"hidden lg:block "}>
               <Box h={"full"} w={"full"} overflow={"visible"}>
                 <Box position={"sticky"} top={1}>
                   <ShareButtons
@@ -161,8 +156,8 @@ const ArticleDetail = ({
 };
 
 export const query = graphql`
-    query ArticleDetailQuery($cursor: String) {
-        allMarkdownRemark(filter: { frontmatter: { id: { eq: $cursor } } }) {
+  query ArticleDetailQuery($cursor: String) {
+    allMarkdownRemark(filter: { frontmatter: { id: { eq: $cursor } } }) {
       nodes {
         excerpt(pruneLength: 140, truncate: true)
         html
@@ -188,8 +183,8 @@ export const query = graphql`
             createdAt
             updatedAt
             tags {
-                id
-                name
+              id
+              name
             }
           }
           thumbnail {

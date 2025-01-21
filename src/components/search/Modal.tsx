@@ -33,15 +33,14 @@ const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
       duration={0.3}
     >
       <ModalOverlay backdropFilter="blur(10px)" />
-      <InstantSearch searchClient={searchClient} indexName={process.env.GATSBY_ALGOLIA_INDEX_NAME ?? ""}>
+      <InstantSearch
+        searchClient={searchClient}
+        indexName={process.env.GATSBY_ALGOLIA_INDEX_NAME ?? ""}
+      >
         <Configure hitsPerPage={5} />
         <HStack>
           <SearchBox />
-          <IconButton
-            icon={<FontAwesomeIcon icon={faXmark} />}
-            size="sm"
-            onClick={onClose}
-          />
+          <IconButton icon={<FontAwesomeIcon icon={faXmark} />} size="sm" onClick={onClose} />
         </HStack>
         <WrappedSearchResult closeModal={onClose} />
       </InstantSearch>

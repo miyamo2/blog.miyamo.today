@@ -1,4 +1,4 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from "tailwindcss";
 
 export default {
   content: ["./src/pages/**/*.{js,jsx,ts,tsx}", "./src/components/**/*.{js,jsx,ts,tsx}"],
@@ -15,4 +15,4 @@ export default {
       "2xl": { min: "1359px" }, // Desktop widescreen.
     },
   },
-} satisfies Config
+} satisfies Config;

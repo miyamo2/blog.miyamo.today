@@ -1,7 +1,10 @@
 import type { GatsbySSR } from "gatsby";
 import React from "react";
 
-export const onRenderBody: GatsbySSR["onRenderBody"] = ({ setHeadComponents, setPostBodyComponents }) => {
+export const onRenderBody: GatsbySSR["onRenderBody"] = ({
+  setHeadComponents,
+  setPostBodyComponents,
+}) => {
   setHeadComponents([
     <link
       rel="preload"
@@ -49,5 +52,5 @@ export const onRenderBody: GatsbySSR["onRenderBody"] = ({ setHeadComponents, set
       data-x_margin="18"
       data-y_margin="18"
     />,
-  ])
+  ]);
 };

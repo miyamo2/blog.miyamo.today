@@ -2,7 +2,11 @@ import path from "path";
 import { CreateResolversArgs, GatsbyCache, GatsbyNode, Node } from "gatsby";
 import { createRemoteFileNode } from "gatsby-source-filesystem";
 import { request } from "graphql-request";
-import { GitHubAvatarDocument, GitHubAvatarQuery, GitHubAvatarQueryVariables } from "./src/generates/graphql";
+import {
+  GitHubAvatarDocument,
+  GitHubAvatarQuery,
+  GitHubAvatarQueryVariables,
+} from "./src/generates/graphql";
 
 const PER_PAGE = (() => {
   let v = process.env.GATSBY_ARTICLE_PER_PAGE;
@@ -18,10 +22,7 @@ const PER_PAGE = (() => {
 
 const range = (start: number, end: number) => [...Array(end - start + 1)].map((_, i) => start + i);
 
-export const sourceNodes: GatsbyNode["sourceNodes"] = async ({
-  actions,
-  cache,
-}) => {
+export const sourceNodes: GatsbyNode["sourceNodes"] = async ({ actions, cache }) => {
   const { createNode, createNodeField } = actions;
   await createGitHubAvatarNode(createNode, createNodeField, cache);
 };
@@ -67,19 +68,25 @@ const createGitHubAvatarNode = async (
   });
 };
 
-export const createResolvers: GatsbyNode["createResolvers"] = async (
-  { reporter, createResolvers }: CreateResolversArgs
-) => {
+export const createResolvers: GatsbyNode["createResolvers"] = async ({
+  reporter,
+  createResolvers,
+}: CreateResolversArgs) => {
   reporter.info("createResolvers@blog.miyamo.today");
   createResolvers({
-    "MarkdownRemark": {
+    MarkdownRemark: {
       thumbnail: {
         type: `File`,
         resolve: async (
-          source: { frontmatter: { id: any; }; },
+          source: { frontmatter: { id: any } },
           args: any,
           context: {
-            nodeModel: { findOne: (arg0: { type: string; query: { filter: { id: { eq: string; }; }; }; }) => Promise<Node | null>; };
+            nodeModel: {
+              findOne: (arg0: {
+                type: string;
+                query: { filter: { id: { eq: string } } };
+              }) => Promise<Node | null>;
+            };
           },
           info: any
         ) => {
@@ -87,9 +94,9 @@ export const createResolvers: GatsbyNode["createResolvers"] = async (
             type: `File`,
             query: { filter: { id: { eq: `ArticleImage:${source.frontmatter.id}` } } },
           });
-        }
-      }
-    }
+        },
+      },
+    },
   });
   reporter.success("createResolvers@blog.miyamo.today");
 };
@@ -110,7 +117,9 @@ export interface ArticleListPageContext {
 
 const articleListPage = async (
   createPage: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["actions"]["createPage"],
-  createRedirect: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["actions"]["createRedirect"],
+  createRedirect: Parameters<
+    NonNullable<GatsbyNode["createPages"]>
+  >["0"]["actions"]["createRedirect"],
   graphql: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["graphql"]
 ) => {
   // TODO: partitional fetch by cursor
@@ -226,7 +235,9 @@ export interface TaggedArticlesPageContext {
 
 const taggedArticlesPage = async (
   createPage: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["actions"]["createPage"],
-  createRedirect: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["actions"]["createRedirect"],
+  createRedirect: Parameters<
+    NonNullable<GatsbyNode["createPages"]>
+  >["0"]["actions"]["createRedirect"],
   graphql: Parameters<NonNullable<GatsbyNode["createPages"]>>["0"]["graphql"]
 ) => {
   const taggedArticlesPageInfoQuery = await graphql<Queries.GetTaggedArticlesPageInfoQuery>(`
@@ -288,8 +299,8 @@ const taggedArticlesPage = async (
             fromPath: `/tags/${tagId}/1`,
             toPath: `/tags/${tagId}`,
             isPermanent: true,
-          })
-          return
+          });
+          return;
         }
         createPage({
           path: `/tags/${tagId}/${number}`,

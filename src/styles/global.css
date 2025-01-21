@@ -3,102 +3,107 @@
 @tailwind utilities;
 
 @font-face {
-    font-family: 'UDEVGothicHS';
-    font-display: swap;
-    font-style: normal;
-    font-weight: normal;
-    font-named-instance: 'UDEVGothicHS';
-    src: url(/fonts/UDEVGothic35HS-Regular-Subset.woff2) format("woff2");
+  font-family: "UDEVGothicHS";
+  font-display: swap;
+  font-style: normal;
+  font-weight: normal;
+  font-named-instance: "UDEVGothicHS";
+  src: url(/fonts/UDEVGothic35HS-Regular-Subset.woff2) format("woff2");
 }
 
 @font-face {
-    font-family: 'UDEVGothicHS';
-    font-display: swap;
-    font-style: normal;
-    font-weight: bold;
-    font-named-instance: 'UDEVGothicHS';
-    src: url(/fonts/UDEVGothic35HS-Bold-Subset.woff2) format("woff2");
+  font-family: "UDEVGothicHS";
+  font-display: swap;
+  font-style: normal;
+  font-weight: bold;
+  font-named-instance: "UDEVGothicHS";
+  src: url(/fonts/UDEVGothic35HS-Bold-Subset.woff2) format("woff2");
 }
 
 @font-face {
-    font-family: 'UDEVGothicHS';
-    font-display: swap;
-    font-style: italic;
-    font-weight: normal;
-    font-named-instance: 'UDEVGothicHS';
-    src: url(/fonts/UDEVGothic35HS-Italic-Subset.woff2) format("woff2");
+  font-family: "UDEVGothicHS";
+  font-display: swap;
+  font-style: italic;
+  font-weight: normal;
+  font-named-instance: "UDEVGothicHS";
+  src: url(/fonts/UDEVGothic35HS-Italic-Subset.woff2) format("woff2");
 }
 
 @font-face {
-    font-family: 'UDEVGothicHS';
-    font-display: swap;
-    font-style: italic;
-    font-weight: bold;
-    font-named-instance: 'UDEVGothicHS';
-    src: url(/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2) format("woff2");
+  font-family: "UDEVGothicHS";
+  font-display: swap;
+  font-style: italic;
+  font-weight: bold;
+  font-named-instance: "UDEVGothicHS";
+  src: url(/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2) format("woff2");
 }
 
-:root, body, #layout {
-    overflow-y: visible !important;
-    overflow-x: clip !important;
+:root,
+body,
+#layout {
+  overflow-y: visible !important;
+  overflow-x: clip !important;
 }
 
 #footer {
-    padding-top: 70px;
+  padding-top: 70px;
 }
 
 div:has(> #toc-modal) {
-    z-index: 9999999 !important;
-    opacity: unset !important;
+  z-index: 9999999 !important;
+  opacity: unset !important;
 }
 
 #___gatsby #gatsby-focus-wrapper * {
-    font-family: "UDEVGothicHS", "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol" !important;
+  font-family: "UDEVGothicHS", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
 }
 
 .contain-paint {
-    contain: paint;
+  contain: paint;
 }
 
 .smooth-scroll {
-    scroll-behavior: smooth;
-    scroll-snap-type: y proximity !important;
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity !important;
 }
 .scroll-padding {
-    scroll-padding-top: 70px;
+  scroll-padding-top: 70px;
 }
 .scrollbar-offset {
-    padding-left: calc(100vw - 100%);
+  padding-left: calc(100vw - 100%);
 }
 
 .transform-scaleup-then-hover:hover img,
 .transform-scaleup-then-hover:hover transform-scaleup-then-hover-img-wrapper img,
-.transform-scaleup-then-hover:hover transform-scaleup-then-hover-img-wrapper transform-scaleup-then-hover-img-container img {
-    transition: transform .6s ease;
-    transform:scale(1.1);
+.transform-scaleup-then-hover:hover
+  transform-scaleup-then-hover-img-wrapper
+  transform-scaleup-then-hover-img-container
+  img {
+  transition: transform 0.6s ease;
+  transform: scale(1.1);
 }
 
 #bmc-iframe {
-    top: 0;
-    right: 0 !important;
-    @screen lg {
-        right: 18px !important;
-    }
-    max-height: 100% !important;
-    max-width: 100% !important;
+  top: 0;
+  right: 0 !important;
+  @screen lg {
+    right: 18px !important;
+  }
+  max-height: 100% !important;
+  max-width: 100% !important;
 }
 
-@media(min-width: 1400px) {
-    #bmc-wbtn {
-        right: calc((100% - 1400px) / 2) !important;
-    }
-    #bmc-iframe {
-        right: calc((100% - 1400px) / 2) !important;
-    }
+@media (min-width: 1400px) {
+  #bmc-wbtn {
+    right: calc((100% - 1400px) / 2) !important;
+  }
+  #bmc-iframe {
+    right: calc((100% - 1400px) / 2) !important;
+  }
 }
 
 #bmc-close-btn {
-    @screen lg {
-        display: none !important;
-    }
+  @screen lg {
+    display: none !important;
+  }
 }

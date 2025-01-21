@@ -1,6 +1,6 @@
 .round-image {
-    border-radius: 9999px;
-    -webkit-border-radius: 9999px;
-    -moz-border-radius: 9999px;
-    isolation: isolate;
+  border-radius: 9999px;
+  -webkit-border-radius: 9999px;
+  -moz-border-radius: 9999px;
+  isolation: isolate;
 }

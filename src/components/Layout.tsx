@@ -23,7 +23,7 @@ const Layout = ({ children }: LayoutProps) => {
         overflowY={"visible"}
       >
         <GridItem gridArea={"header"} bg={["#f6f8fa", "#010409"]} alignSelf={"start"}>
-          <Flex className={"w-full justify-center"} >
+          <Flex className={"w-full justify-center"}>
             <div className={"max-w-[1400px] w-full lg:w-[95vw] mx-4 lg:mx-0"}>
               <Header />
             </div>
@@ -39,7 +39,10 @@ const Layout = ({ children }: LayoutProps) => {
         >
           <Flex className={"w-full h-full justify-between flex-col scrollbar-offset"}>
             <Flex className={"w-full justify-center"} justifySelf={"start"}>
-              <Box className={"max-w-[1400px] w-full lg:w-[95vw] mx-5 lg:mx-0 pb-[64px] lg:pb-0"} justifySelf={"Start"}>
+              <Box
+                className={"max-w-[1400px] w-full lg:w-[95vw] mx-5 lg:mx-0 pb-[64px] lg:pb-0"}
+                justifySelf={"Start"}
+              >
                 {children}
               </Box>
             </Flex>
@@ -50,7 +53,7 @@ const Layout = ({ children }: LayoutProps) => {
         </GridItem>
       </Grid>
     </div>
-);
+  );
 };
 
 export default Layout;

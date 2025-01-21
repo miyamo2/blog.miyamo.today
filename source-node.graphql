@@ -1,26 +1,26 @@
-query SourceNodes ($first: Int, $after: String) {
-    articles(first: $first, after: $after){
-        edges{
-            node{
-                id
-                title
-                thumbnailUrl
-                content
-                createdAt
-                updatedAt
-                tags {
-                    edges {
-                        cursor
-                        node {
-                            name
-                        }
-                    }
-                }
+query SourceNodes($first: Int, $after: String) {
+  articles(first: $first, after: $after) {
+    edges {
+      node {
+        id
+        title
+        thumbnailUrl
+        content
+        createdAt
+        updatedAt
+        tags {
+          edges {
+            cursor
+            node {
+              name
             }
+          }
         }
-        pageInfo{
-            hasNextPage
-            endCursor
-        }
+      }
     }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
 }

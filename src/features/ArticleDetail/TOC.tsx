@@ -19,24 +19,38 @@ export interface ArticleTOCProps {
 }
 
 export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
-  const { open, onOpen, onClose } = useDisclosure()
+  const { open, onOpen, onClose } = useDisclosure();
   const { setVisibility } = useBuyMeACoffee();
 
   return (
     <>
       <div className={"toc-modal-button-wrapper lg:hidden"}>
-        <Button onClick={() => {
-          onOpen();
-          setVisibility(false);
-        }} borderRadius={"32px"} h={"64px"} w={"64px"} display={ open ? "none" : "inline-flex" }
-        bg={"#186bf2"}>
+        <Button
+          onClick={() => {
+            onOpen();
+            setVisibility(false);
+          }}
+          borderRadius={"32px"}
+          h={"64px"}
+          w={"64px"}
+          display={open ? "none" : "inline-flex"}
+          bg={"#186bf2"}
+        >
           <FontAwesomeIcon icon={faListUl} h={"36px"} w={"36px"} />
         </Button>
       </div>
-      <Modal id={"toc-modal"} open={open} onClose={() => {
-        onClose();
-        setVisibility(true);
-      }} duration={0.4} placement={"bottom"} size={"full"} className={"lg:hidden"}>
+      <Modal
+        id={"toc-modal"}
+        open={open}
+        onClose={() => {
+          onClose();
+          setVisibility(true);
+        }}
+        duration={0.4}
+        placement={"bottom"}
+        size={"full"}
+        className={"lg:hidden"}
+      >
         <ModalHeader id={"toc-modal-header"}>
           <Heading size={"lg"} className={"font-bold"}>
             Table of Contents
@@ -49,12 +63,11 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
                 to={`#${heading?.id}`}
                 key={heading?.id}
                 className={"pointer-events-auto"}
-                onAnchorLinkClick={
-                  () => {
-                    onClose();
-                    setVisibility(true);
-                  }
-                }>
+                onAnchorLinkClick={() => {
+                  onClose();
+                  setVisibility(true);
+                }}
+              >
                 <Text
                   whiteSpace={"nowrap"}
                   overflow={"hidden"}
@@ -71,8 +84,8 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
         </ModalBody>
       </Modal>
     </>
-  )
-}
+  );
+};
 
 export const ArticleTOCLarge = ({ headings }: ArticleTOCProps) => {
   return (
@@ -83,12 +96,7 @@ export const ArticleTOCLarge = ({ headings }: ArticleTOCProps) => {
         borderBottom={"solid"}
         writingMode={"horizontal-tb"}
       >
-        <Heading
-          as={"h2"}
-          size={"md"}
-          className={"font-bold"}
-          whiteSpace={"nowrap"}
-        >
+        <Heading as={"h2"} size={"md"} className={"font-bold"} whiteSpace={"nowrap"}>
           <FontAwesomeIcon icon={faListUl} paddingRight={"sm"} />
           Table of Contents
         </Heading>

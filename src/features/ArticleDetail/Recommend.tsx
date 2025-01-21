@@ -7,35 +7,29 @@ import { faThumbsUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 
 interface RecommendArticleProps {
-  reccomends?: ReadonlyArray<
-    {
-      readonly frontmatter: {
-        readonly id: string | null,
-        readonly title: string | null,
-        readonly createdAt: string | null,
-        readonly updatedAt: string | null,
-        readonly tags: ReadonlyArray<
-          {
-            readonly id: string | null,
-            readonly name: string | null,
-          } | null> | null
+  reccomends?: ReadonlyArray<{
+    readonly frontmatter: {
+      readonly id: string | null;
+      readonly title: string | null;
+      readonly createdAt: string | null;
+      readonly updatedAt: string | null;
+      readonly tags: ReadonlyArray<{
+        readonly id: string | null;
+        readonly name: string | null;
+      } | null> | null;
+    } | null;
+    readonly thumbnail: {
+      readonly childImageSharp: {
+        readonly gatsbyImageData: IGatsbyImageData;
       } | null;
-      readonly thumbnail: {
-        readonly childImageSharp: {
-          readonly gatsbyImageData: IGatsbyImageData;
-        } | null;
-      } | null;
-    } | null> | null
+    } | null;
+  } | null> | null;
 }
 
 export const ReccomendArticles = (props: RecommendArticleProps) => {
   return (
     <Box w={"full"} paddingLeft={"0.5em"} className={"lg:pl-[0.5em]"}>
-      <Box
-        w={"full"}
-        className={"backdrop-blur-md"}
-        writingMode={"horizontal-tb"}
-      >
+      <Box w={"full"} className={"backdrop-blur-md"} writingMode={"horizontal-tb"}>
         <Heading
           as={"h2"}
           paddingY={"sm"}
@@ -47,21 +41,18 @@ export const ReccomendArticles = (props: RecommendArticleProps) => {
           Recommend Articles
         </Heading>
       </Box>
-      {
-        props?.reccomends?.map((recommend) => {
-          return (
-            <Recommend
-              id={recommend?.frontmatter?.id ?? ""}
-              title={recommend?.frontmatter?.title ?? ""}
-              gatsbyImageData={recommend?.thumbnail?.childImageSharp?.gatsbyImageData}
-            />
-          );
-        })
-      }
+      {props?.reccomends?.map((recommend) => {
+        return (
+          <Recommend
+            id={recommend?.frontmatter?.id ?? ""}
+            title={recommend?.frontmatter?.title ?? ""}
+            gatsbyImageData={recommend?.thumbnail?.childImageSharp?.gatsbyImageData}
+          />
+        );
+      })}
     </Box>
-  )
-}
-
+  );
+};
 
 interface RecommendArticleCardProps {
   id: string;
@@ -100,12 +91,12 @@ const Recommend = (props: RecommendArticleCardProps) => {
       className={"transform-scaleup-then-hover isolate"}
       overflow={"hidden"}
     >
-      <GridItem gridArea={"image"} className={"transform-scaleup-then-hover-img-wrapper"}>{gatsbyImage}</GridItem>
+      <GridItem gridArea={"image"} className={"transform-scaleup-then-hover-img-wrapper"}>
+        {gatsbyImage}
+      </GridItem>
       <GridItem gridArea={"detail"}>
-        <Text size={"md"}>
-          {props.title}
-        </Text>
+        <Text size={"md"}>{props.title}</Text>
       </GridItem>
     </Grid>
   );
-}
+};

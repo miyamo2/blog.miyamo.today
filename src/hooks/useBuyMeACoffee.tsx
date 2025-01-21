@@ -2,8 +2,8 @@ export const useBuyMeACoffee = () => {
   if (typeof window === "undefined") {
     return {
       setVisibility: (visibility: boolean) => {},
-      toggleVisibility: () => {}
-    }
+      toggleVisibility: () => {},
+    };
   }
 
   const buyMeACoffeeWidget = document.getElementById("bmc-wbtn");
@@ -11,17 +11,17 @@ export const useBuyMeACoffee = () => {
   return {
     setVisibility: (visibility: boolean) => {
       if (buyMeACoffeeWidget === null) {
-        return
+        return;
       }
-      buyMeACoffeeWidget.hidden = !visibility
-      return
+      buyMeACoffeeWidget.hidden = !visibility;
+      return;
     },
     toggleVisibility: () => {
       if (buyMeACoffeeWidget === null) {
-        return
+        return;
       }
-      buyMeACoffeeWidget.hidden = !buyMeACoffeeWidget.hidden
-      return
-    }
-  }
-}
+      buyMeACoffeeWidget.hidden = !buyMeACoffeeWidget.hidden;
+      return;
+    },
+  };
+};

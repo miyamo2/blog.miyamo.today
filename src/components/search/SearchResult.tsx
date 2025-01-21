@@ -58,7 +58,11 @@ const HitCard = ({ hit, onLinkClick }: HitCardProps) => {
         className={"w-full h-full index-hit-card transform-scaleup-then-hover"}
         overflow={"hidden"}
       >
-        <GridItem overflow={"hidden"} className={"transform-scaleup-then-hover-img-wrapper"} gridArea={"image"}>
+        <GridItem
+          overflow={"hidden"}
+          className={"transform-scaleup-then-hover-img-wrapper"}
+          gridArea={"image"}
+        >
           <Image src={hit.thumbnail} objectFit="cover" className={"h-full w-full"} />
         </GridItem>
         <GridItem overflow={"hidden"} gridArea={"title"}>
@@ -90,7 +94,7 @@ const PageHit = (props: PageHitProps) => {
   return (
     <Grid templateRows={`repeat(${items.length}, 1fr)`} gap={"sm"}>
       {items.map((hit) => (
-          <HitCard hit={hit} onLinkClick={props.onLinkClick} />
+        <HitCard hit={hit} onLinkClick={props.onLinkClick} />
       ))}
     </Grid>
   );
@@ -109,7 +113,10 @@ const SearchResult = ({ refine, clear, closeModal }: SearchResultProps) => {
   }, [refine]);
 
   return (
-    <Box className={`popover w-full ${nbHits === 0 && nbPages === 0  ? "hidden" : ""}`} bg={["#ffffff", "#0d1117"]}>
+    <Box
+      className={`popover w-full ${nbHits === 0 && nbPages === 0 ? "hidden" : ""}`}
+      bg={["#ffffff", "#0d1117"]}
+    >
       <HitCount />
       <div className="Hits">
         <PageHit onLinkClick={onCardClick} />
@@ -125,13 +132,16 @@ interface WrappedSearchResultProps extends UseSearchBoxProps {
 }
 
 const WrappedSearchResult = (props: WrappedSearchResultProps) => {
-  const {
-    query,
-    refine,
-    clear,
-    isSearchStalled,
-  } = useSearchBox(props);
-  return <SearchResult closeModal={props.closeModal} query={query} refine={refine} clear={clear} isSearchStalled={isSearchStalled} />;
+  const { query, refine, clear, isSearchStalled } = useSearchBox(props);
+  return (
+    <SearchResult
+      closeModal={props.closeModal}
+      query={query}
+      refine={refine}
+      clear={clear}
+      isSearchStalled={isSearchStalled}
+    />
+  );
 };
 
 export default WrappedSearchResult;

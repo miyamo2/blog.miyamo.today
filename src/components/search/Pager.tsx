@@ -1,4 +1,4 @@
-import { usePagination, UsePaginationProps, useStats } from 'react-instantsearch';
+import { usePagination, UsePaginationProps, useStats } from "react-instantsearch";
 import { Flex } from "@yamada-ui/layouts";
 import { Pagination } from "@yamada-ui/pagination";
 import React from "react";
@@ -6,11 +6,7 @@ import React from "react";
 interface PagerProps extends UsePaginationProps {}
 
 const Pager = (props: PagerProps) => {
-  const {
-    currentRefinement,
-    nbPages,
-    refine,
-  } = usePagination(props);
+  const { currentRefinement, nbPages, refine } = usePagination(props);
   const { nbHits } = useStats();
 
   return (
@@ -23,12 +19,12 @@ const Pager = (props: PagerProps) => {
           size="lg"
           withEdges
           onChange={(v) => {
-            refine(v-1);
+            refine(v - 1);
           }}
-          controlNextProps={{hidden: nbPages === currentRefinement+1 || nbHits === 0}}
-          controlPrevProps={{hidden: currentRefinement === 0}}
-          edgeFirstProps={{hidden: currentRefinement === 0 }}
-          edgeLastProps={{hidden: nbPages === currentRefinement+1 || nbHits === 0}}
+          controlNextProps={{ hidden: nbPages === currentRefinement + 1 || nbHits === 0 }}
+          controlPrevProps={{ hidden: currentRefinement === 0 }}
+          edgeFirstProps={{ hidden: currentRefinement === 0 }}
+          edgeLastProps={{ hidden: nbPages === currentRefinement + 1 || nbHits === 0 }}
         />
       </Flex>
     </>

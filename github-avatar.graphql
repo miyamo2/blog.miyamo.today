@@ -1,5 +1,5 @@
-query GitHubAvatar ($loginId: String!) {
-    user(login: $loginId){
-        avatarUrl
-    }
+query GitHubAvatar($loginId: String!) {
+  user(login: $loginId) {
+    avatarUrl
+  }
 }

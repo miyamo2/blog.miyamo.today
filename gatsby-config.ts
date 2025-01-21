@@ -9,7 +9,8 @@ const config: GatsbyConfig = {
   siteMetadata: {
     title: "blog.miyamo.today",
     siteUrl: "https://blog.miyamo.today",
-    description: "miyamo2のブログ。体験したこと、考えていること、それとコードの断片をゆるく発信していきます。",
+    description:
+      "miyamo2のブログ。体験したこと、考えていること、それとコードの断片をゆるく発信していきます。",
     twitterUsername: "@miyamo2_jp",
     image: "/ogp.png",
     icon: "/logo.png",
@@ -124,13 +125,13 @@ const config: GatsbyConfig = {
       },
     },
     {
-      resolve: 'gatsby-plugin-offline',
+      resolve: "gatsby-plugin-offline",
       options: {
         workboxConfig: {
           runtimeCaching: [
             {
               urlPattern: /^https?:.*\/page-data\/.*\.json/,
-              handler: 'NetworkFirst',
+              handler: "NetworkFirst",
             },
           ],
         },
@@ -296,7 +297,7 @@ const config: GatsbyConfig = {
           "/fonts/**": {
             ContentType: "font/woff2",
             CacheControl: "public, max-age=0, must-revalidate",
-          }
+          },
         },
       },
     },
@@ -379,12 +380,12 @@ const config: GatsbyConfig = {
       },
     },
     {
-      resolve: 'gatsby-plugin-robots-txt',
+      resolve: "gatsby-plugin-robots-txt",
       options: {
         host: null,
-        sitemap: 'https://blog.miyamo.today/sitemap-0.xml',
-        policy: [{userAgent: '*', allow: '/'}]
-      }
+        sitemap: "https://blog.miyamo.today/sitemap-0.xml",
+        policy: [{ userAgent: "*", allow: "/" }],
+      },
     },
     `gatsby-plugin-client-side-redirect`,
     {
@@ -396,7 +397,7 @@ const config: GatsbyConfig = {
         },
         openai: {
           apiKey: `${process.env.OPENAI_API_KEY}`,
-          embeddingModel:"text-embedding-3-large",
+          embeddingModel: "text-embedding-3-large",
           embeddingSize: 3072,
         },
         limit: 2,
@@ -404,10 +405,10 @@ const config: GatsbyConfig = {
           return JSON.stringify({
             title: node.frontmatter?.title ?? "",
             content: node.rawMarkdownBody,
-            tags: node.frontmatter?.tags?.
-            map((tag) => tag?.name ?? "").
-            filter((v) => v.length != 0) ?? [],
-          })
+            tags:
+              node.frontmatter?.tags?.map((tag) => tag?.name ?? "").filter((v) => v.length != 0) ??
+              [],
+          });
         },
       },
     },
