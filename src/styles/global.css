@@ -38,7 +38,7 @@
   src: url(/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2) format("woff2");
 }
 
-:root, html, body. :not(.scrollable-y) {
+:root, html, body, #___gatsby, #gatsby-focus-wrapper {
   overflow: hidden !important;
 }
 

@@ -39,7 +39,6 @@ const Layout = ({ children }: LayoutProps) => {
           </Flex>
         </Flex>
       </Box>
-      <span id={"scrollable-end"}/>
     </>
   );
 };
