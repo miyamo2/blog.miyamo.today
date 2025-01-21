@@ -38,15 +38,28 @@
   src: url(/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2) format("woff2");
 }
 
-:root,
-body,
-#layout {
-  overflow-y: visible !important;
-  overflow-x: clip !important;
+:root, html, body. :not(.scrollable-y) {
+  overflow: hidden !important;
+}
+
+.scrollable-y {
+  overflow-y: auto !important;
+}
+
+.header-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+#content {
+    padding-top: calc(70px + 1rem);
 }
 
 #footer {
-  padding-top: 70px;
+  padding-top: 80px;
 }
 
 div:has(> #toc-modal) {
@@ -66,6 +79,7 @@ div:has(> #toc-modal) {
   scroll-behavior: smooth;
   scroll-snap-type: y proximity !important;
 }
+
 .scroll-padding {
   scroll-padding-top: 70px;
 }

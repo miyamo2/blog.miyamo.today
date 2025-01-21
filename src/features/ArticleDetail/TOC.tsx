@@ -34,7 +34,7 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
           h={"64px"}
           w={"64px"}
           display={open ? "none" : "inline-flex"}
-          bg={"#186bf2"}
+          bg={["#186bf2", "#186bf2"]}
         >
           <FontAwesomeIcon icon={faListUl} h={"36px"} w={"36px"} />
         </Button>
@@ -56,7 +56,7 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
             Table of Contents
           </Heading>
         </ModalHeader>
-        <ModalBody id={"toc-modal-body"}>
+        <ModalBody id={"toc-modal-body scrollable-y"}>
           <Box w={"full"}>
             {headings?.map((heading) => (
               <AnchorLink

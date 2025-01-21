@@ -81,7 +81,7 @@ const ArticleDetail = ({
             />
             <GridItem gridArea={"lnav"} alignSelf={"end"} h={"full"} className={"hidden lg:block "}>
               <Box h={"full"} w={"full"} overflow={"visible"}>
-                <Box position={"sticky"} top={1}>
+                <Box position={"sticky"} top={71}>
                   <ShareButtons
                     title={frontmatter.title ?? ""}
                     url={`https://${location.host}${location.pathname}`}
@@ -99,7 +99,7 @@ const ArticleDetail = ({
               className={"contain-paint hidden lg:block"}
             >
               <Box h={"full"} overflow={"visible"}>
-                <Box position={"sticky"} top={1}>
+                <Box position={"sticky"} top={71}>
                   <ArticleTOCLarge headings={headings}></ArticleTOCLarge>
                   <ReccomendArticles reccomends={markdownRemark?.recommends} />
                 </Box>
