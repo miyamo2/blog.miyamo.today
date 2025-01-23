@@ -1,10 +1,13 @@
 import React from "react";
-import { Box, Grid, GridItem } from "@yamada-ui/layouts";
-import { graphql, Link, useStaticQuery } from "gatsby";
+import { Box, VStack, Flex } from "@yamada-ui/layouts";
+import { Link } from "gatsby";
 import { Heading, Text } from "@yamada-ui/typography";
 import { GatsbyImage, IGatsbyImageData } from "gatsby-plugin-image";
 import { faThumbsUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
+import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
+import { format } from "@formkit/tempo";
+import "./Recommend.css";
 
 interface RecommendArticleProps {
   reccomends?: ReadonlyArray<{
@@ -18,6 +21,7 @@ interface RecommendArticleProps {
         readonly name: string | null;
       } | null> | null;
     } | null;
+    readonly excerpt: string | null;
     readonly thumbnail: {
       readonly childImageSharp: {
         readonly gatsbyImageData: IGatsbyImageData;
@@ -46,6 +50,8 @@ export const ReccomendArticles = (props: RecommendArticleProps) => {
           <Recommend
             id={recommend?.frontmatter?.id ?? ""}
             title={recommend?.frontmatter?.title ?? ""}
+            excerpt={recommend?.excerpt ?? ""}
+            createdAt={recommend?.frontmatter?.createdAt ?? "1970-01-01"}
             gatsbyImageData={recommend?.thumbnail?.childImageSharp?.gatsbyImageData}
           />
         );
@@ -57,6 +63,8 @@ export const ReccomendArticles = (props: RecommendArticleProps) => {
 interface RecommendArticleCardProps {
   id: string;
   title: string;
+  excerpt: string;
+  createdAt: string;
   readonly gatsbyImageData?: IGatsbyImageData;
 }
 
@@ -74,29 +82,30 @@ const Recommend = (props: RecommendArticleCardProps) => {
     );
   })();
 
+  const createdAt = format(new Date(props.createdAt ?? ""), "YYYY/MM/DD");
+
   return (
-    <Grid
-      rounded={"lg"}
-      boxShadow={"md"}
-      templateAreas={`
-        "detail image"
-      `}
-      bg={["", "#121820"]}
-      templateColumns={"60% 40%"}
-      gap={"sm"}
-      as={Link}
-      to={`/articles/${props.id}`}
-      aria-label={`link: ${props.title}`}
-      w={"full"}
-      className={"transform-scaleup-then-hover isolate"}
-      overflow={"hidden"}
-    >
-      <GridItem gridArea={"image"} className={"transform-scaleup-then-hover-img-wrapper"}>
+    <Link to={`/articles/${props.id}`}>
+      <Flex
+        className={"recommend-card"}
+        h={"128px"}
+        overflow={"hidden"} textOverflow={"ellipsis"}
+        bg={["", "#121820"]}
+        marginBottom={"sm"}
+        rounded={"lg"}
+        boxShadow={"md"}
+      >
+        <VStack gap="0" justifyContent={"space-between"}>
+          <Heading as={"h3"} size="sm" className={"recommend-card_title"}>{props.title}</Heading>
+          <Box className={"recommend-card_description"}>
+            <Text size={"xs"} color={"muted"}>{props.excerpt}</Text>
+          </Box>
+          <Flex className={"recommend-card_created"} justifyContent={"end"} direction={"column"}>
+            <Text size={"xs"}><FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />{createdAt}</Text>
+          </Flex>
+        </VStack>
         {gatsbyImage}
-      </GridItem>
-      <GridItem gridArea={"detail"}>
-        <Text size={"md"}>{props.title}</Text>
-      </GridItem>
-    </Grid>
+      </Flex>
+    </Link>
   );
 };

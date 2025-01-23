@@ -175,6 +175,7 @@ export const query = graphql`
           }
         }
         recommends {
+          excerpt(pruneLength: 140, truncate: true)
           frontmatter {
             id
             title
@@ -187,7 +188,7 @@ export const query = graphql`
           }
           thumbnail {
             childImageSharp {
-              gatsbyImageData(width: 480, height: 380, placeholder: BLURRED, quality: 100)
+              gatsbyImageData(width: 133, height: 128, placeholder: BLURRED, quality: 100)
             }
           }
         }

@@ -1,0 +1,25 @@
+.recommend-card {
+    .recommend-card_title {
+        font-weight: bold !important;
+        height: fit-content !important;
+        white-space: nowrap !important;
+        @screen lg {
+            white-space: unset !important;
+        }
+    }
+    .recommend-card_description {
+        color: #77838c !important;
+        height: fit-content !important;
+        @screen lg {
+            white-space: nowrap !important;
+        }
+    }
+    .recommend-card_created {
+        flex-grow: 1 !important;
+    }
+    * {
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    height: 128px !important;
+}
