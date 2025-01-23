@@ -15,71 +15,15 @@ const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
 
   return (
     <Layout>
-      <div className={"hidden lg:block w-full"}>
+      <div className={"w-full"}>
         <main>
           <Grid
             templateAreas={`
-          ". title ."
+          "title title title"
           ". image ."
           ". name ."
           ". bio ."
           ". social ."`}
-            className={"justify-between"}
-          >
-            <GridItem gridArea={"title"}>
-              <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
-                About
-              </Heading>
-            </GridItem>
-            <GridItem gridArea={"image"} justifySelf={"center"} paddingBottom={"md"}>
-              <Image
-                allFileConnectrion={allFileConnection}
-                alt={"GitHubAvatar:miyamo2"}
-                objectFit={"cover"}
-                className={"round-image"}
-              />
-            </GridItem>
-            <GridItem gridArea={"name"} paddingBottom={"md"}>
-              <Heading as={"h2"} className={"text-2xl font-bold"}>
-                {data.github?.user?.login}
-              </Heading>
-            </GridItem>
-            <GridItem gridArea={"bio"} paddingBottom={"md"}>
-              <Text>{data.github?.user?.bio}</Text>
-            </GridItem>
-            <GridItem gridArea={"social"} justifySelf={"center"}>
-              <HStack>
-                <Button
-                  as={Link}
-                  href={data.github?.user?.url}
-                  isExternal={true}
-                  variant="ghost"
-                  className={"text-3xl"}
-                  size={"lg"}
-                  aria-label={"GitHub"}
-                >
-                  <SiGithub size={"100%"} />
-                </Button>
-                {data.github?.user?.socialAccounts?.nodes?.map((socialAccount) => {
-                  const link = SocialAccountLink(socialAccount?.url ?? "");
-                  if (!link) {
-                    return <></>;
-                  }
-                  return link;
-                })}
-              </HStack>
-            </GridItem>
-          </Grid>
-        </main>
-      </div>
-      <div className={"lg:hidden w-full"}>
-        <main>
-          <Grid
-            templateAreas={`
-          "title title title title"
-          "image image . name"
-          "image image . bio"
-          "social social social social"`}
             className={"justify-between"}
           >
             <GridItem gridArea={"title"}>
