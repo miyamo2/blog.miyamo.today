@@ -70,7 +70,7 @@ const HitCard = ({ hit, onLinkClick }: HitCardProps) => {
             <Highlight hit={hit} attribute={"title"} />
           </Heading>
         </GridItem>
-        <GridItem gridArea={"content"} alignSelf={"start"}>
+        <GridItem gridArea={"content"} alignSelf={"start"} color={"muted"} whiteSpace={"nowrap"}>
           <Snippet hit={hit} attribute={"content"} />
         </GridItem>
         <GridItem gridArea={"tag"} alignSelf={"end"}>
