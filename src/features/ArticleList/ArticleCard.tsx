@@ -7,6 +7,7 @@ import { Grid, GridItem, Separator } from "@yamada-ui/layouts";
 import { Heading, Text } from "@yamada-ui/typography";
 import { Tag } from "@yamada-ui/tag";
 import * as React from "react";
+import "./ArticleCard.css";
 
 interface Tag {
   id: string;
@@ -51,8 +52,9 @@ const ArticleCard = (props: ArticleCardProps) => {
       aria-label={`link: ${props.title}`}
       bg={["#f6f8fa", "#151b23"]}
       w={"full"}
-      className={"max-w-[750px] lg:max-w-[303px] transform-scaleup-then-hover isolate"}
+      className={"max-w-[750px] lg:max-w-[303px] transform-scaleup-then-hover article-card"}
       overflow={"hidden"}
+      zIndex={"1"}
     >
       <GridItem className={"transform-scaleup-then-hover-img-wrapper"}>{gatsbyImage}</GridItem>
       <GridItem>

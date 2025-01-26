@@ -10,9 +10,7 @@
     .recommend-card_description {
         color: #77838c !important;
         height: fit-content !important;
-        @screen lg {
-            white-space: nowrap !important;
-        }
+        white-space: nowrap !important;
     }
     .recommend-card_created {
         flex-grow: 1 !important;
@@ -22,4 +20,5 @@
         text-overflow: ellipsis !important;
     }
     height: 128px !important;
+    isolation: isolate !important;
 }

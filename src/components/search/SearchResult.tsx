@@ -57,6 +57,7 @@ const HitCard = ({ hit, onLinkClick }: HitCardProps) => {
         w={"full"}
         className={"w-full h-full index-hit-card transform-scaleup-then-hover"}
         overflow={"hidden"}
+        rounded={"lg"}
       >
         <GridItem
           overflow={"hidden"}
