@@ -1,14 +1,14 @@
 import { Link } from "gatsby";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
-import { faBars, faHome, faTags, faAddressCard, faRss } from "@fortawesome/free-solid-svg-icons";
+import { faHome, faTags, faAddressCard, faRss } from "@fortawesome/free-solid-svg-icons";
 import { StaticImage } from "gatsby-plugin-image";
 import { Grid, GridItem, HStack } from "@yamada-ui/layouts";
 import { useColorMode } from "@yamada-ui/core";
-import { Button, IconButton } from "@yamada-ui/button";
-import { Menu, MenuButton, MenuItem, MenuList } from "@yamada-ui/menu";
+import { Button } from "@yamada-ui/button";
 import React from "react";
 import DarkmodeToggle from "./DarkmodeToggle";
 import SearchForm from "./search/Form";
+import { MenuModal } from "./Menu";
 
 interface HeaderProp {}
 
@@ -84,26 +84,7 @@ const Header = (prop: HeaderProp) => {
         <HStack className={"justify-end"}>
           <SearchForm />
           <DarkmodeToggle />
-          <Menu>
-            <MenuButton
-              as={IconButton}
-              icon={<FontAwesomeIcon icon={faBars} />}
-              variant="ghost"
-              className={"text-2xl font-bold"}
-              aria-label={"menu-button"}
-            />
-            <MenuList>
-              <MenuItem icon={<FontAwesomeIcon icon={faHome} />}>
-                <Link to="/">Home</Link>
-              </MenuItem>
-              <MenuItem icon={<FontAwesomeIcon icon={faTags} />}>
-                <Link to="/tags">Tags</Link>
-              </MenuItem>
-              <MenuItem icon={<FontAwesomeIcon icon={faAddressCard} />}>
-                <Link to="/about">About</Link>
-              </MenuItem>
-            </MenuList>
-          </Menu>
+          <MenuModal />
         </HStack>
       </GridItem>
     </Grid>
