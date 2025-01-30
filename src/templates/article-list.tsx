@@ -93,7 +93,7 @@ export default ArticleList;
 
 export const Head = ({ location }: HeadProps) => {
   const path = location.pathname;
-  if (path.endsWith("today/")) {
+  if (path === "/") {
     return <SEO path={path} title={"Articles"} jsonLD={{"description": "記事一覧"}} />;
   }
   return <SEO path={path} title={"Articles"} />;
