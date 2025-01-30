@@ -136,5 +136,5 @@ export default About;
 
 export const Head = ({ location }: HeadProps) => {
   const path = location.pathname;
-  return <SEO path={path} title={"About"} />;
+  return <SEO path={path} title={"About"} jsonLD={{"description": "miyamo2について"}} />;
 };

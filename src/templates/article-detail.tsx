@@ -220,5 +220,16 @@ export const Head = ({
 
   const path = location.pathname;
 
-  return <SEO path={path} title={title} image={imageSrc} description={description} />;
+  return <SEO path={path} title={title} image={imageSrc} description={description}　jsonLD={
+    {
+      "@type": "BlogPosting",
+      "description": markdownRemark?.excerpt,
+      "headline": markdownRemark?.frontmatter?.title,
+      "keywords": markdownRemark?.frontmatter?.tags?.map((tag) => tag?.name).join(" "),
+      "image": imageSrc,
+      "datePublished": markdownRemark?.frontmatter?.createdAt,
+      "dateModified": markdownRemark?.frontmatter?.updatedAt,
+      "articleBody": markdownRemark?.excerpt,
+    }
+  } />;
 };

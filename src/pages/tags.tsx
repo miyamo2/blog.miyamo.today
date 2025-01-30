@@ -47,5 +47,5 @@ export default Tags;
 
 export const Head = ({ location }: HeadProps) => {
   const path = location.pathname;
-  return <SEO path={path} title={"Tags"} />;
+  return <SEO path={path} title={"Tags"} jsonLD={{"description": "タグ一覧"}} />;
 };

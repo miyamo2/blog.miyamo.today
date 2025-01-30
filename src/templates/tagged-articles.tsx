@@ -98,5 +98,9 @@ export const Head = ({
   const title = `#${pageContext.tagName}`;
   const path = location.pathname;
 
+  if (path.endsWith(`${pageContext.tagID}`)) {
+    return <SEO path={path} title={title} jsonLD={{"description": `#${pageContext.tagName}の記事一覧`}} />;
+  }
+
   return <SEO path={path} title={title} />;
 };
