@@ -102,7 +102,7 @@ export const Head = ({
   const jsonLDArticles = data.allMarkdownRemark.nodes.map((node, i) => {
     return useJSONLD({
       type: "ListItem",
-      path: `articles/${node.frontmatter?.id}`,
+      path: `articles/${node.frontmatter?.id}/`,
       withUrl: true,
       attributes: {
         position: i + 1,
@@ -114,7 +114,7 @@ export const Head = ({
     headline: "Articles",
     path: path,
     description: page ? `記事一覧(page ${page})` : "記事一覧",
-    withMainEntityOfPage: true,
+    withUrl: true,
     withSiteName: true,
     withAuthor: true,
     withLogo: true,

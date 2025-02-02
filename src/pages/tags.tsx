@@ -60,11 +60,11 @@ export const Head = ({ location, data }: HeadProps<Queries.TagListQueryQuery>) =
   });
 
   const jsonLDTagsPage = useJSONLD({
-    type: "ProfilePage",
+    type: "ItemList",
     headline: "Tags",
     path: path,
     description: "タグ一覧",
-    withMainEntityOfPage: true,
+    withUrl: true,
     withSiteName: true,
     withAuthor: true,
     withLogo: true,
