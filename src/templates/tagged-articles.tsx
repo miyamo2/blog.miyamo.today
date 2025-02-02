@@ -118,7 +118,7 @@ export const Head = ({
     description: page
       ? `#${pageContext.tagName}の記事一覧(page ${page})`
       : `#${pageContext.tagName}の記事一覧`,
-    withMainEntityOfPage: true,
+    withUrl: true,
     withSiteName: true,
     withAuthor: true,
     withLogo: true,
