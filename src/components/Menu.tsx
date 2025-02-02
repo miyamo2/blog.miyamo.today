@@ -16,15 +16,15 @@ export const MenuModal = () => {
   return (
     <>
       <IconButton
-          onClick={() => {
-            onOpen();
-            setVisibility(false);
-          }}
-          icon={<FontAwesomeIcon icon={faBars} />}
-          variant="ghost"
-          className={"text-2xl font-bold"}
-          aria-label={"menu-button"}
-        />
+        onClick={() => {
+          onOpen();
+          setVisibility(false);
+        }}
+        icon={<FontAwesomeIcon icon={faBars} />}
+        variant="ghost"
+        className={"text-2xl font-bold"}
+        aria-label={"menu-button"}
+      />
       <Modal
         id={"toc-modal"}
         open={open}

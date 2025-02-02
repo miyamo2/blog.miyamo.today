@@ -226,6 +226,7 @@ const articleDetailPage = async (
 };
 
 export interface TaggedArticlesPageContext {
+  tagID: string;
   tagName: string;
   perPage: number;
   totalItems: number;
@@ -283,6 +284,7 @@ const taggedArticlesPage = async (
           .map((edge) => edge.cursor);
 
         const ctx: TaggedArticlesPageContext = {
+          tagID: tagId,
           tagName: tagName,
           perPage: PER_PAGE,
           totalItems: totalArticles,

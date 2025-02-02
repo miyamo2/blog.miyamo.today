@@ -9,6 +9,7 @@ import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import ArticleCard from "../features/ArticleList/ArticleCard";
 import { useArticleCardList } from "../hooks/useArticleCardList";
+import { useJSONLD } from "../hooks/useJSONLD";
 
 interface Tag {
   id: string;
@@ -91,10 +92,38 @@ export const query = graphql`
 
 export default ArticleList;
 
-export const Head = ({ location }: HeadProps) => {
+export const Head = ({
+  data,
+  location,
+}: HeadProps<Queries.ArticleListQueryQuery, ArticleListPageContext>) => {
   const path = location.pathname;
-  if (path === "/") {
-    return <SEO path={path} title={"Articles"} jsonLD={{"description": "記事一覧"}} />;
-  }
-  return <SEO path={path} title={"Articles"} />;
+  const page = path.split("/").at(-1);
+
+  const jsonLDArticles = data.allMarkdownRemark.nodes.map((node, i) => {
+    return useJSONLD({
+      type: "ListItem",
+      path: `articles/${node.frontmatter?.id}`,
+      withUrl: true,
+      attributes: {
+        position: i + 1,
+      },
+    });
+  });
+  const jsonLDArticleListPage = useJSONLD({
+    type: "ItemList",
+    headline: "Articles",
+    path: path,
+    description: page ? `記事一覧(page ${page})` : "記事一覧",
+    withMainEntityOfPage: true,
+    withSiteName: true,
+    withAuthor: true,
+    withLogo: true,
+    withContext: true,
+    withID: true,
+    attributes: {
+      alternateName: "miyamo2ブログ",
+      itemListElement: jsonLDArticles,
+    },
+  });
+  return <SEO path={path} title={"Articles"} jsonLD={[jsonLDArticleListPage]} />;
 };

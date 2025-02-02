@@ -5,6 +5,7 @@ import { Heading } from "@yamada-ui/typography";
 import * as React from "react";
 import Layout from "../components/Layout";
 import SEO from "../components/SEO";
+import { useJSONLD } from "../hooks/useJSONLD";
 
 const Tags = ({ data }: PageProps<Queries.TagListQueryQuery>) => {
   return (
@@ -45,7 +46,34 @@ export const query = graphql`
 
 export default Tags;
 
-export const Head = ({ location }: HeadProps) => {
+export const Head = ({ location, data }: HeadProps<Queries.TagListQueryQuery>) => {
   const path = location.pathname;
-  return <SEO path={path} title={"Tags"} jsonLD={{"description": "タグ一覧"}} />;
+  const jsonLDTags = data.miyamotoday.tags.edges.map((edge, i) => {
+    return useJSONLD({
+      type: "ListItem",
+      path: `tags/${edge.cursor}/`,
+      withUrl: true,
+      attributes: {
+        position: i + 1,
+      },
+    });
+  });
+
+  const jsonLDTagsPage = useJSONLD({
+    type: "ProfilePage",
+    headline: "Tags",
+    path: path,
+    description: "タグ一覧",
+    withMainEntityOfPage: true,
+    withSiteName: true,
+    withAuthor: true,
+    withLogo: true,
+    withContext: true,
+    withID: true,
+    attributes: {
+      alternateName: "miyamo2ブログ",
+      itemListElement: jsonLDTags,
+    },
+  });
+  return <SEO path={path} title={"Tags"} jsonLD={[jsonLDTagsPage]} />;
 };

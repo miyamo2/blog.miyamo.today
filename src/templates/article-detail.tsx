@@ -16,6 +16,7 @@ import "./article-detail.css";
 import { ArticleTOCLarge, ArticleTOCModal } from "../features/ArticleDetail/TOC";
 import ShareButtons from "../components/ShareButtons";
 import { ReccomendArticles } from "../features/ArticleDetail/Recommend";
+import { useJSONLD, useWebSiteJSONLDObject } from "../hooks/useJSONLD";
 
 const ArticleDetail = ({
   location,
@@ -220,16 +221,34 @@ export const Head = ({
 
   const path = location.pathname;
 
-  return <SEO path={path} title={title} image={imageSrc} description={description}　jsonLD={
-    {
-      "@type": "BlogPosting",
-      "description": markdownRemark?.excerpt,
-      "headline": markdownRemark?.frontmatter?.title,
-      "keywords": markdownRemark?.frontmatter?.tags?.map((tag) => tag?.name).join(" "),
-      "image": imageSrc,
-      "datePublished": markdownRemark?.frontmatter?.createdAt,
-      "dateModified": markdownRemark?.frontmatter?.updatedAt,
-      "articleBody": markdownRemark?.excerpt,
-    }
-  } />;
+  const jsonLDArticleDetailPage = useJSONLD({
+    type: "BlogPosting",
+    headline: markdownRemark?.frontmatter?.title ?? "",
+    path: path,
+    description: markdownRemark?.excerpt ?? "",
+    image: imageSrc,
+    withMainEntityOfPage: true,
+    withSiteName: true,
+    withAuthor: true,
+    withLogo: true,
+    withContext: true,
+    withID: true,
+    attributes: {
+      alternateName: "miyamo2ブログ",
+      datePublished: markdownRemark?.frontmatter?.createdAt,
+      dateModified: markdownRemark?.frontmatter?.updatedAt,
+      articleBody: markdownRemark?.excerpt,
+      keywords: markdownRemark?.frontmatter?.tags?.map((tag) => tag?.name).join(" "),
+    },
+  });
+
+  return (
+    <SEO
+      path={path}
+      title={title}
+      image={imageSrc}
+      description={description}
+      jsonLD={[jsonLDArticleDetailPage]}
+    />
+  );
 };

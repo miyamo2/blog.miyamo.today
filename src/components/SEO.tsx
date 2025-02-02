@@ -7,14 +7,22 @@ interface SeoProps {
   path?: string;
   lang?: string;
   image?: string;
-  jsonLD?: Record<string, any>;
+  jsonLD?: Record<string, any>[];
 }
 
-const SEO: FC<SeoProps> = ({ path, title, description, image, lang, jsonLD }: Partial<SeoProps>) => {
+const SEO: FC<SeoProps> = ({
+  path,
+  title,
+  description,
+  image,
+  lang,
+  jsonLD,
+}: Partial<SeoProps>) => {
   const siteMetaData = useSiteMetaData();
   if (!siteMetaData) {
     throw new Error("SiteMetaData must not be null|undefined");
   }
+
   const {
     title: defaultTitle,
     description: defaultDescription,
@@ -37,26 +45,6 @@ const SEO: FC<SeoProps> = ({ path, title, description, image, lang, jsonLD }: Pa
     facebookAppId: facebookAppId ?? "",
   };
 
-  if (jsonLD) {
-    jsonLD["@id"] = seo.url;
-    jsonLD["@context"] = "https://schema.org";
-    if (!jsonLD["@type"]) {
-      jsonLD["@type"] = "WebPage";
-    }
-    jsonLD["name"] = seo.title;
-    jsonLD["url"] = seo.url;
-    jsonLD["author"] = {
-      "@type": "Person",
-      "name": "miyamo2",
-      "sameAs": [
-        seo.twitterUsername,
-      ]
-    }
-    if (!image) {
-      jsonLD["image"] = seo.image;
-    }
-  }
-
   return (
     <>
       <title>{seo.title}</title>
@@ -77,7 +65,7 @@ const SEO: FC<SeoProps> = ({ path, title, description, image, lang, jsonLD }: Pa
       <meta name="twitter:url" content={seo.url} />
       <meta name="twitter:card" content="summary_large_image" />
       <link rel={"icon"} href={`${defaultSiteUrl}${icon}`} />
-      { jsonLD ? <script type="application/ld+json">{JSON.stringify(jsonLD)}</script> : <></> }
+      {jsonLD?.map((obj) => <script type="application/ld+json">{JSON.stringify(obj)}</script>)}
     </>
   );
 };

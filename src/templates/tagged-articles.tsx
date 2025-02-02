@@ -9,6 +9,7 @@ import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import ArticleCard from "../features/ArticleList/ArticleCard";
 import { useArticleCardList } from "../hooks/useArticleCardList";
+import { useJSONLD } from "../hooks/useJSONLD";
 
 interface Tag {
   id: string;
@@ -93,14 +94,41 @@ export default TaggedArticleList;
 
 export const Head = ({
   location,
+  data,
   pageContext,
 }: HeadProps<Queries.TaggedArticleListQueryQuery, TaggedArticlesPageContext>) => {
   const title = `#${pageContext.tagName}`;
   const path = location.pathname;
+  const page = path.split("/").at(-1);
 
-  if (path.endsWith(`${pageContext.tagID}`)) {
-    return <SEO path={path} title={title} jsonLD={{"description": `#${pageContext.tagName}の記事一覧`}} />;
-  }
+  const jsonLDArticles = data.allMarkdownRemark.nodes.map((node, i) => {
+    return useJSONLD({
+      type: "ListItem",
+      path: `articles/${node.frontmatter?.id}`,
+      withUrl: true,
+      attributes: {
+        position: i + 1,
+      },
+    });
+  });
+  const jsonLDTaggedArticlesPage = useJSONLD({
+    type: "ItemList",
+    headline: "Articles",
+    path: path,
+    description: page
+      ? `#${pageContext.tagName}の記事一覧(page ${page})`
+      : `#${pageContext.tagName}の記事一覧`,
+    withMainEntityOfPage: true,
+    withSiteName: true,
+    withAuthor: true,
+    withLogo: true,
+    withContext: true,
+    withID: true,
+    attributes: {
+      alternateName: "miyamo2ブログ",
+      itemListElement: jsonLDArticles,
+    },
+  });
 
-  return <SEO path={path} title={title} />;
+  return <SEO path={path} title={title} jsonLD={[jsonLDTaggedArticlesPage]} />;
 };

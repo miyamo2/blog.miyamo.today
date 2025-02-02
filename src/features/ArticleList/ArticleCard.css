@@ -1,4 +1,4 @@
 .article-card {
-    isolation: isolate !important;
-    z-index: 1 !important;
+  isolation: isolate !important;
+  z-index: 1 !important;
 }
