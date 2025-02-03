@@ -9,7 +9,7 @@ import Layout from "../components/Layout";
 import Image from "../components/Image";
 import SEO from "../components/SEO";
 import "./about.css";
-import { useJSONLD } from "../hooks/useJSONLD";
+import { useJSONLD, useWebSiteJSONLD } from "../hooks/useJSONLD";
 
 const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
   const allFileConnection = data.allFile;
@@ -137,21 +137,17 @@ export default About;
 
 export const Head = ({ location }: HeadProps) => {
   const path = location.pathname;
-
+  const jsonLDWebSite = useWebSiteJSONLD();
   const jsonLDAboutPage = useJSONLD({
     type: "ProfilePage",
     headline: "About",
     path: path,
     description: "miyamo2について",
     withMainEntityOfPage: true,
-    withSiteName: true,
     withAuthor: true,
     withLogo: true,
     withContext: true,
     withID: true,
-    attributes: {
-      alternateName: "miyamo2ブログ",
-    },
   });
-  return <SEO path={path} title={"About"} jsonLD={[jsonLDAboutPage]} />;
+  return <SEO path={path} title={"About"} jsonLD={[jsonLDWebSite, jsonLDAboutPage]} />;
 };

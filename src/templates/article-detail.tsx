@@ -16,7 +16,7 @@ import "./article-detail.css";
 import { ArticleTOCLarge, ArticleTOCModal } from "../features/ArticleDetail/TOC";
 import ShareButtons from "../components/ShareButtons";
 import { ReccomendArticles } from "../features/ArticleDetail/Recommend";
-import { useJSONLD, useWebSiteJSONLDObject } from "../hooks/useJSONLD";
+import { useJSONLD, useWebSiteJSONLD } from "../hooks/useJSONLD";
 
 const ArticleDetail = ({
   location,
@@ -221,6 +221,7 @@ export const Head = ({
 
   const path = location.pathname;
 
+  const jsonLDWebSite = useWebSiteJSONLD();
   const jsonLDArticleDetailPage = useJSONLD({
     type: "BlogPosting",
     headline: markdownRemark?.frontmatter?.title ?? "",
@@ -228,7 +229,6 @@ export const Head = ({
     description: markdownRemark?.excerpt ?? "",
     image: imageSrc,
     withMainEntityOfPage: true,
-    withSiteName: true,
     withAuthor: true,
     withLogo: true,
     withContext: true,
@@ -248,7 +248,7 @@ export const Head = ({
       title={title}
       image={imageSrc}
       description={description}
-      jsonLD={[jsonLDArticleDetailPage]}
+      jsonLD={[jsonLDWebSite, jsonLDArticleDetailPage]}
     />
   );
 };

@@ -9,7 +9,7 @@ import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import ArticleCard from "../features/ArticleList/ArticleCard";
 import { useArticleCardList } from "../hooks/useArticleCardList";
-import { useJSONLD } from "../hooks/useJSONLD";
+import { useJSONLD, useWebSiteJSONLD } from "../hooks/useJSONLD";
 
 interface Tag {
   id: string;
@@ -101,6 +101,7 @@ export const Head = ({
   const path = location.pathname;
   const page = path.split("/").at(-1);
 
+  const jsonLDWebSite = useWebSiteJSONLD();
   const jsonLDArticles = data.allMarkdownRemark.nodes.map((node, i) => {
     return useJSONLD({
       type: "ListItem",
@@ -119,7 +120,6 @@ export const Head = ({
       ? `#${pageContext.tagName}の記事一覧(page ${page})`
       : `#${pageContext.tagName}の記事一覧`,
     withUrl: true,
-    withSiteName: true,
     withAuthor: true,
     withLogo: true,
     withContext: true,
@@ -130,5 +130,5 @@ export const Head = ({
     },
   });
 
-  return <SEO path={path} title={title} jsonLD={[jsonLDTaggedArticlesPage]} />;
+  return <SEO path={path} title={title} jsonLD={[jsonLDWebSite, jsonLDTaggedArticlesPage]} />;
 };

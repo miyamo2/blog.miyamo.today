@@ -5,7 +5,7 @@ import { Heading } from "@yamada-ui/typography";
 import * as React from "react";
 import Layout from "../components/Layout";
 import SEO from "../components/SEO";
-import { useJSONLD } from "../hooks/useJSONLD";
+import { useJSONLD, useWebSiteJSONLD } from "../hooks/useJSONLD";
 
 const Tags = ({ data }: PageProps<Queries.TagListQueryQuery>) => {
   return (
@@ -59,13 +59,13 @@ export const Head = ({ location, data }: HeadProps<Queries.TagListQueryQuery>) =
     });
   });
 
+  const jsonLDWebSite = useWebSiteJSONLD();
   const jsonLDTagsPage = useJSONLD({
     type: "ItemList",
     headline: "Tags",
     path: path,
     description: "タグ一覧",
     withUrl: true,
-    withSiteName: true,
     withAuthor: true,
     withLogo: true,
     withContext: true,
@@ -75,5 +75,5 @@ export const Head = ({ location, data }: HeadProps<Queries.TagListQueryQuery>) =
       itemListElement: jsonLDTags,
     },
   });
-  return <SEO path={path} title={"Tags"} jsonLD={[jsonLDTagsPage]} />;
+  return <SEO path={path} title={"Tags"} jsonLD={[jsonLDWebSite, jsonLDTagsPage]} />;
 };

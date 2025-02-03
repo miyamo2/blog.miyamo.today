@@ -43,8 +43,8 @@ export const useJSONLD = ({
   if (withContext) {
     jsonLD["@context"] = "https://schema.org";
   }
-  if (withID && path !== undefined) {
-    jsonLD["@id"] = `${siteMetaData.siteUrl}${path}`;
+  if (withID) {
+    jsonLD["@id"] = path ? `${siteMetaData.siteUrl}${path}` : `${siteMetaData.siteUrl}/`;
   }
   if (headline) {
     jsonLD["headline"] = headline;
@@ -62,7 +62,7 @@ export const useJSONLD = ({
     };
   }
   if (withUrl) {
-    jsonLD["url"] = path ? `${siteMetaData.siteUrl}${path}` : siteMetaData.siteUrl;
+    jsonLD["url"] = path ? `${siteMetaData.siteUrl}${path}` : `${siteMetaData.siteUrl}/`;
   }
   if (image) {
     jsonLD["image"] = {
@@ -78,9 +78,10 @@ export const useJSONLD = ({
       sameAs: [
         "https://github.com/miyamo2",
         "https://zenn.dev/miyamo2",
+        "https://twitter.com/miyamo2_jp",
         "https://speakerdeck.com/miyamo2",
         "https://qiita.com/miyamo2",
-        "https://twitter.com/miyamo2_jp",
+        "https://connpass.com/user/miyamo2/",
       ],
     };
   }
@@ -94,3 +95,16 @@ export const useJSONLD = ({
   }
   return jsonLD;
 };
+
+export const useWebSiteJSONLD = (): Record<string, any> => {
+  return useJSONLD({
+    type: "WebSite",
+    withContext: true,
+    withUrl: true,
+    withSiteName: true,
+    withLogo: true,
+    attributes: {
+      alternateName: "blog miyamo today",
+    },
+  });
+}
