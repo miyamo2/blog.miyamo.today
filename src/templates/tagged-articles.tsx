@@ -125,7 +125,6 @@ export const Head = ({
     withContext: true,
     withID: true,
     attributes: {
-      alternateName: "miyamo2ブログ",
       itemListElement: jsonLDArticles,
     },
   });

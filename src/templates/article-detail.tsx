@@ -234,7 +234,6 @@ export const Head = ({
     withContext: true,
     withID: true,
     attributes: {
-      alternateName: "miyamo2ブログ",
       datePublished: markdownRemark?.frontmatter?.createdAt,
       dateModified: markdownRemark?.frontmatter?.updatedAt,
       articleBody: markdownRemark?.excerpt,

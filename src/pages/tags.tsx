@@ -71,7 +71,6 @@ export const Head = ({ location, data }: HeadProps<Queries.TagListQueryQuery>) =
     withContext: true,
     withID: true,
     attributes: {
-      alternateName: "miyamo2ブログ",
       itemListElement: jsonLDTags,
     },
   });
