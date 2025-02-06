@@ -115,6 +115,10 @@ div:has(> #toc-modal) {
   max-width: 100% !important;
 }
 
+#bmc-wbtn {
+  opacity: 0.8;
+}
+
 @media (min-width: 1400px) {
   #bmc-wbtn {
     right: calc((100% - 1400px) / 2) !important;
