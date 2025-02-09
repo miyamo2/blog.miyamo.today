@@ -59,15 +59,17 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
         <ModalBody id={"toc-modal-body scrollable-y"}>
           <Box w={"full"}>
             {headings?.map((heading) => (
-              <AnchorLink
-                to={`#${heading?.id}`}
-                key={heading?.id}
-                className={"pointer-events-auto"}
-                onAnchorLinkClick={() => {
-                  onClose();
-                  setVisibility(true);
-                }}
-              >
+              <a href={`#${heading?.id}`} 
+              onClick={(e) => {
+                e.preventDefault()
+                const element = document.getElementById(heading?.id ?? "");
+                element?.scrollIntoView({  
+                  behavior: 'smooth'  
+                });
+                history.replaceState(null, '', `#${heading?.id ?? ""}`);
+                onClose();
+                setVisibility(true);
+              }}  key={heading?.id}>
                 <Text
                   whiteSpace={"nowrap"}
                   overflow={"hidden"}
@@ -78,7 +80,7 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
                 >
                   {heading?.value}
                 </Text>
-              </AnchorLink>
+              </a>
             ))}
           </Box>
         </ModalBody>
@@ -103,7 +105,15 @@ export const ArticleTOCLarge = ({ headings }: ArticleTOCProps) => {
       </Box>
       <Box className={"side-toc"} w={"full"} paddingTop={"sm"}>
         {headings?.map((heading) => (
-          <AnchorLink to={`#${heading?.id}`} key={heading?.id}>
+          <a href={`#${heading?.id}`} 
+          onClick={(e) => {
+              e.preventDefault()
+              const element = document.getElementById(heading?.id ?? "");
+              element?.scrollIntoView({  
+                behavior: 'smooth'  
+              });
+              history.replaceState(null, '', `#${heading?.id ?? ""}`);
+            }}  key={heading?.id}>
             <Text
               whiteSpace={"nowrap"}
               overflow={"hidden"}
@@ -114,7 +124,7 @@ export const ArticleTOCLarge = ({ headings }: ArticleTOCProps) => {
             >
               {heading?.value}
             </Text>
-          </AnchorLink>
+          </a>
         ))}
       </Box>
     </Box>

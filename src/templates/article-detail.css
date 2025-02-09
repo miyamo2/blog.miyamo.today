@@ -16,8 +16,6 @@ pre[class*="language-"] {
 
 :root {
   scroll-padding-top: 70px;
-  scroll-behavior: smooth;
-  scroll-snap-type: y proximity !important;
 }
 
 .article-detail {

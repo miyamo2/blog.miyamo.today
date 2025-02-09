@@ -40,6 +40,7 @@
 
 :root {
   overflow-y: auto !important;
+  scroll-behavior: auto !important;
 }
 
 body,
@@ -66,10 +67,6 @@ body,
 
 #footer {
   padding-top: 80px;
-  padding-bottom: 80px;
-  @screen lg {
-    padding-bottom: 1em;
-  }
 }
 
 div:has(> #toc-modal) {
@@ -85,14 +82,6 @@ div:has(> #toc-modal) {
   contain: paint;
 }
 
-.smooth-scroll {
-  scroll-behavior: smooth;
-  scroll-snap-type: y proximity !important;
-}
-
-.scroll-padding {
-  scroll-padding-top: 70px;
-}
 .scrollbar-offset {
   padding-left: calc(100vw - 100%);
 }
@@ -119,6 +108,12 @@ div:has(> #toc-modal) {
 
 #bmc-wbtn {
   opacity: 0.8;
+}
+
+@media (max-width: 1199px) {
+  #bmc-wbtn {
+    bottom: 2.5rem !important;
+  }
 }
 
 @media (min-width: 1400px) {
