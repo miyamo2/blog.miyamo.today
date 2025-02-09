@@ -13,7 +13,7 @@ const Pager = (props: PagerProps) => {
     <>
       <Flex justifyContent={"center"} alignItems={"center"}>
         <Pagination
-          page={currentRefinement}
+          page={currentRefinement+1}
           variant="ghost"
           total={nbPages}
           size="lg"
@@ -21,10 +21,6 @@ const Pager = (props: PagerProps) => {
           onChange={(v) => {
             refine(v - 1);
           }}
-          controlNextProps={{ hidden: nbPages === currentRefinement + 1 || nbHits === 0 }}
-          controlPrevProps={{ hidden: currentRefinement === 0 }}
-          edgeFirstProps={{ hidden: currentRefinement === 0 }}
-          edgeLastProps={{ hidden: nbPages === currentRefinement + 1 || nbHits === 0 }}
         />
       </Flex>
     </>
