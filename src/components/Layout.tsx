@@ -15,8 +15,7 @@ const Layout = ({ children }: LayoutProps) => {
         id={"layout"}
         bg={["#ffffff", "#0d1117"]}
         w={"full"}
-        h={"100vh"}
-        className={"scrollable-y smooth-scroll scroll-padding"}
+        className={"h-fit"}
       >
         <Flex h={"70px"} bg={["#f6f8fa", "#010409"]} className={"header-wrapper scrollbar-offset"}>
           <Flex className={"w-full justify-center"}>
@@ -25,7 +24,7 @@ const Layout = ({ children }: LayoutProps) => {
             </div>
           </Flex>
         </Flex>
-        <Flex h={"full"} alignSelf={"start"} id={"content"}>
+        <Flex alignSelf={"start"} id={"content"} className={"h-fit"}>
           <Flex className={"w-full h-full justify-between flex-col scrollbar-offset"}>
             <Flex className={"w-full justify-center"} justifySelf={"start"}>
               <Box

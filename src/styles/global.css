@@ -38,12 +38,17 @@
   src: url(/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2) format("woff2");
 }
 
-:root,
-html,
+:root {
+  overflow-y: auto !important;
+  scroll-padding-top: 70px;
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity !important;
+}
+
 body,
 #___gatsby,
 #gatsby-focus-wrapper {
-  overflow: hidden !important;
+  overflow: visible !important;
 }
 
 .scrollable-y {
