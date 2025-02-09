@@ -82,6 +82,11 @@ export const useJSONLD = ({
         "https://speakerdeck.com/miyamo2",
         "https://qiita.com/miyamo2",
         "https://connpass.com/user/miyamo2/",
+        "https://medium.com/@miyamo2",
+        "https://dev.to/miyamo2",
+        "https://note.com/miyamo2",
+        "https://www.npmjs.com/~miyamo2",
+        "https://pypi.org/user/miyamo2theppl/",
       ],
     };
   }
