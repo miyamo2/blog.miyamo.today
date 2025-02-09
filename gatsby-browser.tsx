@@ -24,5 +24,5 @@ export const wrapPageElement: GatsbyBrowser["wrapPageElement"] = ({ element }) =
 };
 
 export const onServiceWorkerUpdateFound = () => {
-  // no-op
+  window.location.reload();
 };
