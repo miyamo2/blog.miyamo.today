@@ -59,17 +59,20 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
         <ModalBody id={"toc-modal-body scrollable-y"}>
           <Box w={"full"}>
             {headings?.map((heading) => (
-              <a href={`#${heading?.id}`} 
-              onClick={(e) => {
-                e.preventDefault()
-                const element = document.getElementById(heading?.id ?? "");
-                element?.scrollIntoView({  
-                  behavior: 'smooth'  
-                });
-                history.replaceState(null, '', `#${heading?.id ?? ""}`);
-                onClose();
-                setVisibility(true);
-              }}  key={heading?.id}>
+              <a
+                href={`#${heading?.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const element = document.getElementById(heading?.id ?? "");
+                  element?.scrollIntoView({
+                    behavior: "smooth",
+                  });
+                  history.replaceState(null, "", `#${heading?.id ?? ""}`);
+                  onClose();
+                  setVisibility(true);
+                }}
+                key={heading?.id}
+              >
                 <Text
                   whiteSpace={"nowrap"}
                   overflow={"hidden"}
@@ -105,15 +108,18 @@ export const ArticleTOCLarge = ({ headings }: ArticleTOCProps) => {
       </Box>
       <Box className={"side-toc"} w={"full"} paddingTop={"sm"}>
         {headings?.map((heading) => (
-          <a href={`#${heading?.id}`} 
-          onClick={(e) => {
-              e.preventDefault()
+          <a
+            href={`#${heading?.id}`}
+            onClick={(e) => {
+              e.preventDefault();
               const element = document.getElementById(heading?.id ?? "");
-              element?.scrollIntoView({  
-                behavior: 'smooth'  
+              element?.scrollIntoView({
+                behavior: "smooth",
               });
-              history.replaceState(null, '', `#${heading?.id ?? ""}`);
-            }}  key={heading?.id}>
+              history.replaceState(null, "", `#${heading?.id ?? ""}`);
+            }}
+            key={heading?.id}
+          >
             <Text
               whiteSpace={"nowrap"}
               overflow={"hidden"}

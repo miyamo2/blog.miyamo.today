@@ -11,12 +11,7 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   return (
     <>
-      <Box
-        id={"layout"}
-        bg={["#ffffff", "#0d1117"]}
-        w={"full"}
-        className={"h-fit min-h-screen"}
-      >
+      <Box id={"layout"} bg={["#ffffff", "#0d1117"]} w={"full"} className={"h-fit min-h-screen"}>
         <Flex h={"70px"} bg={["#f6f8fa", "#010409"]} className={"header-wrapper scrollbar-offset"}>
           <Flex className={"w-full justify-center"}>
             <div className={"max-w-[1400px] w-full lg:w-[95vw] mx-4 lg:mx-0"}>

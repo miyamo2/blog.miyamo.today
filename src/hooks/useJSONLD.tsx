@@ -112,4 +112,4 @@ export const useWebSiteJSONLD = (): Record<string, any> => {
       alternateName: "blog miyamo today",
     },
   });
-}
+};
