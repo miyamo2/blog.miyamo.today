@@ -1,4 +1,4 @@
-import { GatsbySSR } from "gatsby";
+import type { GatsbySSR } from "gatsby";
 import React from "react";
 import { wrapPageElementInner } from "./gatsby-shared";
 
