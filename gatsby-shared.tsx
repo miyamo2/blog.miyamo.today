@@ -14,8 +14,12 @@ export const wrapRootElementInner = (element: ReactElement) => {
       {element}
     </>
   );
-}
+};
 
 export const wrapPageElementInner = (element: ReactElement) => {
-  return <UIProvider><Layout>{element}</Layout></UIProvider>;
+  return (
+    <UIProvider>
+      <Layout>{element}</Layout>
+    </UIProvider>
+  );
 };

@@ -4,7 +4,6 @@ import { type GatsbyBrowser } from "gatsby";
 import { wrapPageElementInner, wrapRootElementInner } from "./gatsby-shared";
 import "prism-themes/themes/prism-dracula.css";
 import "./src/styles/global.css";
-import "./src/styles/scroll-driven.css";
 
 const injectColorModeScript = () => {
   const scriptContent = getColorModeScript({

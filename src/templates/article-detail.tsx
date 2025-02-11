@@ -10,13 +10,13 @@ import Giscus from "@giscus/react";
 import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
 import { format } from "@formkit/tempo";
 import { GatsbyImage, getSrc } from "gatsby-plugin-image";
-import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import "./article-detail.css";
 import { ArticleTOCLarge, ArticleTOCModal } from "../features/ArticleDetail/TOC";
 import ShareButtons from "../components/ShareButtons";
 import { ReccomendArticles } from "../features/ArticleDetail/Recommend";
 import { useJSONLD, useWebSiteJSONLD } from "../hooks/useJSONLD";
+import { ScrollDrivenAnimationStyle } from "../components/ScrollDrivenAnimation";
 
 const ArticleDetail = ({
   location,
@@ -240,12 +240,15 @@ export const Head = ({
   });
 
   return (
-    <SEO
-      path={path}
-      title={title}
-      image={imageSrc}
-      description={description}
-      jsonLD={[jsonLDWebSite, jsonLDArticleDetailPage]}
-    />
+    <>
+      <SEO
+        path={path}
+        title={title}
+        image={imageSrc}
+        description={description}
+        jsonLD={[jsonLDWebSite, jsonLDArticleDetailPage]}
+      />
+      <ScrollDrivenAnimationStyle />
+    </>
   );
 };

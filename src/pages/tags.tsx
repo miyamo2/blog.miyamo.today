@@ -3,9 +3,9 @@ import { Grid } from "@yamada-ui/layouts";
 import { Tag } from "@yamada-ui/tag";
 import { Heading } from "@yamada-ui/typography";
 import * as React from "react";
-import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import { useJSONLD, useWebSiteJSONLD } from "../hooks/useJSONLD";
+import { ScrollDrivenAnimationStyle } from "../components/ScrollDrivenAnimation";
 
 const Tags = ({ data }: PageProps<Queries.TagListQueryQuery>) => {
   return (
@@ -72,5 +72,10 @@ export const Head = ({ location, data }: HeadProps<Queries.TagListQueryQuery>) =
       itemListElement: jsonLDTags,
     },
   });
-  return <SEO path={path} title={"Tags"} jsonLD={[jsonLDWebSite, jsonLDTagsPage]} />;
+  return (
+    <>
+      <SEO path={path} title={"Tags"} jsonLD={[jsonLDWebSite, jsonLDTagsPage]} />
+      <ScrollDrivenAnimationStyle />
+    </>
+  );
 };

@@ -5,11 +5,11 @@ import * as React from "react";
 import { ArticleListPageContext } from "../../gatsby-node";
 import { ImageDataLike } from "gatsby-plugin-image/dist/src/components/hooks";
 import Pager from "../components/Pager";
-import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 import ArticleCard from "../features/ArticleList/ArticleCard";
 import { useArticleCardList } from "../hooks/useArticleCardList";
 import { useJSONLD, useWebSiteJSONLD } from "../hooks/useJSONLD";
+import { ScrollDrivenAnimationStyle } from "../components/ScrollDrivenAnimation";
 
 interface Tag {
   id: string;
@@ -123,5 +123,10 @@ export const Head = ({
       itemListElement: jsonLDArticles,
     },
   });
-  return <SEO path={path} title={"Articles"} jsonLD={[jsonLDWebSite, jsonLDArticleListPage]} />;
+  return (
+    <>
+      <SEO path={path} title={"Articles"} jsonLD={[jsonLDWebSite, jsonLDArticleListPage]} />
+      <ScrollDrivenAnimationStyle />
+    </>
+  );
 };

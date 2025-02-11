@@ -5,11 +5,11 @@ import { Heading, Text } from "@yamada-ui/typography";
 import { Link } from "@yamada-ui/link";
 import * as React from "react";
 import { SiGithub, SiZenn, SiQiita, SiSpeakerdeck } from "react-icons/si";
-import Layout from "../components/Layout";
 import Image from "../components/Image";
 import SEO from "../components/SEO";
 import "./about.css";
 import { useJSONLD, useWebSiteJSONLD } from "../hooks/useJSONLD";
+import { ScrollDrivenAnimationStyle } from "../components/ScrollDrivenAnimation";
 
 const About = ({ data }: PageProps<Queries.AboutQueryQuery>) => {
   const allFileConnection = data.allFile;
@@ -147,5 +147,10 @@ export const Head = ({ location }: HeadProps) => {
     withContext: true,
     withID: true,
   });
-  return <SEO path={path} title={"About"} jsonLD={[jsonLDWebSite, jsonLDAboutPage]} />;
+  return (
+    <>
+      <SEO path={path} title={"About"} jsonLD={[jsonLDWebSite, jsonLDAboutPage]} />
+      <ScrollDrivenAnimationStyle />
+    </>
+  );
 };
