@@ -9,20 +9,18 @@ import { useJSONLD, useWebSiteJSONLD } from "../hooks/useJSONLD";
 
 const Tags = ({ data }: PageProps<Queries.TagListQueryQuery>) => {
   return (
-    <Layout>
-      <main>
-        <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
-          Tags
-        </Heading>
-        <Grid templateColumns={"repeat(auto-fill, minmax(10rem, 1fr))"} gap={"sm"}>
-          {data.miyamotoday.tags.edges.map((edge, i) => (
-            <Tag as={Link} to={`/tags/${edge.cursor}`} bg={["#ddf4ff", "#121d2f"]}>
-              #{edge.node.name}({edge.node.articles.totalCount})
-            </Tag>
-          ))}
-        </Grid>
-      </main>
-    </Layout>
+    <main>
+      <Heading className={"text-3xl font-bold"} paddingBottom={"md"}>
+        Tags
+      </Heading>
+      <Grid templateColumns={"repeat(auto-fill, minmax(10rem, 1fr))"} gap={"sm"}>
+        {data.miyamotoday.tags.edges.map((edge, i) => (
+          <Tag as={Link} to={`/tags/${edge.cursor}`} bg={["#ddf4ff", "#121d2f"]}>
+            #{edge.node.name}({edge.node.articles.totalCount})
+          </Tag>
+        ))}
+      </Grid>
+    </main>
   );
 };
 

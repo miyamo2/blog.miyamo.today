@@ -13,7 +13,7 @@ const Pager = (props: PagerProps) => {
     <>
       <Flex justifyContent={"center"} alignItems={"center"}>
         <Pagination
-          page={currentRefinement+1}
+          page={currentRefinement + 1}
           variant="ghost"
           total={nbPages}
           size="lg"

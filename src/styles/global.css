@@ -38,12 +38,83 @@
   src: url(/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2) format("woff2");
 }
 
-:root,
-html,
+@property --scroll {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --scroll-delayed {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --scroll-direction {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --scroll-end {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@keyframes setRootScrollProps {
+  to {
+    --scroll: 1000;
+    --scroll-delayed: 1000;
+  }
+}
+
+:root {
+  overflow-y: auto !important;
+  scroll-behavior: auto !important;
+  animation: setRootScrollProps linear both;
+  animation-timeline: scroll(root);
+  --effect-duration: 0.35s;
+}
+
+body {
+  transition: --scroll-delayed 0.05s;
+  --scroll-velocity: calc(var(--scroll) - var(--scroll-delayed));
+  --scroll-speed: max(var(--scroll-velocity), -1 * var(--scroll-velocity));
+  --scroll-direction: calc(var(--scroll-velocity) / var(--scroll-speed));
+  --scroll-end: calc(var(--scroll) / 1000);
+}
+
+.hidden-when-scroll-down,
+#bmc-wbtn {
+  transition: transform var(--effect-duration) !important;
+  transition-delay: calc(infinity * 1s) !important;
+  transform: translateY(var(--translate)) !important;
+
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+
+  @container style(not (--scroll-direction: 0)) {
+    transition-delay: 0s !important;
+  }
+
+  @container style(--scroll-direction: -1) {
+    --translate: 0;
+  }
+
+  @container style(--scroll-direction: 1) {
+    --translate: calc(64px + 5rem);
+  }
+
+  @container style(--scroll-end: 1) {
+    --translate: 0;
+  }
+}
+
 body,
 #___gatsby,
 #gatsby-focus-wrapper {
-  overflow: hidden !important;
+  overflow: visible !important;
 }
 
 .scrollable-y {
@@ -64,10 +135,6 @@ body,
 
 #footer {
   padding-top: 80px;
-  padding-bottom: 80px;
-  @screen lg {
-    padding-bottom: 1em;
-  }
 }
 
 div:has(> #toc-modal) {
@@ -83,14 +150,6 @@ div:has(> #toc-modal) {
   contain: paint;
 }
 
-.smooth-scroll {
-  scroll-behavior: smooth;
-  scroll-snap-type: y proximity !important;
-}
-
-.scroll-padding {
-  scroll-padding-top: 70px;
-}
 .scrollbar-offset {
   padding-left: calc(100vw - 100%);
 }
@@ -115,8 +174,10 @@ div:has(> #toc-modal) {
   max-width: 100% !important;
 }
 
-#bmc-wbtn {
-  opacity: 0.8;
+@media (max-width: 1199px) {
+  #bmc-wbtn {
+    bottom: 2.5rem !important;
+  }
 }
 
 @media (min-width: 1400px) {
