@@ -8,12 +8,12 @@
     "gatsby"
   ],
   "scripts": {
-    "develop": "gatsby develop",
-    "start": "gatsby serve",
-    "build": "gatsby build --no-color",
+    "develop": "bunx gatsby develop",
+    "start": "bunx gatsby serve",
+    "build": "bunx gatsby build --no-color",
     "deploy": "gatsby-plugin-s3 deploy --yes",
-    "serve": "gatsby serve",
-    "clean": "gatsby clean",
+    "serve": "bunx gatsby serve",
+    "clean": "bunx gatsby clean",
     "typecheck": "tsc --noEmit",
     "graphqlgen": "graphql-codegen generate"
   },
