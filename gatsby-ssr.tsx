@@ -1,6 +1,6 @@
-import type { GatsbySSR } from "gatsby";
+import { GatsbySSR } from "gatsby";
 import React from "react";
-import { wrapPageElementInner } from "./gatsby-shared";
+import { wrapPageElementInner, wrapRootElementInner } from "./gatsby-shared";
 
 export const onRenderBody: GatsbySSR["onRenderBody"] = ({
   setHeadComponents,
@@ -54,6 +54,10 @@ export const onRenderBody: GatsbySSR["onRenderBody"] = ({
       data-y_margin="18"
     />,
   ]);
+};
+
+export const wrapRootElement: GatsbySSR["wrapRootElement"] = ({ element }) => {
+  return wrapRootElementInner(element);
 };
 
 export const wrapPageElement: GatsbySSR["wrapPageElement"] = ({ element }) => {
