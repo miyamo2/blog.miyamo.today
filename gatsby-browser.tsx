@@ -1,11 +1,11 @@
 import "modern-css-reset";
-import * as React from "react";
 import { getColorModeScript } from "@yamada-ui/core";
-import { GatsbyBrowser } from "gatsby";
+import { GatsbyBrowser, Script } from "gatsby";
 import "prism-themes/themes/prism-dracula.css";
-import { wrapRootElement as sharedWrapRootElement } from "./gatsby-shared";
-import Layout from "./src/components/Layout";
 import "./src/styles/global.css";
+import { wrapPageElementInner } from "./gatsby-shared";
+import { UIProvider } from "@yamada-ui/providers";
+import * as React from "react";
 
 const injectColorModeScript = () => {
   const scriptContent = getColorModeScript({
@@ -21,10 +21,20 @@ const injectColorModeScript = () => {
 injectColorModeScript();
 
 export const wrapPageElement: GatsbyBrowser["wrapPageElement"] = ({ element }) => {
-  return <Layout>{element}</Layout>;
+  return wrapPageElementInner(element);
 };
 
-export const wrapRootElement: GatsbyBrowser["wrapRootElement"] = sharedWrapRootElement;
+export const wrapRootElement: GatsbyBrowser["wrapRootElement"] = ({ element }) => {
+  return (
+    <UIProvider>
+      <Script
+        key="flackr.github.io/scroll-timeline"
+        src="https://flackr.github.io/scroll-timeline/dist/scroll-timeline.js"
+      />
+      ,{element}
+    </UIProvider>
+  );
+};
 
 export const onServiceWorkerUpdateFound = () => {
   window.location.reload();

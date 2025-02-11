@@ -1,6 +1,6 @@
-import type { GatsbySSR } from "gatsby";
+import { GatsbySSR } from "gatsby";
 import React from "react";
-import { wrapRootElement as sharedWrapRootElement } from "./gatsby-shared";
+import { wrapPageElementInner } from "./gatsby-shared";
 
 export const onRenderBody: GatsbySSR["onRenderBody"] = ({
   setHeadComponents,
@@ -56,4 +56,6 @@ export const onRenderBody: GatsbySSR["onRenderBody"] = ({
   ]);
 };
 
-export const wrapRootElement: GatsbySSR["wrapRootElement"] = sharedWrapRootElement;
+export const wrapPageElement: GatsbySSR["wrapPageElement"] = ({ element }) => {
+  return wrapPageElementInner(element);
+};
