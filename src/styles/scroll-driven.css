@@ -30,8 +30,8 @@
 }
 
 :root {
-    animation: setRootScrollProps linear both;
-    animation-timeline: scroll(root);
+    animation: setRootScrollProps linear both !important;
+    animation-timeline: scroll(root) !important;
     --effect-duration: 0.35s;
 }
 

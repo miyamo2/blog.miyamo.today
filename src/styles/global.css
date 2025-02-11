@@ -38,6 +38,11 @@
   src: url(/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2) format("woff2");
 }
 
+:root {
+  overflow-y: auto !important;
+  scroll-behavior: auto !important;
+}
+
 body,
 #___gatsby,
 #gatsby-focus-wrapper {
