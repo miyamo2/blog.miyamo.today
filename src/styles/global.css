@@ -74,24 +74,25 @@
   scroll-behavior: auto !important;
   animation: setRootScrollProps linear both;
   animation-timeline: scroll(root);
-  --effect-duration: .35s;
+  --effect-duration: 0.35s;
 }
 
 body {
-  transition: --scroll-delayed .05s;
+  transition: --scroll-delayed 0.05s;
   --scroll-velocity: calc(var(--scroll) - var(--scroll-delayed));
   --scroll-speed: max(var(--scroll-velocity), -1 * var(--scroll-velocity));
   --scroll-direction: calc(var(--scroll-velocity) / var(--scroll-speed));
   --scroll-end: calc(var(--scroll) / 1000);
 }
 
-.hidden-when-scroll-down, #bmc-wbtn {
+.hidden-when-scroll-down,
+#bmc-wbtn {
   transition: transform var(--effect-duration) !important;
   transition-delay: calc(infinity * 1s) !important;
   transform: translateY(var(--translate)) !important;
 
-  -webkit-backface-visibility:hidden;
-  backface-visibility:hidden;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 
   @container style(not (--scroll-direction: 0)) {
     transition-delay: 0s !important;

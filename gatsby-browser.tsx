@@ -1,9 +1,10 @@
 import "modern-css-reset";
 import * as React from "react";
 import { getColorModeScript } from "@yamada-ui/core";
-import { UIProvider } from "@yamada-ui/providers";
 import { GatsbyBrowser } from "gatsby";
 import "prism-themes/themes/prism-dracula.css";
+import { wrapRootElement as sharedWrapRootElement } from "./gatsby-shared";
+import Layout from "./src/components/Layout";
 import "./src/styles/global.css";
 
 const injectColorModeScript = () => {
@@ -20,8 +21,10 @@ const injectColorModeScript = () => {
 injectColorModeScript();
 
 export const wrapPageElement: GatsbyBrowser["wrapPageElement"] = ({ element }) => {
-  return <UIProvider>{element}</UIProvider>;
+  return <Layout>{element}</Layout>;
 };
+
+export const wrapRootElement: GatsbyBrowser["wrapRootElement"] = sharedWrapRootElement;
 
 export const onServiceWorkerUpdateFound = () => {
   window.location.reload();
