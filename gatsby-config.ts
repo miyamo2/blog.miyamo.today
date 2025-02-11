@@ -304,7 +304,7 @@ const config: GatsbyConfig = {
     {
       resolve: "gatsby-plugin-anchor-links",
       options: {
-        offset: -100,
+        offset: -70,
       },
     },
     `gatsby-plugin-sitemap`,

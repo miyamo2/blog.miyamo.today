@@ -24,7 +24,7 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
 
   return (
     <>
-      <div className={"toc-modal-button-wrapper lg:hidden"}>
+      <div className={"toc-modal-button-wrapper lg:hidden hidden-when-scroll-down"}>
         <Button
           onClick={() => {
             onOpen();

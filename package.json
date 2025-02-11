@@ -30,7 +30,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@giscus/react": "^3.1.0",
     "@graphql-codegen/typescript-graphql-request": "^6.2.0",
-    "@miyamo2/gatsby-source-blogapi-miyamo-today": "^0.1.5",
+    "@miyamo2/gatsby-source-blogapi-miyamo-today": "^0.1.6",
     "@okaryo/gatsby-remark-link-card": "^1.0.4",
     "@types/react-instantsearch-core": "^6.26.10",
     "@types/react-scroll": "^1.8.10",

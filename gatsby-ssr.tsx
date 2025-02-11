@@ -41,6 +41,9 @@ export const onRenderBody: GatsbySSR["onRenderBody"] = ({
   ]);
   setPostBodyComponents([
     <script
+      key="flackr.github.io/scroll-timeline"
+      src="https://flackr.github.io/scroll-timeline/dist/scroll-timeline.js" />,
+    <script
       key="bmcWidget"
       data-name="BMC-Widget"
       src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
