@@ -30,13 +30,15 @@
 }
 
 :root {
-    animation: setRootScrollProps linear both !important;
+    animation-name: setRootScrollProps !important;
+    animation-easing-function: linear !important;
+    animation-fill-mode: both !important;
     animation-timeline: scroll(root) !important;
-    --effect-duration: 0.35s;
+    --effect-duration: .5s;
 }
 
 body {
-    transition: --scroll-delayed 0.05s;
+    transition: --scroll-delayed calc(var(--effect-duration) + .01s) !important;
     --scroll-velocity: calc(var(--scroll) - var(--scroll-delayed));
     --scroll-speed: max(var(--scroll-velocity), -1 * var(--scroll-velocity));
     --scroll-direction: calc(var(--scroll-velocity) / var(--scroll-speed));
@@ -45,15 +47,22 @@ body {
 
 .hidden-when-scroll-down,
 #bmc-wbtn {
+    --transition-delay: calc(infinity * 1s);
+    --translate: 0;
+
     transition: transform var(--effect-duration) !important;
-    transition-delay: calc(infinity * 1s) !important;
+    transition-delay: var(--transition-delay) !important;
     transform: translateY(var(--translate)) !important;
 
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+
+    @container style(--scroll-direction: 0) {
+        --transition-delay: calc(infinity * 1s);
+    }
 
     @container style(not (--scroll-direction: 0)) {
-        transition-delay: 0s !important;
+        --transition-delay: 0s;
     }
 
     @container style(--scroll-direction: -1) {
@@ -61,7 +70,7 @@ body {
     }
 
     @container style(--scroll-direction: 1) {
-        --translate: calc(64px + 5rem);
+        --translate: 101vh;
     }
 
     @container style(--scroll-end: 1) {
