@@ -1,11 +1,11 @@
 import "modern-css-reset";
 import { getColorModeScript } from "@yamada-ui/core";
-import { GatsbyBrowser, Script } from "gatsby";
-import "prism-themes/themes/prism-dracula.css";
-import "./src/styles/global.css";
+import { type GatsbyBrowser, Script } from "gatsby";
 import { wrapPageElementInner } from "./gatsby-shared";
 import { UIProvider } from "@yamada-ui/providers";
 import * as React from "react";
+import "prism-themes/themes/prism-dracula.css";
+import "./src/styles/global.css";
 
 const injectColorModeScript = () => {
   const scriptContent = getColorModeScript({
