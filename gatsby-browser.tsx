@@ -31,7 +31,7 @@ export const wrapRootElement: GatsbyBrowser["wrapRootElement"] = ({ element }) =
         key="flackr.github.io/scroll-timeline"
         src="https://flackr.github.io/scroll-timeline/dist/scroll-timeline.js"
       />
-      ,{element}
+      {element}
     </UIProvider>
   );
 };
