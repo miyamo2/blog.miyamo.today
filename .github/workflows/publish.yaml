@@ -25,10 +25,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2.0.1
         with:
           bun-version: latest
 
@@ -38,7 +38,7 @@ jobs:
         run: bun install
 
       - name: Set up aws cli
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722 # v4.1.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -54,7 +54,7 @@ jobs:
 
       - name: Restore Gatsby cache
         id: cache-primes-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         if: ${{ github.event.action ==  'sync-read-model' }}
         with:
           path: |
@@ -81,7 +81,7 @@ jobs:
         run: bun run build
 
       - name: Save Gatsby cache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: |
             ./.cache
