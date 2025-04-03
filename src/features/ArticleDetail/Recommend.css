@@ -1,27 +1,40 @@
 .recommend-card {
-  .recommend-card_title {
-    font-weight: bold !important;
-    height: fit-content !important;
-    white-space: nowrap !important;
-    @screen lg {
-      white-space: unset !important;
+  .recommend-card_body_wrapper {
+    margin: 0.5rem;
+    flex-shrink: 0 !important;
+    width: 60% !important;
+    .recommend-card_body {
+      justify-content: space-between !important;
+      @screen lg {
+        justify-content: unset !important;
+      }
+      .recommend-card_title {
+        font-weight: bold !important;
+        height: fit-content !important;
+        white-space: nowrap !important;
+        @screen lg {
+          white-space: unset !important;
+        }
+      }
+      .recommend-card_description {
+        color: #77838c !important;
+        -webkit-line-clamp: 1;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+      }
+      .recommend-card_created {
+        flex-grow: 1 !important;
+        @screen lg {
+          display: none !important;
+        }
+      }
+      * {
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
     }
   }
-  .recommend-card_description {
-    color: #77838c !important;
-    height: fit-content !important;
-    white-space: nowrap !important;
-    p {
-      display: inline-block !important;
-    }
-  }
-  .recommend-card_created {
-    flex-grow: 1 !important;
-  }
-  * {
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
-  height: 128px !important;
+  height: 135px !important;
   isolation: isolate !important;
 }
