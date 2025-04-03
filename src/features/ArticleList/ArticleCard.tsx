@@ -30,6 +30,7 @@ const ArticleCard = (props: ArticleCardProps) => {
       <GatsbyImage
         image={props.imageData}
         alt={`ArticleImage:${props.id}`}
+        objectPosition={"center"}
         objectFit={"cover"}
         className={"transform-scaleup-then-hover-img-container"}
       />

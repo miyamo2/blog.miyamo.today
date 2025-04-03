@@ -22,7 +22,7 @@ const Image = ({ allFileConnectrion, alt, objectFit, className }: ImageProps) =>
   }
   const image = node.childImageSharp ? getImage(node.childImageSharp) : undefined;
   return image ? (
-    <GatsbyImage image={image} alt={alt ?? ""} objectFit={objectFit} className={className} />
+    <GatsbyImage image={image} alt={alt ?? ""} objectPosition={"center"} objectFit={objectFit} className={className} />
   ) : (
     <></>
   );
