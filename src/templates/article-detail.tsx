@@ -187,7 +187,7 @@ export const query = graphql`
           }
           thumbnail {
             childImageSharp {
-              gatsbyImageData(width: 133, height: 128, placeholder: BLURRED, quality: 100)
+              gatsbyImageData(width: 840, height: 420, placeholder: BLURRED, quality: 100)
             }
           }
         }

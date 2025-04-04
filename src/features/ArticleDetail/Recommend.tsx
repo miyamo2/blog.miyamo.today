@@ -1,7 +1,7 @@
 import React from "react";
-import { Box, VStack, Flex } from "@yamada-ui/layouts";
+import { Box, Grid, GridItem } from "@yamada-ui/layouts";
 import { Link } from "gatsby";
-import { Heading } from "@yamada-ui/typography";
+import { Heading, Text } from "@yamada-ui/typography";
 import { GatsbyImage, IGatsbyImageData } from "gatsby-plugin-image";
 import { faThumbsUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
@@ -76,7 +76,7 @@ const Recommend = (props: RecommendArticleCardProps) => {
         alt={`ArticleImage:${props.id}`}
         objectPosition={"center"}
         objectFit={"cover"}
-        className={"transform-scaleup-then-hover-img-container"}
+        className={"transform-scaleup-then-hover-img-container h-full"}
       />
     ) : (
       <></>
@@ -87,27 +87,28 @@ const Recommend = (props: RecommendArticleCardProps) => {
 
   return (
     <Link to={`/articles/${props.id}`}>
-      <Flex
+      <Grid
         className={"recommend-card"}
-        h={"128px"}
         bg={["", "#121820"]}
         marginBottom={"sm"}
         rounded={"lg"}
         boxShadow={"md"}
       >
-        <Flex overflow={"hidden"} textOverflow={"ellipsis"} className={"recommend-card_body_wrapper"}>
-          <VStack gap="0" className={"recommend-card_body"}>
-            <Heading as={"h3"} size="sm" className={"recommend-card_title"}>
-              {props.title}
-            </Heading>
-            <Box className={"recommend-card_description"} color={"muted"}>{props.excerpt}</Box>
-            <Flex className={"recommend-card_created"} justifyContent={"end"} direction={"column"}>
-              <p><FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />{createdAt}</p>
-            </Flex>
-          </VStack>
-        </Flex>
-        {gatsbyImage}
-      </Flex>
+        <GridItem gridArea={"image"} className={"recommend-card_thumbnail"}>
+          {gatsbyImage}
+        </GridItem>
+        <GridItem gridArea={"title"} className={"recommend-card_title"}>
+          <Heading as={"h3"} size={"sm"}>
+            {props.title}
+          </Heading>
+        </GridItem>
+        <GridItem gridArea={"desc"} className={"recommend-card_description"}>
+          <Text className={"text-xs"}>{props.excerpt}</Text>
+        </GridItem>
+        <GridItem gridArea={"date"} className={"recommend-card_created flex"}>
+          <Text className={"recommend-card_created_inner"}><FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />{createdAt}</Text>
+        </GridItem>
+      </Grid>
     </Link>
   );
 };
