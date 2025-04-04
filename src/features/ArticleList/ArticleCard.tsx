@@ -1,5 +1,5 @@
 import { Link } from "gatsby";
-import { GatsbyImage, getImage, IGatsbyImageData } from "gatsby-plugin-image";
+import { GatsbyImage, IGatsbyImageData } from "gatsby-plugin-image";
 import { format } from "@formkit/tempo";
 import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
@@ -32,7 +32,7 @@ const ArticleCard = (props: ArticleCardProps) => {
         alt={`ArticleImage:${props.id}`}
         objectPosition={"center"}
         objectFit={"cover"}
-        className={"transform-scaleup-then-hover-img-container"}
+        className={"transform-scaleup-then-hover-img-container h-full w-full"}
       />
     ) : (
       <></>
@@ -57,7 +57,7 @@ const ArticleCard = (props: ArticleCardProps) => {
       overflow={"hidden"}
       zIndex={"1"}
     >
-      <GridItem className={"transform-scaleup-then-hover-img-wrapper"}>{gatsbyImage}</GridItem>
+      <GridItem className={"transform-scaleup-then-hover-img-wrapper article-card-thumbnail"}>{gatsbyImage}</GridItem>
       <GridItem>
         {props.tags.map((tag) => (
           <Tag

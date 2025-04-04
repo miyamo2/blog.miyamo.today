@@ -2,3 +2,7 @@
   isolation: isolate !important;
   z-index: 1 !important;
 }
+
+.article-card-thumbnail {
+  height: 220px !important;
+}
