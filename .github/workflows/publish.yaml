@@ -16,7 +16,8 @@ permissions: write-all
 
 jobs:
   publish:
-    runs-on: ubuntu-24.04-arm
+    runs-on:
+      - codebuild-blog-miyamo-today-${{ github.run_id }}-${{ github.run_attempt }}
     services:
       qdrant:
         image: qdrant/qdrant:latest
