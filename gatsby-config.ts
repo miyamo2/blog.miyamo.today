@@ -403,7 +403,7 @@ const config: GatsbyConfig = {
           embeddingModel: "text-embedding-3-large",
           embeddingSize: 3072,
         },
-        limit: 2,
+        limit: 4,
         toPayload: (node: MarkdownRemarkForReccomendPayload) => {
           return JSON.stringify({
             title: node.frontmatter?.title ?? "",
@@ -414,7 +414,7 @@ const config: GatsbyConfig = {
           });
         },
       },
-    },
+    }
   ],
 };
 
