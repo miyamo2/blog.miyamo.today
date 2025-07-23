@@ -416,6 +416,19 @@ const config: GatsbyConfig = {
       },
     },
     `gatsby-plugin-remove-serviceworker`,
+    {
+      resolve: 'gatsby-plugin-preconnect',
+      options: {
+        domains: [
+          'https://flackr.github.io',
+          'https://cdn.buymeacoffee.com',
+          'https://www.reddit.com',
+          'https://www.googletagmanager.com',
+          'https://opengraph.githubassets.com',
+          'https://t3.gstatic.com',
+        ],
+      },
+    },
   ],
 };
 
