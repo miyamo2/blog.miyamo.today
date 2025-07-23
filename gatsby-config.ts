@@ -124,19 +124,19 @@ const config: GatsbyConfig = {
         icon: `static/pwa_logo.png`,
       },
     },
-    {
-      resolve: "gatsby-plugin-offline",
-      options: {
-        workboxConfig: {
-          runtimeCaching: [
-            {
-              urlPattern: /^https?:.*\/page-data\/.*\.json/,
-              handler: "NetworkFirst",
-            },
-          ],
-        },
-      },
-    },
+    // {
+    //   resolve: "gatsby-plugin-offline",
+    //   options: {
+    //     workboxConfig: {
+    //       runtimeCaching: [
+    //         {
+    //           urlPattern: /^https?:.*\/page-data\/.*\.json/,
+    //           handler: "NetworkFirst",
+    //         },
+    //       ],
+    //     },
+    //   },
+    // },
     `gatsby-plugin-lodash`,
     `gatsby-plugin-fix-fouc`,
     {
@@ -296,7 +296,7 @@ const config: GatsbyConfig = {
           },
           "/fonts/**": {
             ContentType: "font/woff2",
-            CacheControl: "public, max-age=0, must-revalidate",
+            CacheControl: "public, max-age=31536000, immutable",
           },
         },
       },
@@ -414,7 +414,8 @@ const config: GatsbyConfig = {
           });
         },
       },
-    }
+    },
+    `gatsby-plugin-remove-serviceworker`,
   ],
 };
 
