@@ -49,7 +49,7 @@ const createGitHubAvatarNode = async (
     requestHeaders
   );
   if (!data || !data.user) {
-    throw new Error("failed to get articles");
+    throw new Error("failed to get github avatar");
   }
 
   const avatarUrl = data.user.avatarUrl;
