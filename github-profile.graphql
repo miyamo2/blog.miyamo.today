@@ -1,0 +1,13 @@
+query GitHubProfile($loginId: String!) {
+  user(login: $loginId) {
+    login
+    avatarUrl
+    url
+    bio
+    socialAccounts(first: 10) {
+      nodes {
+        url
+      }
+    }
+  }
+}

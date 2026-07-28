@@ -16,12 +16,15 @@
     "serve": "bunx astro preview",
     "clean": "rm -rf dist .cache",
     "typecheck": "bunx astro sync && tsc --noEmit",
-    "check": "bunx astro check"
+    "check": "bunx astro check",
+    "graphqlgen": "graphql-codegen generate"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/react": "^4.2.4",
     "@astrojs/sitemap": "^3.3.0",
+    "@graphql-codegen/cli": "^5.0.5",
+    "@graphql-codegen/typescript-graphql-request": "^6.2.0",
     "@okaryo/gatsby-remark-link-card": "^1.0.6",
     "@types/bun": "^1.2.8",
     "@types/react": "^18.3.20",

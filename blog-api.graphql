@@ -1,0 +1,42 @@
+query GetAllArticles {
+  articles(last: 2147483647) {
+    edges {
+      cursor
+      node {
+        id
+        title
+        thumbnailUrl
+        content
+        createdAt
+        updatedAt
+        tags {
+          edges {
+            cursor
+            node {
+              name
+            }
+          }
+        }
+      }
+    }
+    totalCount
+  }
+}
+
+query GetAllTags {
+  tags {
+    edges {
+      cursor
+      node {
+        id
+        name
+        articles {
+          edges {
+            cursor
+          }
+          totalCount
+        }
+      }
+    }
+  }
+}
