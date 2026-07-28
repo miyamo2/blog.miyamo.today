@@ -1,0 +1,48 @@
+---
+import Layout from "../layouts/Layout.astro";
+import App from "../views/App";
+import { getContent } from "../lib/content";
+import { buildJSONLD, buildWebSiteJSONLD } from "../lib/jsonld";
+import { PER_PAGE } from "../lib/site";
+
+const { listPages } = await getContent();
+const data = listPages.at(0) ?? {
+  currentPage: 1,
+  perPage: PER_PAGE,
+  totalItems: 0,
+  cards: [],
+};
+
+const path = "/";
+const page = path.split("/").at(-1);
+
+const jsonLDWebSite = buildWebSiteJSONLD();
+const jsonLDArticles = data.cards.map((card, i) =>
+  buildJSONLD({
+    type: "ListItem",
+    path: `articles/${card.id}/`,
+    withUrl: true,
+    attributes: {
+      position: i + 1,
+    },
+  })
+);
+const jsonLDArticleListPage = buildJSONLD({
+  type: "ItemList",
+  headline: "Articles",
+  path: path,
+  description: page ? `記事一覧(page ${page})` : "記事一覧",
+  withUrl: true,
+  withAuthor: true,
+  withLogo: true,
+  withContext: true,
+  withID: true,
+  attributes: {
+    itemListElement: jsonLDArticles,
+  },
+});
+---
+
+<Layout head={{ path, title: "Articles", jsonLD: [jsonLDWebSite, jsonLDArticleListPage] }}>
+  <App client:load page="article-list" data={data} />
+</Layout>

@@ -1,0 +1,5 @@
+# gatsby-remark-* plugins are reused standalone in the unified pipeline (src/lib/markdown.ts).
+# Installing their peer dependency (gatsby) would pull in the whole Gatsby runtime, so skip
+# auto-installing peers.
+[install]
+peer = false

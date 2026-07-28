@@ -1,18 +1,22 @@
 import { Flex } from "@yamada-ui/layouts";
 import { Pagination } from "@yamada-ui/pagination";
 import React from "react";
-import { navigate } from "gatsby";
+import { navigate } from "../lib/navigate";
 
 interface PagerProps {
   currentPage: number;
   totalItems: number;
   perPage: number;
-  pagePrefix: string;
+  /** base path of the paginated list; "" for the article list, `/tags/${tagId}` for tagged lists */
+  basePath?: string;
+  /** path segment inserted before the page number (e.g. "pages" -> /pages/2). omit for /tags/${tagId}/2 style */
+  pagePrefix?: string;
 }
 
 const Pager = (props: PagerProps) => {
   const currentPage = props.currentPage;
   const totalPages = Math.ceil(props.totalItems / props.perPage);
+  const basePath = props.basePath ?? "";
   return (
     <>
       <Flex justifyContent={"center"} alignItems={"center"}>
@@ -23,7 +27,13 @@ const Pager = (props: PagerProps) => {
           size="lg"
           withEdges
           onChange={(v) => {
-            navigate(`${props.pagePrefix}/${v}`);
+            if (v === 1) {
+              navigate(basePath === "" ? "/" : basePath);
+              return;
+            }
+            navigate(
+              props.pagePrefix ? `${basePath}/${props.pagePrefix}/${v}` : `${basePath}/${v}`
+            );
           }}
         />
       </Flex>

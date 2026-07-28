@@ -7,7 +7,7 @@ import { Modal, ModalBody, ModalHeader } from "@yamada-ui/modal";
 import { Heading } from "@yamada-ui/typography";
 import { VStack } from "@yamada-ui/layouts";
 import * as React from "react";
-import { Link } from "gatsby";
+import Link from "./Link";
 
 export const MenuModal = () => {
   const { open, onOpen, onClose } = useDisclosure();

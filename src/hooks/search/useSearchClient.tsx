@@ -4,8 +4,8 @@ import { MultipleQueriesQuery, MultipleQueriesResponse } from "@algolia/client-s
 
 export const UseSearchClient = (): SearchClient => {
   const algoliaClient = algoliasearch(
-    process.env.GATSBY_ALGOLIA_APP_ID ?? "",
-    process.env.GATSBY_ALGOLIA_SEARCH_KEY ?? ""
+    import.meta.env.PUBLIC_ALGOLIA_APP_ID ?? "",
+    import.meta.env.PUBLIC_ALGOLIA_SEARCH_KEY ?? ""
   );
   return {
     ...algoliaClient,

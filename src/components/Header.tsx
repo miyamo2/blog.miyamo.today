@@ -1,7 +1,6 @@
-import { Link } from "gatsby";
+import Link from "./Link";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faHome, faTags, faAddressCard, faRss } from "@fortawesome/free-solid-svg-icons";
-import { StaticImage } from "gatsby-plugin-image";
 import { Grid, GridItem, HStack } from "@yamada-ui/layouts";
 import { useColorMode } from "@yamada-ui/core";
 import { Button } from "@yamada-ui/button";
@@ -24,11 +23,12 @@ const Header = (prop: HeaderProp) => {
         className={`${colorMode === "dark" ? "invert" : ""}`}
       >
         <Link to="/" className={"btn btn-ghost no-animation whitespace-nowrap"}>
-          <StaticImage
-            src={"../../static/logo.png"}
+          <img
+            src={"/logo.png"}
             alt={"logo"}
-            style={{ width: "65px", height: "65px" }}
-            objectFit={"cover"}
+            width={65}
+            height={65}
+            style={{ width: "65px", height: "65px", objectFit: "cover" }}
           />
         </Link>
       </GridItem>

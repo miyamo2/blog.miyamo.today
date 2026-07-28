@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import App from "../views/App";
+---
+
+<Layout head={{ scrollDriven: false }}>
+  <App client:load page="not-found" />
+</Layout>

@@ -1,3 +1,9 @@
+/*
+ * Scroll-driven animation properties.
+ * Inlined into <head> as a <style> tag (see BaseHead.astro) instead of being
+ * bundled, since it must be loadable from the scroll-driven-animation's polyfill.
+ * (previously src/components/ScrollDrivenAnimation.tsx)
+ */
 @property --scroll {
   syntax: "<number>";
   inherits: true;
@@ -50,6 +56,7 @@ body {
   --transition-delay: calc(infinity * 1s);
   --translate: 0;
 
+  will-change: transform !important;
   transition: transform var(--effect-duration) !important;
   transition-delay: var(--transition-delay) !important;
   transform: translateY(var(--translate)) !important;

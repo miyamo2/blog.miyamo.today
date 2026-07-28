@@ -1,8 +1,9 @@
 import React from "react";
 import { Box, Grid, GridItem } from "@yamada-ui/layouts";
-import { Link } from "gatsby";
+import Link from "../../components/Link";
 import { Heading, Text } from "@yamada-ui/typography";
-import { GatsbyImage, IGatsbyImageData } from "gatsby-plugin-image";
+import RemoteImage from "../../components/RemoteImage";
+import type { RemoteImageData } from "../../lib/images";
 import { faThumbsUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
@@ -11,22 +12,12 @@ import "./Recommend.css";
 
 interface RecommendArticleProps {
   reccomends?: ReadonlyArray<{
-    readonly frontmatter: {
-      readonly id: string | null;
-      readonly title: string | null;
-      readonly createdAt: string | null;
-      readonly updatedAt: string | null;
-      readonly tags: ReadonlyArray<{
-        readonly id: string | null;
-        readonly name: string | null;
-      } | null> | null;
-    } | null;
-    readonly excerpt: string | null;
-    readonly thumbnail: {
-      readonly childImageSharp: {
-        readonly gatsbyImageData: IGatsbyImageData;
-      } | null;
-    } | null;
+    readonly id: string;
+    readonly title: string;
+    readonly excerpt: string;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+    readonly imageData: RemoteImageData | null;
   } | null> | null;
 }
 
@@ -48,11 +39,11 @@ export const ReccomendArticles = (props: RecommendArticleProps) => {
       {props?.reccomends?.map((recommend) => {
         return (
           <Recommend
-            id={recommend?.frontmatter?.id ?? ""}
-            title={recommend?.frontmatter?.title ?? ""}
+            id={recommend?.id ?? ""}
+            title={recommend?.title ?? ""}
             excerpt={recommend?.excerpt ?? ""}
-            createdAt={recommend?.frontmatter?.createdAt ?? "1970-01-01"}
-            gatsbyImageData={recommend?.thumbnail?.childImageSharp?.gatsbyImageData}
+            createdAt={recommend?.createdAt ?? "1970-01-01"}
+            imageData={recommend?.imageData ?? undefined}
           />
         );
       })}
@@ -65,14 +56,14 @@ interface RecommendArticleCardProps {
   title: string;
   excerpt: string;
   createdAt: string;
-  readonly gatsbyImageData?: IGatsbyImageData;
+  readonly imageData?: RemoteImageData;
 }
 
 const Recommend = (props: RecommendArticleCardProps) => {
-  const gatsbyImage = (() => {
-    return props.gatsbyImageData ? (
-      <GatsbyImage
-        image={props.gatsbyImageData}
+  const cardImage = (() => {
+    return props.imageData ? (
+      <RemoteImage
+        image={props.imageData}
         alt={`ArticleImage:${props.id}`}
         objectPosition={"center"}
         objectFit={"cover"}
@@ -95,7 +86,7 @@ const Recommend = (props: RecommendArticleCardProps) => {
         boxShadow={"md"}
       >
         <GridItem gridArea={"image"} className={"recommend-card_thumbnail"}>
-          {gatsbyImage}
+          {cardImage}
         </GridItem>
         <GridItem gridArea={"title"} className={"recommend-card_title"}>
           <Heading as={"h3"} size={"sm"}>
@@ -106,7 +97,10 @@ const Recommend = (props: RecommendArticleCardProps) => {
           <Text className={"text-xs"}>{props.excerpt}</Text>
         </GridItem>
         <GridItem gridArea={"date"} className={"recommend-card_created flex"}>
-          <Text className={"recommend-card_created_inner"}><FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />{createdAt}</Text>
+          <Text className={"recommend-card_created_inner"}>
+            <FontAwesomeIcon icon={faCalendarDay} paddingRight={"sm"} />
+            {createdAt}
+          </Text>
         </GridItem>
       </Grid>
     </Link>

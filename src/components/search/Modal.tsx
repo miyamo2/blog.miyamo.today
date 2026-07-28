@@ -35,7 +35,7 @@ const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
       <ModalOverlay backdropFilter="blur(10px)" />
       <InstantSearch
         searchClient={searchClient}
-        indexName={process.env.GATSBY_ALGOLIA_INDEX_NAME ?? ""}
+        indexName={import.meta.env.PUBLIC_ALGOLIA_INDEX_NAME ?? ""}
       >
         <Configure hitsPerPage={5} />
         <HStack>

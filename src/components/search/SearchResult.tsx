@@ -16,7 +16,7 @@ import { Heading, Text } from "@yamada-ui/typography";
 import { Image } from "@yamada-ui/image";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faTags } from "@fortawesome/free-solid-svg-icons";
-import { navigate } from "gatsby";
+import { navigate } from "../../lib/navigate";
 import "./Search.css";
 import Pager from "./Pager";
 

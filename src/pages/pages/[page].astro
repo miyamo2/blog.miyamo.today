@@ -1,0 +1,61 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Redirect from "../../components/Redirect.astro";
+import App from "../../views/App";
+import { getContent, type ArticleListPageVM } from "../../lib/content";
+import { buildJSONLD, buildWebSiteJSONLD } from "../../lib/jsonld";
+
+export async function getStaticPaths() {
+  const { listPages } = await getContent();
+  return listPages.map((listPage) => ({
+    params: { page: `${listPage.currentPage}` },
+    props: { data: listPage },
+  }));
+}
+
+interface Props {
+  data: ArticleListPageVM;
+}
+
+const { data } = Astro.props;
+
+const path = `/pages/${data.currentPage}`;
+const page = path.split("/").at(-1);
+
+const jsonLDWebSite = buildWebSiteJSONLD();
+const jsonLDArticles = data.cards.map((card, i) =>
+  buildJSONLD({
+    type: "ListItem",
+    path: `articles/${card.id}/`,
+    withUrl: true,
+    attributes: {
+      position: i + 1,
+    },
+  })
+);
+const jsonLDArticleListPage = buildJSONLD({
+  type: "ItemList",
+  headline: "Articles",
+  path: path,
+  description: page ? `記事一覧(page ${page})` : "記事一覧",
+  withUrl: true,
+  withAuthor: true,
+  withLogo: true,
+  withContext: true,
+  withID: true,
+  attributes: {
+    itemListElement: jsonLDArticles,
+  },
+});
+---
+
+{/* /pages/1 was a permanent redirect to / in the Gatsby build (createRedirect) */}
+{
+  data.currentPage === 1 ? (
+    <Redirect to="/" />
+  ) : (
+    <Layout head={{ path, title: "Articles", jsonLD: [jsonLDWebSite, jsonLDArticleListPage] }}>
+      <App client:load page="article-list" data={data} />
+    </Layout>
+  )
+}

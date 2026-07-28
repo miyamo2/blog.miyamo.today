@@ -1,3 +1,0 @@
-[submodule ".graphql/blogapi.miyamo.today"]
-	path = .graphql/blogapi.miyamo.today
-	url = https://github.com/miyamo2/schema.miyamo.today

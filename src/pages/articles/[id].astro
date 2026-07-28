@@ -1,0 +1,56 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import App from "../../views/App";
+import { getContent, type ArticleDetailVM } from "../../lib/content";
+import { buildJSONLD, buildWebSiteJSONLD } from "../../lib/jsonld";
+import { siteMetadata } from "../../lib/site";
+
+export async function getStaticPaths() {
+  const { details } = await getContent();
+  return details.map((detail) => ({
+    params: { id: detail.id },
+    props: { data: detail },
+  }));
+}
+
+interface Props {
+  data: ArticleDetailVM;
+}
+
+const { data } = Astro.props;
+
+const path = `/articles/${data.id}`;
+const url = `${siteMetadata.siteUrl}${path}`;
+
+const jsonLDWebSite = buildWebSiteJSONLD();
+const jsonLDArticleDetailPage = buildJSONLD({
+  type: "BlogPosting",
+  headline: data.title ?? "",
+  path: path,
+  description: data.excerpt ?? "",
+  image: data.imageSrc,
+  withMainEntityOfPage: true,
+  withAuthor: true,
+  withLogo: true,
+  withContext: true,
+  withID: true,
+  attributes: {
+    datePublished: data.createdAt,
+    dateModified: data.updatedAt,
+    articleBody: data.excerpt,
+    keywords: data.tags.map((tag) => tag.name).join(" "),
+  },
+});
+---
+
+<Layout
+  head={{
+    path,
+    title: data.title,
+    description: data.excerpt,
+    image: data.imageSrc,
+    jsonLD: [jsonLDWebSite, jsonLDArticleDetailPage],
+  }}
+>
+  <App client:load page="article-detail" data={data} url={url} />
+</Layout>

@@ -3,7 +3,6 @@ import { Heading, Text } from "@yamada-ui/typography";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faListUl } from "@fortawesome/free-solid-svg-icons";
 import * as React from "react";
-import { AnchorLink } from "gatsby-plugin-anchor-links";
 import { useDisclosure } from "@yamada-ui/use-disclosure";
 import { Button } from "@yamada-ui/button";
 import { Modal, ModalBody, ModalHeader } from "@yamada-ui/modal";

@@ -1,5 +1,6 @@
-import { Link } from "gatsby";
-import { GatsbyImage, IGatsbyImageData } from "gatsby-plugin-image";
+import Link from "../../components/Link";
+import RemoteImage from "../../components/RemoteImage";
+import type { RemoteImageData } from "../../lib/images";
 import { format } from "@formkit/tempo";
 import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
@@ -20,14 +21,14 @@ interface ArticleCardProps {
   createdAt: string;
   updatedAt: string;
   tags: Tag[];
-  imageData: IGatsbyImageData | null;
+  imageData: RemoteImageData | null;
   articleExcerpt?: string;
 }
 
 const ArticleCard = (props: ArticleCardProps) => {
-  const gatsbyImage = (() => {
+  const cardImage = (() => {
     return props.imageData ? (
-      <GatsbyImage
+      <RemoteImage
         image={props.imageData}
         alt={`ArticleImage:${props.id}`}
         objectPosition={"center"}
@@ -57,7 +58,9 @@ const ArticleCard = (props: ArticleCardProps) => {
       overflow={"hidden"}
       zIndex={"1"}
     >
-      <GridItem className={"transform-scaleup-then-hover-img-wrapper article-card-thumbnail"}>{gatsbyImage}</GridItem>
+      <GridItem className={"transform-scaleup-then-hover-img-wrapper article-card-thumbnail"}>
+        {cardImage}
+      </GridItem>
       <GridItem>
         {props.tags.map((tag) => (
           <Tag

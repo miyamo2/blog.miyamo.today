@@ -1,9 +1,10 @@
 **/node_modules/
 .cache/
-public
-src/gatsby-types.d.ts
+dist/
+.astro/
 .idea/
 .env.*
+!.env.example
 
 # Logs
 logs

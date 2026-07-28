@@ -1,0 +1,56 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import App from "../../../views/App";
+import { getContent, type TaggedArticlesPageVM } from "../../../lib/content";
+import { buildJSONLD, buildWebSiteJSONLD } from "../../../lib/jsonld";
+
+export async function getStaticPaths() {
+  const { taggedPages } = await getContent();
+  return taggedPages
+    .filter((taggedPage) => taggedPage.currentPage === 1)
+    .map((taggedPage) => ({
+      params: { tag: taggedPage.tagId },
+      props: { data: taggedPage },
+    }));
+}
+
+interface Props {
+  data: TaggedArticlesPageVM;
+}
+
+const { data } = Astro.props;
+
+const title = `#${data.tagName}`;
+const path = `/tags/${data.tagId}`;
+const page = path.split("/").at(-1);
+
+const jsonLDWebSite = buildWebSiteJSONLD();
+const jsonLDArticles = data.cards.map((card, i) =>
+  buildJSONLD({
+    type: "ListItem",
+    path: `articles/${card.id}`,
+    withUrl: true,
+    attributes: {
+      position: i + 1,
+    },
+  })
+);
+const jsonLDTaggedArticlesPage = buildJSONLD({
+  type: "ItemList",
+  headline: "Articles",
+  path: path,
+  description: page ? `#${data.tagName}の記事一覧(page ${page})` : `#${data.tagName}の記事一覧`,
+  withUrl: true,
+  withAuthor: true,
+  withLogo: true,
+  withContext: true,
+  withID: true,
+  attributes: {
+    itemListElement: jsonLDArticles,
+  },
+});
+---
+
+<Layout head={{ path, title, jsonLD: [jsonLDWebSite, jsonLDTaggedArticlesPage] }}>
+  <App client:load page="tagged-articles" data={data} />
+</Layout>
