@@ -1,7 +1,9 @@
 # mock-blogapi
 
 開発用に blogapi.miyamo.today と GitHub GraphQL API をモックするサーバー。
-追加の依存関係なし(既存の `graphql` パッケージと Bun のみ)で動作する。
+依存関係(`graphql` / `@graphql-tools/mock`)はこのディレクトリ内の `package.json` で
+完結しており、サイト本体の依存ツリーには影響しない。
+`bun run mock:blogapi` が起動前に自動でインストールする。
 
 ## 使い方
 
@@ -61,12 +63,16 @@ MOCK_BLOGAPI_PORT=5001 bun run mock:blogapi
 ## スキーマ変更への追従
 
 - **blogapi 側**: スキーマは起動時に `.graphql/blogapi.miyamo.today` サブモジュールから
-  読み込むため、サブモジュールを更新(`git submodule update --remote` など)すれば
-  型定義・イントロスペクションは自動で追従する。
-  ただし新しいフィールドのモック値は `data.ts` / `resolvers.ts` に追加が必要
-  (未対応の non-null フィールドをクエリすると実行時エラーになるのですぐ気付ける)。
-- **GitHub 側**: `github.ts` に手書きした最小スキーマなので自動追従しない。
-  サイトが新しいフィールドを使い始めたら `github.ts` に追加する。
+  読み込むため、サブモジュールを更新(`git submodule update --remote` など)して
+  再起動すれば型定義・イントロスペクションは自動で追従する。
+  さらに [@graphql-tools/mock](https://the-guild.dev/graphql/tools/docs/mocking) により、
+  シードデータ(`data.ts`)にないフィールドは型に応じたダミー値を自動で返す
+  (`URL` は配信可能なプレースホルダー画像 URL、`DateTime` はパース可能な日時)。
+  シードデータにあるフィールドは常に決定論的な値が優先される。
+  リアルな値にしたいフィールドだけ `data.ts` / `resolvers.ts` に追加すればよい。
+- **GitHub 側**: `github.ts` に手書きした最小スキーマなので、スキーマ定義自体は
+  自動追従しない。サイトが新しいフィールドを使い始めたら `github.ts` の SDL に
+  追加する(シード値がなくても自動でダミー値が返る)。
 
 ## 制限
 

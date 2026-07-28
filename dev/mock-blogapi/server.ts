@@ -1,22 +1,21 @@
 import { join } from "node:path";
 import { GraphQLSchema, graphql } from "graphql";
 import { buildMockDataSet } from "./data";
-import { buildGitHubRootValue, buildGitHubSchema } from "./github";
+import { buildMockedGitHubSchema } from "./github";
 import { placeholderPng } from "./png";
-import { buildRootValue } from "./resolvers";
+import { buildMockedBlogApiSchema } from "./resolvers";
 import { loadBlogApiSchema } from "./schema";
 
 const port = Number(process.env.MOCK_BLOGAPI_PORT ?? 4000);
 const baseUrl = `http://localhost:${port}`;
 
-const blogApiSchema = loadBlogApiSchema(
-  join(import.meta.dir, "../../.graphql/blogapi.miyamo.today")
-);
 const data = buildMockDataSet(baseUrl);
-const blogApiRootValue = buildRootValue(data);
-
-const gitHubSchema = buildGitHubSchema();
-const gitHubRootValue = buildGitHubRootValue(baseUrl);
+const blogApiSchema = buildMockedBlogApiSchema(
+  loadBlogApiSchema(join(import.meta.dir, "../../.graphql/blogapi.miyamo.today")),
+  data,
+  baseUrl
+);
+const gitHubSchema = buildMockedGitHubSchema(baseUrl);
 
 const pngCache = new Map<string, Uint8Array>();
 
@@ -29,7 +28,6 @@ interface GraphQLRequestBody {
 const handleGraphQL = async (
   body: GraphQLRequestBody,
   schema: GraphQLSchema,
-  rootValue: object,
   endpoint: string
 ): Promise<Response> => {
   if (!body.query) {
@@ -40,7 +38,6 @@ const handleGraphQL = async (
     source: body.query,
     variableValues: body.variables ?? undefined,
     operationName: body.operationName ?? undefined,
-    rootValue,
   });
   const operation = body.operationName ?? body.query.trim().slice(0, 60).replace(/\s+/g, " ");
   console.log(
@@ -68,7 +65,6 @@ const server = Bun.serve({
     const url = new URL(request.url);
     const isGitHub = url.pathname.startsWith("/github");
     const schema = isGitHub ? gitHubSchema : blogApiSchema;
-    const rootValue = isGitHub ? gitHubRootValue : blogApiRootValue;
     const endpoint = isGitHub ? "/github/graphql" : "/graphql";
 
     if (request.method === "GET" && url.pathname.startsWith("/images/")) {
@@ -90,12 +86,12 @@ const server = Bun.serve({
       } catch {
         return Response.json({ errors: [{ message: "invalid JSON body" }] }, { status: 400 });
       }
-      return handleGraphQL(body, schema, rootValue, endpoint);
+      return handleGraphQL(body, schema, endpoint);
     }
 
     // convenience: GET /graphql?query={...} for quick checks from a browser
     if (request.method === "GET" && url.searchParams.has("query")) {
-      return handleGraphQL(graphQLRequestFromGet(url), schema, rootValue, endpoint);
+      return handleGraphQL(graphQLRequestFromGet(url), schema, endpoint);
     }
 
     return new Response(
