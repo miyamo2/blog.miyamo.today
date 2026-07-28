@@ -15,7 +15,8 @@
     "serve": "bunx gatsby serve",
     "clean": "bunx gatsby clean",
     "typecheck": "tsc --noEmit",
-    "graphqlgen": "graphql-codegen generate"
+    "graphqlgen": "graphql-codegen generate",
+    "mock:blogapi": "bun dev/mock-blogapi/server.ts"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.5",
