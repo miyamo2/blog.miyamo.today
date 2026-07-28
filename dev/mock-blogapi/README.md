@@ -1,6 +1,6 @@
 # mock-blogapi
 
-開発用に blogapi.miyamo.today をモックする GraphQL サーバー。
+開発用に blogapi.miyamo.today と GitHub GraphQL API をモックするサーバー。
 追加の依存関係なし(既存の `graphql` パッケージと Bun のみ)で動作する。
 
 ## 使い方
@@ -16,6 +16,8 @@ bun run mock:blogapi
 #    .env.development に以下を設定しておく(.env.development.example 参照)
 #      BLOG_API_MIYAMO_TODAY_URL=http://localhost:4000/graphql
 #      BLOG_API_MIYAMO_TODAY_TOKEN=mock-token
+#      GITHUB_GRAPHQL_API_URL=http://localhost:4000/github/graphql
+#      GITHUB_API_TOKEN=mock-token
 bun run develop
 ```
 
@@ -34,9 +36,15 @@ MOCK_BLOGAPI_PORT=5001 bun run mock:blogapi
     first/last/after/before によるページングに対応
   - イントロスペクションに対応(gatsby-source-graphql のスキーマ取得が通る)
   - ブラウザから `GET /graphql?query={...}` でも確認可能
+- **GitHub GraphQL API モック** — `POST http://localhost:4000/github/graphql`
+  - このサイトが使う範囲(`user { login url bio avatarUrl socialAccounts }`)だけを
+    実装した最小スキーマ(`github.ts`)
+  - `GITHUB_GRAPHQL_API_URL` を設定すると gatsby-config / gatsby-node が
+    実 API の代わりにこちらを参照する(未設定なら実 API)
 - **プレースホルダー画像** — `GET http://localhost:4000/images/<name>.png`
-  - サムネイル・記事内画像として実 PNG を動的生成
+  - サムネイル・記事内画像・アバターとして実 PNG を動的生成
     (gatsby-plugin-sharp / gatsby-remark-images-remote の処理が通る)
+  - `avatar-` で始まる名前は正方形(460x460)、それ以外は 800x420
 
 ## モックデータ
 
@@ -50,8 +58,17 @@ MOCK_BLOGAPI_PORT=5001 bun run mock:blogapi
 
 件数や内容を変えたい場合は `data.ts` を編集する。
 
+## スキーマ変更への追従
+
+- **blogapi 側**: スキーマは起動時に `.graphql/blogapi.miyamo.today` サブモジュールから
+  読み込むため、サブモジュールを更新(`git submodule update --remote` など)すれば
+  型定義・イントロスペクションは自動で追従する。
+  ただし新しいフィールドのモック値は `data.ts` / `resolvers.ts` に追加が必要
+  (未対応の non-null フィールドをクエリすると実行時エラーになるのですぐ気付ける)。
+- **GitHub 側**: `github.ts` に手書きした最小スキーマなので自動追従しない。
+  サイトが新しいフィールドを使い始めたら `github.ts` に追加する。
+
 ## 制限
 
 - 認証は検証しない(`Authorization` ヘッダーは無視される)
-- GitHub GraphQL API(アバター取得)はモック対象外なので、
-  `GITHUB_API_TOKEN` には引き続き実トークンが必要
+- GitHub モックはこのサイトが使うフィールドのみ実装している
