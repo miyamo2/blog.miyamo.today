@@ -274,22 +274,22 @@ export const remoteImagesTransform = (): MdastTransform => {
           : "";
         const html = `
   <span
-    class="gatsby-resp-image-wrapper"
+    class="resp-image-wrapper"
     style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: ${image.width}px;"
   >
     <a
-      class="gatsby-resp-image-link"
+      class="resp-image-link"
       href="${escapeHtml(node.url)}"
       style="display: block"
       target="_blank"
       rel="noopener"
     >
       <span
-        class="gatsby-resp-image-background-image"
+        class="resp-image-background-image"
         style="padding-bottom: ${ratio}%; position: relative; bottom: 0; left: 0; ${placeholderStyle} display: block;"
       ></span>
       <img
-        class="gatsby-resp-image-image"
+        class="resp-image-image"
         alt="${alt}"
         title="${title}"
         src="${image.src}"

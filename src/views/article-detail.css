@@ -45,14 +45,14 @@ pre[class*="language-"] {
   }
 }
 
-.gatsby-remark-prismjs-copy-button {
+.code-copy-button {
   display: none;
   @screen lg {
     display: flex;
   }
 }
 
-.gatsby-highlight {
+.code-block {
   margin-top: 2rem;
   margin-bottom: 1rem;
   @screen lg {
@@ -61,8 +61,8 @@ pre[class*="language-"] {
   }
 }
 
-.makdown-body > p > .gatsby-resp-image-wrapper,
-.makdown-body > p > .gatsby-resp-image-wrapper > .gatsby-resp-image-link {
+.makdown-body > p > .resp-image-wrapper,
+.makdown-body > p > .resp-image-wrapper > .resp-image-link {
   z-index: 0 !important;
 }
 

@@ -14,8 +14,8 @@ const colorModeScript = getColorModeScript({
   initialColorMode: "system",
 });
 
-// gatsby-remark-prismjs-copy-button's gatsby-browser.js onClientEntry
-const copyToClipboardScript = `window.gatsbyRemarkCopyToClipboard = async (button, codeContainer) => {
+// click handler for the code block copy button (src/lib/rehype-code-block.ts)
+const copyToClipboardScript = `window.copyCodeToClipboard = async (button, codeContainer) => {
   if (button.textContent === "Copied") {
     return;
   }
@@ -40,9 +40,8 @@ const copyToClipboardScript = `window.gatsbyRemarkCopyToClipboard = async (butto
     <script is:inline set:html={copyToClipboardScript} />
   </head>
   <body>
-    {/* ids are kept from the Gatsby build because global.css selectors depend on them */}
-    <div id="___gatsby">
-      <div id="gatsby-focus-wrapper">
+    <div id="app-root">
+      <div id="app-focus-wrapper">
         <slot />
       </div>
     </div>

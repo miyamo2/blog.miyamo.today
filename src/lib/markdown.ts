@@ -1,27 +1,20 @@
-import { unified, type Plugin } from "unified";
+import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
+import remarkLinkCard from "remark-link-card-plus";
 import remarkRehype from "remark-rehype";
 import rehypeRaw from "rehype-raw";
+import rehypeSlug from "rehype-slug";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypePrism from "rehype-prism-plus";
 import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
-import { toString as mdastToString } from "mdast-util-to-string";
 import type { Root } from "mdast";
-
-// The gatsby-remark-* transformers below are plain mdast transformers,
-// so they are reused as-is to keep the generated HTML (and the CSS that
-// depends on it, e.g. `.gatsby-highlight`, `.anchor`) identical to the
-// Gatsby build.
-// (the packages below have no type definitions)
-import autolinkHeaders from "gatsby-remark-autolink-headers";
-import prismjsHighlight from "gatsby-remark-prismjs";
-import copyButtonModule from "gatsby-remark-prismjs-copy-button";
-import linkCard from "@okaryo/gatsby-remark-link-card";
+import type { Root as HastRoot, Element as HastElement } from "hast";
 
 import prune from "underscore.string/prune";
 
-const copyButton: (args: { markdownAST: Root }, opts: Record<string, never>) => unknown =
-  (copyButtonModule as { default?: never }).default ?? copyButtonModule;
+import { rehypeCodeBlock } from "./rehype-code-block";
 
 export interface ArticleHeading {
   depth: number;
@@ -74,62 +67,88 @@ const collectPlainText = (tree: Root): string => {
   return excerptNodes.join("").trim();
 };
 
-const collectHeadings = (tree: Root): ArticleHeading[] => {
+const HEADING_DEPTHS: Record<string, number> = {
+  h1: 1,
+  h2: 2,
+  h3: 3,
+  h4: 4,
+  h5: 5,
+  h6: 6,
+};
+
+const collectHeadings = (tree: HastRoot): ArticleHeading[] => {
   const headings: ArticleHeading[] = [];
-  visit(tree, "heading", (node) => {
-    const id = (node.data as { id?: string } | undefined)?.id ?? "";
+  visit(tree, "element", (node: HastElement) => {
+    const depth = HEADING_DEPTHS[node.tagName];
+    if (!depth) {
+      return;
+    }
+    let value = "";
+    visit(node, "text", (textNode: { value: string }) => {
+      value += textNode.value;
+    });
     headings.push({
-      depth: node.depth,
-      id,
-      value: mdastToString(node),
+      depth,
+      id: String(node.properties?.id ?? ""),
+      value,
     });
   });
   return headings;
 };
 
+// the same GitHub octicon-link icon that gatsby-remark-autolink-headers used
+const OCTICON_LINK_SVG =
+  '<svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg>';
+
 /**
- * Renders article markdown to HTML through the same transformer chain as the
- * previous Gatsby setup (gatsby-transformer-remark plugins section):
- *   gatsby-remark-autolink-headers
- *   gatsby-remark-prismjs-copy-button
- *   gatsby-remark-prismjs
+ * Renders article markdown to HTML through the remark/rehype equivalents of
+ * the previous Gatsby transformer chain:
+ *   gatsby-remark-autolink-headers    -> rehype-slug + rehype-autolink-headings
+ *   gatsby-remark-prismjs             -> rehype-prism-plus
+ *   gatsby-remark-prismjs-copy-button -> rehypeCodeBlock (in-repo)
+ *   @okaryo/gatsby-remark-link-card   -> remark-link-card-plus
  *   (remote images -- injected via `extraTransforms`)
- *   @okaryo/gatsby-remark-link-card
  */
 export const renderMarkdown = async (
   markdown: string,
   extraTransforms: MdastTransform[] = []
 ): Promise<RenderedMarkdown> => {
-  const parser = unified().use(remarkParse).use(remarkGfm);
-  const tree = parser.parse(markdown);
-  const mdast = (await parser.run(tree)) as Root;
-
-  autolinkHeaders({ markdownAST: mdast }, {});
-  copyButton({ markdownAST: mdast }, {});
-  prismjsHighlight(
-    { markdownAST: mdast },
-    {
-      classPrefix: "language-",
-      inlineCodeMarker: null,
-      aliases: {},
-      showLineNumbers: true,
-      noInlineHighlight: false,
-    }
-  );
+  const remarkProcessor = unified().use(remarkParse).use(remarkGfm).use(remarkLinkCard, {
+    cache: false,
+    // the previous link card plugin displayed `url.hostname`
+    shortenUrl: true,
+    thumbnailPosition: "right",
+  });
+  const parsed = remarkProcessor.parse(markdown);
+  const mdast = (await remarkProcessor.run(parsed)) as Root;
   for (const transform of extraTransforms) {
     await transform(mdast);
   }
-  await linkCard({ markdownAST: mdast });
 
-  const headings = collectHeadings(mdast);
   const plainText = collectPlainText(mdast);
 
-  const compiler = unified()
+  const rehypeProcessor = unified()
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
+    .use(rehypeSlug)
+    .use(rehypeAutolinkHeadings, {
+      behavior: "prepend",
+      properties(node: HastElement) {
+        const id = String(node.properties?.id ?? "");
+        return {
+          ariaLabel: `${id.split("-").join(" ")} permalink`,
+          className: ["anchor", "before"],
+        };
+      },
+      content: { type: "raw", value: OCTICON_LINK_SVG },
+    })
+    .use(rehypePrism, { showLineNumbers: true, ignoreMissing: true })
+    .use(rehypeCodeBlock)
     .use(rehypeStringify, { allowDangerousHtml: true });
-  const hast = await compiler.run(mdast);
-  const html = compiler.stringify(hast);
+
+  const hast = (await rehypeProcessor.run(mdast)) as HastRoot;
+  const headings = collectHeadings(hast);
+  const html = rehypeProcessor.stringify(hast);
 
   return { html: String(html), headings, plainText };
 };
