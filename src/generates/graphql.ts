@@ -31790,11 +31790,6 @@ export type WorkflowsParametersInput = {
   workflows: Array<WorkflowFileReferenceInput>;
 };
 
-export type GetAllArticlesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetAllArticlesQuery = { __typename?: 'Query', articles: { __typename?: 'ArticleConnection', totalCount: number, edges: Array<{ __typename?: 'ArticleEdge', cursor: string, node: { __typename?: 'ArticleNode', id: string, title: string, thumbnailUrl: string, content: string, createdAt: string, updatedAt: string, tags: { __typename?: 'ArticleTagConnection', edges: Array<{ __typename?: 'ArticleTagEdge', cursor: string, node: { __typename?: 'ArticleTagNode', name: string } }> } } }> } };
-
 export type GetAllTagsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -31808,32 +31803,6 @@ export type GitHubProfileQueryVariables = Exact<{
 export type GitHubProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', login: string, avatarUrl: string, url: string, bio?: string | null, socialAccounts: { __typename?: 'SocialAccountConnection', nodes?: Array<{ __typename?: 'SocialAccount', url: string } | null> | null } } | null };
 
 
-export const GetAllArticlesDocument = gql`
-    query GetAllArticles {
-  articles(last: 2147483647) {
-    edges {
-      cursor
-      node {
-        id
-        title
-        thumbnailUrl
-        content
-        createdAt
-        updatedAt
-        tags {
-          edges {
-            cursor
-            node {
-              name
-            }
-          }
-        }
-      }
-    }
-    totalCount
-  }
-}
-    `;
 export const GetAllTagsDocument = gql`
     query GetAllTags {
   tags {
@@ -31876,9 +31845,6 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    GetAllArticles(variables?: GetAllArticlesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetAllArticlesQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetAllArticlesQuery>({ document: GetAllArticlesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetAllArticles', 'query', variables);
-    },
     GetAllTags(variables?: GetAllTagsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetAllTagsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetAllTagsQuery>({ document: GetAllTagsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetAllTags', 'query', variables);
     },

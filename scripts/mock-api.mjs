@@ -89,7 +89,9 @@ const tags = [
 ];
 
 const blogApiResponse = (query) => {
-  if (query.includes("articles(last:")) {
+  if (query.includes("articles(first:") || query.includes("articles(last:")) {
+    // SourceNodes query of @miyamo2/astro-loader-blogapi-miyamo-today
+    // (single page: hasNextPage=false)
     return {
       data: {
         articles: {
@@ -107,6 +109,10 @@ const blogApiResponse = (query) => {
               },
             },
           })),
+          pageInfo: {
+            hasNextPage: false,
+            endCursor: articles.at(-1)?.id ?? "",
+          },
           totalCount: articles.length,
         },
       },

@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { Root, Image as MdastImage } from "mdast";
+import type { ImageMetadata } from "astro";
 import type { MdastTransform } from "./markdown";
 
 export interface RemoteImageData {
@@ -151,6 +152,93 @@ export const buildRemoteImage = async (
       width: targetWidth,
       height: targetHeight,
       placeholder: info.placeholder,
+    };
+  }
+};
+
+// ---- local images (content collection thumbnails) ---------------------------
+
+const localPlaceholderCache = new Map<string, Promise<string | undefined>>();
+
+const localImagePlaceholder = (meta: ImageMetadata): Promise<string | undefined> => {
+  const fsPath = (meta as ImageMetadata & { fsPath?: string }).fsPath;
+  if (!fsPath) {
+    return Promise.resolve(undefined);
+  }
+  const cached = localPlaceholderCache.get(fsPath);
+  if (cached) {
+    return cached;
+  }
+  const promise = (async (): Promise<string | undefined> => {
+    try {
+      const buffer = await readFile(fsPath);
+      const { default: sharp } = await import("sharp");
+      const placeholderBuffer = await sharp(buffer)
+        .resize({ width: 20 })
+        .webp({ quality: 50 })
+        .toBuffer();
+      return `data:image/webp;base64,${placeholderBuffer.toString("base64")}`;
+    } catch (e) {
+      console.warn(`[images] failed to build placeholder for ${fsPath}: ${String(e)}`);
+      return undefined;
+    }
+  })();
+  localPlaceholderCache.set(fsPath, promise);
+  return promise;
+};
+
+/**
+ * Builds an optimized (webp) image from a local content-collection image
+ * (thumbnails downloaded by @miyamo2/astro-loader-blogapi-miyamo-today),
+ * producing the same RemoteImageData shape as buildRemoteImage.
+ */
+export const buildCollectionImage = async (
+  meta: ImageMetadata | undefined | null,
+  options: BuildRemoteImageOptions = {}
+): Promise<RemoteImageData | null> => {
+  if (!meta || meta.width === 0 || meta.height === 0) {
+    return null;
+  }
+
+  let targetWidth: number;
+  let targetHeight: number;
+  if (options.width && options.height) {
+    targetWidth = options.width;
+    targetHeight = options.height;
+  } else if (options.width) {
+    targetWidth = Math.min(options.width, meta.width);
+    targetHeight = Math.round((targetWidth * meta.height) / meta.width);
+  } else {
+    targetWidth = Math.min(800, meta.width);
+    targetHeight = Math.round((targetWidth * meta.height) / meta.width);
+  }
+
+  const densities = meta.width >= targetWidth * 2 ? [1, 2] : [1];
+  const placeholder = await localImagePlaceholder(meta);
+  try {
+    const result = await getImage({
+      src: meta,
+      width: targetWidth,
+      height: targetHeight,
+      densities,
+      format: "webp",
+      quality: 100,
+      ...(options.width && options.height ? { fit: "cover" as const } : {}),
+    });
+    return {
+      src: result.src,
+      srcSet: result.srcSet.attribute !== "" ? result.srcSet.attribute : undefined,
+      width: targetWidth,
+      height: targetHeight,
+      placeholder,
+    };
+  } catch (e) {
+    console.warn(`[images] failed to optimize ${meta.src}: ${String(e)}`);
+    return {
+      src: meta.src,
+      width: targetWidth,
+      height: targetHeight,
+      placeholder,
     };
   }
 };

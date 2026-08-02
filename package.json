@@ -57,6 +57,8 @@
     "@formkit/tempo": "^0.1.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@giscus/react": "^3.1.0",
+    "@miyamo2/astro-loader-blogapi-miyamo-today": "^0.1.0",
+    "@miyamo2/astro-recommend-article": "https://registry.npmjs.org/@miyamo2/astro-recommend-article/-/astro-recommend-article-0.1.0.tgz",
     "@yamada-ui/accordion": "^2.0.24",
     "@yamada-ui/button": "^1.0.58",
     "@yamada-ui/core": "^1.17.3",

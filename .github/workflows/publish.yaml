@@ -17,6 +17,11 @@ permissions: write-all
 jobs:
   publish:
     runs-on: ubuntu-24.04-arm
+    services:
+      qdrant:
+        image: qdrant/qdrant:latest
+        ports:
+          - "6333:6333"
 
     steps:
       - name: Checkout
@@ -28,7 +33,12 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install
+        env:
+          # @miyamo2/astro-loader-blogapi-miyamo-today is on GitHub Packages (see .npmrc)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # --no-frozen-lockfile: bun.lock cannot be refreshed in environments
+        # without GitHub Packages credentials; let CI resolve the private scope
+        run: bun install --no-frozen-lockfile
 
       - name: Set up aws cli
         uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722 # v4.1.0
@@ -52,6 +62,8 @@ jobs:
         with:
           path: |
             ./.cache
+            ./src/content/blogapi
+            ./src/assets/blogapi
           key: ${{ runner.os }}-astro-build-${{ github.sha }}-${{ github.event.client_payload.event_id }}
           restore-keys: |
             ${{ runner.os }}-astro-build-${{ github.sha }}-
@@ -74,6 +86,8 @@ jobs:
         with:
           path: |
             ./.cache
+            ./src/content/blogapi
+            ./src/assets/blogapi
           key: ${{ runner.os }}-astro-build-${{ github.sha }}-${{ github.event.client_payload.event_id }}
 
       - name: Deploy

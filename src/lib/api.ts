@@ -1,22 +1,11 @@
 import { GraphQLClient } from "graphql-request";
 import { getSdk } from "../generates/graphql";
 
+// Articles are sourced through @miyamo2/astro-loader-blogapi-miyamo-today
+// (see src/content.config.ts). This module covers the remaining queries:
+// tag pages (ordering / totalCount per tag) and the GitHub profile.
+
 // ---- blog API (blogapi.miyamo.today) ----------------------------------------
-
-export interface ArticleTag {
-  id: string;
-  name: string;
-}
-
-export interface Article {
-  id: string;
-  title: string;
-  thumbnailUrl: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-  tags: ArticleTag[];
-}
 
 export interface TagWithArticles {
   /** cursor of the tag edge (= path segment of /tags/xxx) */
@@ -43,37 +32,6 @@ const blogApiSdk = () => {
       },
     })
   );
-};
-
-let allArticlesPromise: Promise<{ articles: Article[]; totalCount: number }> | undefined;
-
-/**
- * Fetches all articles keeping the edge order of `articles(last: 2147483647)`,
- * which the Gatsby build used to slice list pages.
- */
-export const fetchAllArticles = () => {
-  if (!allArticlesPromise) {
-    allArticlesPromise = (async () => {
-      const data = await blogApiSdk().GetAllArticles();
-      const articles = data.articles.edges.map((edge): Article => {
-        const node = edge.node;
-        return {
-          id: node.id,
-          title: node.title,
-          thumbnailUrl: node.thumbnailUrl,
-          content: node.content,
-          createdAt: node.createdAt,
-          updatedAt: node.updatedAt,
-          tags: node.tags.edges.map((tagEdge) => ({
-            id: tagEdge.cursor,
-            name: tagEdge.node.name,
-          })),
-        };
-      });
-      return { articles, totalCount: data.articles.totalCount };
-    })();
-  }
-  return allArticlesPromise;
 };
 
 let allTagsPromise: Promise<TagWithArticles[]> | undefined;

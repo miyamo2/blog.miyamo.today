@@ -1,9 +1,9 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fetchAllArticles, fetchAllTags, type Article, type TagWithArticles } from "./api";
+import { getCollection, type CollectionEntry } from "astro:content";
+import { fetchAllTags } from "./api";
 import { excerptOf, renderMarkdown, type ArticleHeading } from "./markdown";
-import { buildRemoteImage, remoteImagesTransform, type RemoteImageData } from "./images";
-import { computeRecommendations } from "./recommend";
+import { buildCollectionImage, remoteImagesTransform, type RemoteImageData } from "./images";
 import { PER_PAGE, siteMetadata } from "./site";
 
 export interface TagVM {
@@ -80,14 +80,24 @@ export interface Content {
   rssItems: RssItemVM[];
 }
 
+type BlogEntry = CollectionEntry<"blogapi">;
+
 interface RenderedArticle {
-  article: Article;
+  /** article id from the frontmatter (= path segment of /articles/xxx) */
+  id: string;
+  /** content-layer store id (referenced by `recommends`) */
+  entryId: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  tags: TagVM[];
   html: string;
   headings: ArticleHeading[];
   plainText: string;
   cardImage: RemoteImageData | null;
   detailImage: RemoteImageData | null;
   recommendImage: RemoteImageData | null;
+  recommendEntryIds: string[];
 }
 
 // same ordering as the Gatsby GraphQL layer's sort: { frontmatter: { id: DESC } }
@@ -101,41 +111,46 @@ const byIdDesc = (a: { id: string }, b: { id: string }): number => {
 const range = (start: number, end: number) => [...Array(end - start + 1)].map((_, i) => start + i);
 
 const toCard = (rendered: RenderedArticle): ArticleCardVM => {
-  const { article } = rendered;
   return {
-    id: article.id,
-    title: article.title,
-    createdAt: article.createdAt,
-    updatedAt: article.updatedAt,
-    tags: article.tags,
+    id: rendered.id,
+    title: rendered.title,
+    createdAt: rendered.createdAt,
+    updatedAt: rendered.updatedAt,
+    tags: rendered.tags,
     imageData: rendered.cardImage,
     // article-list template used excerpt with default options (pruneLength: 140, truncate: false)
     articleExcerpt: excerptOf(rendered.plainText, 140, false),
   };
 };
 
-const renderAll = async (articles: Article[]): Promise<Map<string, RenderedArticle>> => {
+const renderAll = async (entries: BlogEntry[]): Promise<Map<string, RenderedArticle>> => {
   const result = new Map<string, RenderedArticle>();
   // article rendering fetches OGP data / images; keep some parallelism without hammering
   const CONCURRENCY = 6;
   let index = 0;
-  const workers = range(1, Math.min(CONCURRENCY, articles.length)).map(async () => {
-    while (index < articles.length) {
-      const article = articles[index++];
+  const workers = range(1, Math.min(CONCURRENCY, entries.length)).map(async () => {
+    while (index < entries.length) {
+      const entry = entries[index++];
       const [markdown, cardImage, detailImage, recommendImage] = await Promise.all([
-        renderMarkdown(article.content, [remoteImagesTransform()]),
-        buildRemoteImage(article.thumbnailUrl),
-        buildRemoteImage(article.thumbnailUrl, { width: 1000, height: 500 }),
-        buildRemoteImage(article.thumbnailUrl, { width: 840, height: 420 }),
+        renderMarkdown(entry.body ?? "", [remoteImagesTransform()]),
+        buildCollectionImage(entry.data.thumbnail),
+        buildCollectionImage(entry.data.thumbnail, { width: 1000, height: 500 }),
+        buildCollectionImage(entry.data.thumbnail, { width: 840, height: 420 }),
       ]);
-      result.set(article.id, {
-        article,
+      result.set(entry.data.id, {
+        id: entry.data.id,
+        entryId: entry.id,
+        title: entry.data.title,
+        createdAt: entry.data.createdAt.toISOString(),
+        updatedAt: entry.data.updatedAt.toISOString(),
+        tags: entry.data.tags,
         html: markdown.html,
         headings: markdown.headings,
         plainText: markdown.plainText,
         cardImage,
         detailImage,
         recommendImage,
+        recommendEntryIds: entry.data.recommends.map((ref) => ref.id),
       });
     }
   });
@@ -144,22 +159,24 @@ const renderAll = async (articles: Article[]): Promise<Map<string, RenderedArtic
 };
 
 const buildContent = async (): Promise<Content> => {
-  const [{ articles, totalCount }, tags] = await Promise.all([fetchAllArticles(), fetchAllTags()]);
-  const rendered = await renderAll(articles);
-  const recommendations = await computeRecommendations(articles);
+  const [entries, tags] = await Promise.all([getCollection("blogapi"), fetchAllTags()]);
+  // newest first, same as the Gatsby GraphQL layer's sort: { frontmatter: { id: DESC } }
+  const sorted = entries.slice().sort((a, b) => byIdDesc(a.data, b.data));
+  const rendered = await renderAll(sorted);
+  const renderedByEntryId = new Map(
+    [...rendered.values()].map((article) => [article.entryId, article])
+  );
+  const totalCount = sorted.length;
 
   // ---- article list pages (mirrors articleListPage() in gatsby-node.ts) ----
   const listPages: ArticleListPageVM[] = range(1, Math.ceil(totalCount / PER_PAGE) || 0).map(
     (number) => {
-      const chunk = articles.slice((number - 1) * PER_PAGE, number * PER_PAGE);
+      const chunk = sorted.slice((number - 1) * PER_PAGE, number * PER_PAGE);
       return {
         currentPage: number,
         perPage: PER_PAGE,
         totalItems: totalCount,
-        cards: chunk
-          .slice()
-          .sort(byIdDesc)
-          .map((article) => toCard(rendered.get(article.id)!)),
+        cards: chunk.map((entry) => toCard(rendered.get(entry.data.id)!)),
       };
     }
   );
@@ -181,34 +198,34 @@ const buildContent = async (): Promise<Content> => {
         totalItems: tag.totalCount,
         cards: chunk
           .slice()
-          .sort((a, b) => byIdDesc(a.article, b.article))
+          .sort(byIdDesc)
           .map((r) => toCard(r)),
       });
     }
   }
 
   // ---- article detail pages ----
-  const details: ArticleDetailVM[] = articles.map((article) => {
-    const r = rendered.get(article.id)!;
-    const recommends = (recommendations.get(article.id) ?? [])
-      .map((id) => rendered.get(id))
+  const details: ArticleDetailVM[] = sorted.map((entry) => {
+    const r = rendered.get(entry.data.id)!;
+    const recommends = r.recommendEntryIds
+      .map((entryId) => renderedByEntryId.get(entryId))
       .filter((rec): rec is RenderedArticle => rec !== undefined)
       .map(
         (rec): RecommendVM => ({
-          id: rec.article.id,
-          title: rec.article.title,
+          id: rec.id,
+          title: rec.title,
           excerpt: excerptOf(rec.plainText, 140, true),
-          createdAt: rec.article.createdAt,
-          updatedAt: rec.article.updatedAt,
+          createdAt: rec.createdAt,
+          updatedAt: rec.updatedAt,
           imageData: rec.recommendImage,
         })
       );
     return {
-      id: article.id,
-      title: article.title,
-      createdAt: article.createdAt,
-      updatedAt: article.updatedAt,
-      tags: article.tags,
+      id: r.id,
+      title: r.title,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+      tags: r.tags,
       html: r.html,
       headings: r.headings,
       excerpt: excerptOf(r.plainText, 140, true),
@@ -226,39 +243,36 @@ const buildContent = async (): Promise<Content> => {
   }));
 
   // ---- RSS (mirrors gatsby-plugin-feed's serialize()) ----
-  const rssItems: RssItemVM[] = articles
-    .slice()
-    .sort(byIdDesc)
-    .map((article) => {
-      const r = rendered.get(article.id)!;
-      return {
-        id: article.id,
-        title: article.title,
-        description: excerptOf(r.plainText, 140, true),
-        createdAt: article.createdAt,
-      };
-    });
+  const rssItems: RssItemVM[] = sorted.map((entry) => {
+    const r = rendered.get(entry.data.id)!;
+    return {
+      id: r.id,
+      title: r.title,
+      description: excerptOf(r.plainText, 140, true),
+      createdAt: r.createdAt,
+    };
+  });
 
   // ---- Algolia records (mirrors gatsby-plugin-algolia's transformer) ----
   // Written to a build artifact; pushed to Algolia in integrations/algolia-index.ts
   // after the build finishes.
-  const algoliaRecords = articles.map((article) => {
-    const r = rendered.get(article.id)!;
+  const algoliaRecords = sorted.map((entry) => {
+    const r = rendered.get(entry.data.id)!;
     return {
-      id: article.id,
+      id: r.id,
       content: excerptOf(r.plainText, 3000, true),
-      title: article.title,
-      publishedAt: article.createdAt,
-      tags: article.tags
+      title: r.title,
+      publishedAt: r.createdAt,
+      tags: r.tags
         .filter((tag) => tag && typeof tag.name === "string" && tag.name.length > 0)
         .map((tag) => tag.name),
       hierarchy: {
         lvl0: siteMetadata.title,
-        lvl1: article.title,
+        lvl1: r.title,
       },
-      thumbnail: article.thumbnailUrl,
+      thumbnail: r.cardImage ? `${siteMetadata.siteUrl}${r.cardImage.src}` : "",
       type: "lvl1",
-      url: `${siteMetadata.siteUrl}/articles/${article.id}`,
+      url: `${siteMetadata.siteUrl}/articles/${r.id}`,
     };
   });
   const artifactDir = path.join(process.cwd(), ".cache", "build-artifacts");

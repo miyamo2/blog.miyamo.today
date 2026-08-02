@@ -1,6 +1,5 @@
 import type { APIRoute } from "astro";
 import RSS from "rss";
-import { parse } from "@formkit/tempo";
 import { getContent } from "../../lib/content";
 import { siteMetadata } from "../../lib/site";
 
@@ -22,7 +21,7 @@ export const GET: APIRoute = async () => {
     feed.item({
       title: item.title ?? siteMetadata.title,
       description: item.description ?? siteMetadata.description,
-      date: parse(item.createdAt ?? "1970-01-01", "YYYY-MM-DDTHH:mm:ssZ", "en").toUTCString(),
+      date: new Date(item.createdAt ?? "1970-01-01").toUTCString(),
       url: `${siteMetadata.siteUrl}/articles/${item.id ?? ""}`,
       guid: `${siteMetadata.siteUrl}/articles/${item.id ?? ""}`,
       author: "miyamo2",
