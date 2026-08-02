@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { IconButton } from "@yamada-ui/button";
 import { HStack } from "@yamada-ui/layouts";
+import { PUBLIC_ALGOLIA_INDEX_NAME } from "astro:env/client";
 
 interface SearchModalProps extends ModalProps {
   open: boolean;
@@ -35,7 +36,7 @@ const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
       <ModalOverlay backdropFilter="blur(10px)" />
       <InstantSearch
         searchClient={searchClient}
-        indexName={import.meta.env.PUBLIC_ALGOLIA_INDEX_NAME ?? ""}
+        indexName={PUBLIC_ALGOLIA_INDEX_NAME}
       >
         <Configure hitsPerPage={5} />
         <HStack>

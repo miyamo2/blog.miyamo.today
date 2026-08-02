@@ -1,12 +1,10 @@
 import type { SearchClient } from "instantsearch.js";
 import algoliasearch from "algoliasearch/lite";
 import { MultipleQueriesQuery, MultipleQueriesResponse } from "@algolia/client-search";
+import { PUBLIC_ALGOLIA_APP_ID, PUBLIC_ALGOLIA_SEARCH_KEY } from "astro:env/client";
 
 export const UseSearchClient = (): SearchClient => {
-  const algoliaClient = algoliasearch(
-    import.meta.env.PUBLIC_ALGOLIA_APP_ID ?? "",
-    import.meta.env.PUBLIC_ALGOLIA_SEARCH_KEY ?? ""
-  );
+  const algoliaClient = algoliasearch(PUBLIC_ALGOLIA_APP_ID, PUBLIC_ALGOLIA_SEARCH_KEY);
   return {
     ...algoliaClient,
     search: <SearchResponse,>(requests: Readonly<MultipleQueriesQuery[]>) => {

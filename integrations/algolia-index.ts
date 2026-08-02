@@ -9,10 +9,9 @@ export default function algoliaIndex(): AstroIntegration {
     name: "algolia-index",
     hooks: {
       "astro:build:done": async ({ logger }) => {
-        const appId = process.env.PUBLIC_ALGOLIA_APP_ID ?? process.env.GATSBY_ALGOLIA_APP_ID;
+        const appId = process.env.PUBLIC_ALGOLIA_APP_ID;
         const apiKey = process.env.ALGOLIA_ADMIN_KEY;
-        const indexName =
-          process.env.PUBLIC_ALGOLIA_INDEX_NAME ?? process.env.GATSBY_ALGOLIA_INDEX_NAME;
+        const indexName = process.env.PUBLIC_ALGOLIA_INDEX_NAME;
         if (!appId || !apiKey || !indexName) {
           logger.warn("Algolia credentials are not configured; skipping indexing");
           return;

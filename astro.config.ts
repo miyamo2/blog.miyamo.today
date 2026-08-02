@@ -1,4 +1,4 @@
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 import { loadEnv } from "vite";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
@@ -19,6 +19,34 @@ for (const [key, value] of Object.entries(env)) {
 // https://astro.build/config
 export default defineConfig({
   site: "https://blog.miyamo.today",
+  env: {
+    schema: {
+      PUBLIC_ALGOLIA_APP_ID: envField.string({
+        context: "client",
+        access: "public",
+        optional: true,
+        default: "",
+      }),
+      PUBLIC_ALGOLIA_SEARCH_KEY: envField.string({
+        context: "client",
+        access: "public",
+        optional: true,
+        default: "",
+      }),
+      PUBLIC_ALGOLIA_INDEX_NAME: envField.string({
+        context: "client",
+        access: "public",
+        optional: true,
+        default: "",
+      }),
+      // used only by integrations/algolia-index.ts at astro:build:done
+      ALGOLIA_ADMIN_KEY: envField.string({
+        context: "server",
+        access: "secret",
+        optional: true,
+      }),
+    },
+  },
   // keep the same cache directory as the previous Gatsby setup so the CI cache step keeps working
   cacheDir: "./.cache",
   integrations: [
