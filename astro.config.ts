@@ -1,8 +1,13 @@
 import { defineConfig } from "astro/config";
+import { loadEnv } from "vite";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import { blogApiMiyamoToday } from "@miyamo2/astro-loader-blogapi-miyamo-today";
 import algoliaIndex from "./integrations/algolia-index";
+
+// `.env` files are not loaded into process.env while the config itself is being
+// evaluated, so load them explicitly here (empty prefix -> load every var).
+const env = loadEnv(process.env.NODE_ENV ?? "development", process.cwd(), "");
 
 // https://astro.build/config
 export default defineConfig({
@@ -11,8 +16,8 @@ export default defineConfig({
   cacheDir: "./.cache",
   integrations: [
     blogApiMiyamoToday({
-      url: process.env.BLOG_API_MIYAMO_TODAY_URL ?? "",
-      token: process.env.BLOG_API_MIYAMO_TODAY_TOKEN ?? "",
+      url: env.BLOG_API_MIYAMO_TODAY_URL ?? "",
+      token: env.BLOG_API_MIYAMO_TODAY_TOKEN ?? "",
     }),
     react(),
     sitemap(),
