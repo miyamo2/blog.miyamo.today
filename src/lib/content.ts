@@ -1,7 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { getCollection, type CollectionEntry } from "astro:content";
-import { fetchAllTags } from "./api";
 import { excerptOf, renderMarkdown, type ArticleHeading } from "./markdown";
 import { buildCollectionImage, remoteImagesTransform, type RemoteImageData } from "./images";
 import { PER_PAGE, siteMetadata } from "./site";
@@ -159,7 +158,13 @@ const renderAll = async (entries: BlogEntry[]): Promise<Map<string, RenderedArti
 };
 
 const buildContent = async (): Promise<Content> => {
-  const [entries, tags] = await Promise.all([getCollection("blogapi"), fetchAllTags()]);
+  // tags come from the tags.json the integration aggregates (see content.config.ts);
+  // entry ids are the tag edge cursors of the GraphQL API (= path segment of /tags/xxx)
+  const [entries, tagEntries] = await Promise.all([
+    getCollection("blogapi"),
+    getCollection("blogapiTags"),
+  ]);
+  const tags = tagEntries.map((tagEntry) => tagEntry.data);
   // newest first, same as the Gatsby GraphQL layer's sort: { frontmatter: { id: DESC } }
   const sorted = entries.slice().sort((a, b) => byIdDesc(a.data, b.data));
   const rendered = await renderAll(sorted);
@@ -184,9 +189,9 @@ const buildContent = async (): Promise<Content> => {
   // ---- tagged article pages (mirrors taggedArticlesPage() in gatsby-node.ts) ----
   const taggedPages: TaggedArticlesPageVM[] = [];
   for (const tag of tags) {
-    const pages = Math.ceil(tag.totalCount / PER_PAGE) || 0;
+    const pages = Math.ceil(tag.articles.length / PER_PAGE) || 0;
     for (const number of range(1, pages)) {
-      const ids = tag.articleIds.slice((number - 1) * PER_PAGE, number * PER_PAGE);
+      const ids = tag.articles.slice((number - 1) * PER_PAGE, number * PER_PAGE);
       const chunk = ids
         .map((id) => rendered.get(id))
         .filter((r): r is RenderedArticle => r !== undefined);
@@ -195,7 +200,7 @@ const buildContent = async (): Promise<Content> => {
         tagName: tag.name,
         currentPage: number,
         perPage: PER_PAGE,
-        totalItems: tag.totalCount,
+        totalItems: tag.articles.length,
         cards: chunk
           .slice()
           .sort(byIdDesc)
@@ -237,9 +242,9 @@ const buildContent = async (): Promise<Content> => {
 
   // ---- /tags page ----
   const tagSummaries: TagSummaryVM[] = tags.map((tag) => ({
-    cursor: tag.cursor,
+    cursor: tag.id,
     name: tag.name,
-    totalCount: tag.totalCount,
+    totalCount: tag.articles.length,
   }));
 
   // ---- RSS (mirrors gatsby-plugin-feed's serialize()) ----

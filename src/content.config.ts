@@ -1,6 +1,11 @@
 import { defineCollection } from "astro:content";
 import type { Loader } from "astro/loaders";
-import { blogApiLoader, blogApiSchema } from "@miyamo2/astro-loader-blogapi-miyamo-today";
+import {
+  articlesLoader,
+  articlesSchema,
+  tagsLoader,
+  tagsSchema,
+} from "@miyamo2/astro-loader-blogapi-miyamo-today";
 import { recommendLoader, recommendsField, type DataEntry } from "@miyamo2/astro-recommend-article";
 
 const COLLECTION = "blogapi";
@@ -20,7 +25,7 @@ const toPayload = (entry: DataEntry): string => {
 };
 
 const articleLoader = (): Loader => {
-  const inner = blogApiLoader();
+  const inner = articlesLoader();
   const openaiApiKey = process.env.OPENAI_API_KEY ?? "";
   if (!openaiApiKey) {
     // recommendations are an enhancement; keep local builds working without credentials
@@ -48,6 +53,10 @@ const articleLoader = (): Loader => {
 export const collections = {
   [COLLECTION]: defineCollection({
     loader: articleLoader(),
-    schema: (ctx) => blogApiSchema(ctx).extend(recommendsField(COLLECTION)),
+    schema: (ctx) => articlesSchema(ctx).extend(recommendsField(COLLECTION)),
+  }),
+  blogapiTags: defineCollection({
+    loader: tagsLoader(),
+    schema: tagsSchema,
   }),
 };

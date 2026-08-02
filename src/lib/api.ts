@@ -1,58 +1,9 @@
 import { GraphQLClient } from "graphql-request";
 import { getSdk } from "../generates/graphql";
 
-// Articles are sourced through @miyamo2/astro-loader-blogapi-miyamo-today
-// (see src/content.config.ts). This module covers the remaining queries:
-// tag pages (ordering / totalCount per tag) and the GitHub profile.
-
-// ---- blog API (blogapi.miyamo.today) ----------------------------------------
-
-export interface TagWithArticles {
-  /** cursor of the tag edge (= path segment of /tags/xxx) */
-  cursor: string;
-  id: string;
-  name: string;
-  /** article cursors(= article ids) in the order returned by the API */
-  articleIds: string[];
-  totalCount: number;
-}
-
-const blogApiSdk = () => {
-  const url = process.env.BLOG_API_MIYAMO_TODAY_URL;
-  if (!url) {
-    throw new Error(
-      "BLOG_API_MIYAMO_TODAY_URL is not set. " +
-        "Set it in .env.development / CI secrets, or run `bun run scripts/mock-api.mjs` for local development."
-    );
-  }
-  return getSdk(
-    new GraphQLClient(url, {
-      headers: {
-        Authorization: `Bearer ${process.env.BLOG_API_MIYAMO_TODAY_TOKEN ?? ""}`,
-      },
-    })
-  );
-};
-
-let allTagsPromise: Promise<TagWithArticles[]> | undefined;
-
-export const fetchAllTags = () => {
-  if (!allTagsPromise) {
-    allTagsPromise = (async () => {
-      const data = await blogApiSdk().GetAllTags();
-      return data.tags.edges.map((edge): TagWithArticles => {
-        return {
-          cursor: edge.cursor,
-          id: edge.node.id,
-          name: edge.node.name,
-          articleIds: edge.node.articles.edges.map((articleEdge) => articleEdge.cursor),
-          totalCount: edge.node.articles.totalCount,
-        };
-      });
-    })();
-  }
-  return allTagsPromise;
-};
+// Articles and tags are both sourced through @miyamo2/astro-loader-blogapi-miyamo-today
+// (see src/content.config.ts). This module covers the remaining query:
+// the GitHub profile.
 
 // ---- GitHub API -------------------------------------------------------------
 

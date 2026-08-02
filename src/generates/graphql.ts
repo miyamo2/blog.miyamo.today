@@ -36,13 +36,10 @@ export type Scalars = {
   GitTimestamp: { input: any; output: any; }
   /** A string containing HTML code. */
   HTML: { input: any; output: any; }
-  Markdown: { input: string; output: string; }
   /** An ISO-8601 encoded UTC date string with millisecond precision. */
   PreciseDateTime: { input: any; output: any; }
   /** An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string. */
   URI: { input: string; output: string; }
-  URL: { input: string; output: string; }
-  Upload: { input: any; output: any; }
   /** A valid x509 certificate string */
   X509Certificate: { input: any; output: any; }
 };
@@ -830,57 +827,6 @@ export type ArchiveRepositoryPayload = {
   clientMutationId?: Maybe<Scalars['String']['output']>;
   /** The repository that was marked as archived. */
   repository?: Maybe<Repository>;
-};
-
-export type ArticleConnection = {
-  __typename?: 'ArticleConnection';
-  edges: Array<ArticleEdge>;
-  pageInfo: PageInfo;
-  totalCount: Scalars['Int']['output'];
-};
-
-export type ArticleEdge = {
-  __typename?: 'ArticleEdge';
-  cursor: Scalars['String']['output'];
-  node: ArticleNode;
-};
-
-export type ArticleNode = Node & {
-  __typename?: 'ArticleNode';
-  content: Scalars['Markdown']['output'];
-  createdAt: Scalars['DateTime']['output'];
-  id: Scalars['ID']['output'];
-  tags: ArticleTagConnection;
-  thumbnailUrl: Scalars['URL']['output'];
-  title: Scalars['String']['output'];
-  updatedAt: Scalars['DateTime']['output'];
-};
-
-
-export type ArticleNodeTagsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type ArticleTagConnection = {
-  __typename?: 'ArticleTagConnection';
-  edges: Array<ArticleTagEdge>;
-  pageInfo: PageInfo;
-  totalCount: Scalars['Int']['output'];
-};
-
-export type ArticleTagEdge = {
-  __typename?: 'ArticleTagEdge';
-  cursor: Scalars['String']['output'];
-  node: ArticleTagNode;
-};
-
-export type ArticleTagNode = {
-  __typename?: 'ArticleTagNode';
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
 };
 
 /** An object that can have users assigned to it. */
@@ -11920,7 +11866,6 @@ export type Mutation = {
   moveProjectCard?: Maybe<MoveProjectCardPayload>;
   /** Moves a project column to another place. */
   moveProjectColumn?: Maybe<MoveProjectColumnPayload>;
-  noop?: Maybe<NoopPayload>;
   /** Pin an environment to a repository */
   pinEnvironment?: Maybe<PinEnvironmentPayload>;
   /** Pin an issue to a repository */
@@ -12951,12 +12896,6 @@ export type MutationMoveProjectColumnArgs = {
 
 
 /** The root query for implementing GraphQL mutations. */
-export type MutationNoopArgs = {
-  input?: InputMaybe<NoopInput>;
-};
-
-
-/** The root query for implementing GraphQL mutations. */
 export type MutationPinEnvironmentArgs = {
   input: PinEnvironmentInput;
 };
@@ -13643,15 +13582,6 @@ export type MutationVerifyVerifiableDomainArgs = {
 export type Node = {
   /** ID of the object. */
   id: Scalars['ID']['output'];
-};
-
-export type NoopInput = {
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type NoopPayload = {
-  __typename?: 'NoopPayload';
-  clientMutationId?: Maybe<Scalars['String']['output']>;
 };
 
 /** The possible values for the notification restriction setting. */
@@ -16500,13 +16430,13 @@ export type PackageVersionStatistics = {
 export type PageInfo = {
   __typename?: 'PageInfo';
   /** When paginating forwards, the cursor to continue. */
-  endCursor: Scalars['String']['output'];
+  endCursor?: Maybe<Scalars['String']['output']>;
   /** When paginating forwards, are there more items? */
   hasNextPage: Scalars['Boolean']['output'];
   /** When paginating backwards, are there more items? */
   hasPreviousPage: Scalars['Boolean']['output'];
   /** When paginating backwards, the cursor to continue. */
-  startCursor: Scalars['String']['output'];
+  startCursor?: Maybe<Scalars['String']['output']>;
 };
 
 /** The possible types of patch statuses. */
@@ -20183,8 +20113,6 @@ export type PushAllowanceEdge = {
 /** The query root of GitHub's GraphQL interface. */
 export type Query = {
   __typename?: 'Query';
-  article?: Maybe<ArticleNode>;
-  articles: ArticleConnection;
   /** Look up a code of conduct by its key */
   codeOfConduct?: Maybe<CodeOfConduct>;
   /** Look up a code of conduct by its key */
@@ -20242,29 +20170,12 @@ export type Query = {
   securityVulnerabilities: SecurityVulnerabilityConnection;
   /** Users and organizations who can be sponsored via GitHub Sponsors. */
   sponsorables: SponsorableItemConnection;
-  tag?: Maybe<TagNode>;
-  tags: TagConnection;
   /** Look up a topic by name. */
   topic?: Maybe<Topic>;
   /** Lookup a user by login. */
   user?: Maybe<User>;
   /** The currently authenticated user. */
   viewer: User;
-};
-
-
-/** The query root of GitHub's GraphQL interface. */
-export type QueryArticleArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-/** The query root of GitHub's GraphQL interface. */
-export type QueryArticlesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -20453,21 +20364,6 @@ export type QuerySponsorablesArgs = {
   onlyDependencies?: InputMaybe<Scalars['Boolean']['input']>;
   orderBy?: InputMaybe<SponsorableOrder>;
   orgLoginForDependencies?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-/** The query root of GitHub's GraphQL interface. */
-export type QueryTagArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-/** The query root of GitHub's GraphQL interface. */
-export type QueryTagsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -27320,41 +27216,6 @@ export type Tag = GitObject & Node & {
   target: GitObject;
 };
 
-export type TagArticleConnection = {
-  __typename?: 'TagArticleConnection';
-  edges: Array<TagArticleEdge>;
-  pageInfo: PageInfo;
-  totalCount: Scalars['Int']['output'];
-};
-
-export type TagArticleEdge = {
-  __typename?: 'TagArticleEdge';
-  cursor: Scalars['String']['output'];
-  node: TagArticleNode;
-};
-
-export type TagArticleNode = Node & {
-  __typename?: 'TagArticleNode';
-  createdAt: Scalars['DateTime']['output'];
-  id: Scalars['ID']['output'];
-  thumbnailUrl: Scalars['URL']['output'];
-  title: Scalars['String']['output'];
-  updatedAt: Scalars['DateTime']['output'];
-};
-
-export type TagConnection = {
-  __typename?: 'TagConnection';
-  edges: Array<TagEdge>;
-  pageInfo: PageInfo;
-  totalCount: Scalars['Int']['output'];
-};
-
-export type TagEdge = {
-  __typename?: 'TagEdge';
-  cursor: Scalars['String']['output'];
-  node: TagNode;
-};
-
 /** Parameters to be used for the tag_name_pattern rule */
 export type TagNamePatternParameters = {
   __typename?: 'TagNamePatternParameters';
@@ -27378,21 +27239,6 @@ export type TagNamePatternParametersInput = {
   operator: Scalars['String']['input'];
   /** The pattern to match with. */
   pattern: Scalars['String']['input'];
-};
-
-export type TagNode = {
-  __typename?: 'TagNode';
-  articles: TagArticleConnection;
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-};
-
-
-export type TagNodeArticlesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** A team of users in an organization. */
@@ -31790,11 +31636,6 @@ export type WorkflowsParametersInput = {
   workflows: Array<WorkflowFileReferenceInput>;
 };
 
-export type GetAllTagsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetAllTagsQuery = { __typename?: 'Query', tags: { __typename?: 'TagConnection', edges: Array<{ __typename?: 'TagEdge', cursor: string, node: { __typename?: 'TagNode', id: string, name: string, articles: { __typename?: 'TagArticleConnection', totalCount: number, edges: Array<{ __typename?: 'TagArticleEdge', cursor: string }> } } }> } };
-
 export type GitHubProfileQueryVariables = Exact<{
   loginId: Scalars['String']['input'];
 }>;
@@ -31803,25 +31644,6 @@ export type GitHubProfileQueryVariables = Exact<{
 export type GitHubProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', login: string, avatarUrl: string, url: string, bio?: string | null, socialAccounts: { __typename?: 'SocialAccountConnection', nodes?: Array<{ __typename?: 'SocialAccount', url: string } | null> | null } } | null };
 
 
-export const GetAllTagsDocument = gql`
-    query GetAllTags {
-  tags {
-    edges {
-      cursor
-      node {
-        id
-        name
-        articles {
-          edges {
-            cursor
-          }
-          totalCount
-        }
-      }
-    }
-  }
-}
-    `;
 export const GitHubProfileDocument = gql`
     query GitHubProfile($loginId: String!) {
   user(login: $loginId) {
@@ -31845,9 +31667,6 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    GetAllTags(variables?: GetAllTagsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetAllTagsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetAllTagsQuery>({ document: GetAllTagsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetAllTags', 'query', variables);
-    },
     GitHubProfile(variables: GitHubProfileQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GitHubProfileQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GitHubProfileQuery>({ document: GitHubProfileDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GitHubProfile', 'query', variables);
     }
