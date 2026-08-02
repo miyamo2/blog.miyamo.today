@@ -39,6 +39,7 @@ export const ReccomendArticles = (props: RecommendArticleProps) => {
       {props?.reccomends?.map((recommend) => {
         return (
           <Recommend
+            key={recommend?.id}
             id={recommend?.id ?? ""}
             title={recommend?.title ?? ""}
             excerpt={recommend?.excerpt ?? ""}

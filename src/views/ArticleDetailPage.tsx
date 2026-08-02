@@ -35,6 +35,7 @@ const ArticleDetailPage = ({ data, url }: { data: ArticleDetailVM; url: string }
               .map((tag) => (
                 <Tag
                   as={Link}
+                  key={tag.id}
                   size={"md"}
                   id={`${tag.id}-${tag.id}`}
                   to={`/tags/${tag.id}`}

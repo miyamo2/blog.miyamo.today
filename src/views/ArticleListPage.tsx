@@ -12,8 +12,8 @@ const ArticleListPage = ({ data }: { data: ArticleListPageVM }) => {
         Articles
       </Heading>
       <Grid templateColumns={"repeat(auto-fill, minmax(280px, 1fr))"} gap={"sm"}>
-        {data.cards.map((card, i) => (
-          <ArticleCard {...card} />
+        {data.cards.map((card) => (
+          <ArticleCard key={card.id} {...card} />
         ))}
       </Grid>
       <Box paddingTop={"lg"} paddingBottom={"sm"}>

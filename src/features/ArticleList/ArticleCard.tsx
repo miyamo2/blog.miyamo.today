@@ -49,9 +49,7 @@ const ArticleCard = (props: ArticleCardProps) => {
       templateRows={"subgrid"}
       gridRow={"span 6"}
       gap={"sm"}
-      as={Link}
-      to={`/articles/${props.id}`}
-      aria-label={`link: ${props.title}`}
+      position={"relative"}
       bg={["#f6f8fa", "#151b23"]}
       w={"full"}
       className={"max-w-[750px] lg:max-w-[303px] transform-scaleup-then-hover article-card"}
@@ -61,10 +59,11 @@ const ArticleCard = (props: ArticleCardProps) => {
       <GridItem className={"transform-scaleup-then-hover-img-wrapper article-card-thumbnail"}>
         {cardImage}
       </GridItem>
-      <GridItem>
+      <GridItem className={"article-card-tags"}>
         {props.tags.map((tag) => (
           <Tag
             as={Link}
+            key={tag.id}
             size={"md"}
             id={`${props.id}-${tag.id}`}
             to={`/tags/${tag.id}`}
@@ -76,7 +75,16 @@ const ArticleCard = (props: ArticleCardProps) => {
       </GridItem>
       <GridItem>
         <Heading as="h2" size={"md"}>
-          {props.title}
+          {/* stretched link: an <a> inside an <a> is invalid HTML (the parser
+              splits the outer anchor and wrecks the prerendered layout), so the
+              card itself is a div and this link covers it via ::after */}
+          <Link
+            to={`/articles/${props.id}`}
+            aria-label={`link: ${props.title}`}
+            className={"article-card-link"}
+          >
+            {props.title}
+          </Link>
         </Heading>
       </GridItem>
       <GridItem>
