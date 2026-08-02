@@ -36,9 +36,7 @@ jobs:
         env:
           # @miyamo2/astro-loader-blogapi-miyamo-today is on GitHub Packages (see .npmrc)
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # --no-frozen-lockfile: bun.lock cannot be refreshed in environments
-        # without GitHub Packages credentials; let CI resolve the private scope
-        run: bun install --no-frozen-lockfile
+        run: bun install
 
       - name: Set up aws cli
         uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722 # v4.1.0
