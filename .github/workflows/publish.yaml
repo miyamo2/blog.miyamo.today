@@ -104,7 +104,7 @@ jobs:
             --exclude "_astro/*" --exclude "fonts/*" --exclude "feed/rss.xml" --exclude "manifest.webmanifest" \
             --cache-control "public, max-age=0, must-revalidate"
           aws s3 cp ./dist/feed/rss.xml "s3://${BUCKET_NAME}/feed/rss.xml" \
-            --content-type "application/rss+xml" --cache-control "public, max-age=0, must-revalidate"
+            --content-type "application/rss+xml; charset=utf-8" --cache-control "public, max-age=0, must-revalidate"
           aws s3 cp ./dist/manifest.webmanifest "s3://${BUCKET_NAME}/manifest.webmanifest" \
             --content-type "application/manifest+json" --cache-control "public, max-age=0, must-revalidate"
 
