@@ -9,6 +9,13 @@ import algoliaIndex from "./integrations/algolia-index";
 // evaluated, so load them explicitly here (empty prefix -> load every var).
 const env = loadEnv(process.env.NODE_ENV ?? "development", process.cwd(), "");
 
+// content.config.ts / integrations / src/lib read process.env directly, which Vite
+// never populates from .env files — mirror the loaded vars there (real environment
+// variables keep priority over file values).
+for (const [key, value] of Object.entries(env)) {
+  process.env[key] ??= value;
+}
+
 // https://astro.build/config
 export default defineConfig({
   site: "https://blog.miyamo.today",
