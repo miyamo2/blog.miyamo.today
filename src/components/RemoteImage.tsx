@@ -58,6 +58,7 @@ const RemoteImage = ({
       <img
         src={image.src}
         srcSet={image.srcSet}
+        sizes={image.srcSet ? image.sizes : undefined}
         alt={alt ?? ""}
         loading={loading}
         decoding="async"

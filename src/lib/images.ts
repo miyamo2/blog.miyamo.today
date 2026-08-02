@@ -10,6 +10,8 @@ import type { MdastTransform } from "./markdown";
 export interface RemoteImageData {
   src: string;
   srcSet?: string;
+  /** sizes attribute paired with the width-descriptor srcSet */
+  sizes?: string;
   width: number;
   height: number;
   /** base64 data url used as blurred placeholder (like gatsby's BLURRED placeholder) */
@@ -98,6 +100,21 @@ export interface BuildRemoteImageOptions {
   height?: number;
 }
 
+// like gatsby's CONSTRAINED layout: offer up to 2x of the target width (capped
+// at the source width) so hidpi screens get a sharp candidate instead of
+// upscaling the 1x image
+const srcsetWidths = (targetWidth: number, sourceWidth: number): number[] => {
+  const cap = Math.min(sourceWidth, targetWidth * 2);
+  const widths = [targetWidth];
+  if (cap > targetWidth) {
+    widths.push(cap);
+  }
+  return widths;
+};
+
+const sizesFor = (targetWidth: number): string =>
+  `(min-width: ${targetWidth}px) ${targetWidth}px, 100vw`;
+
 /**
  * Builds an optimized (webp) remote image via astro:assets, replacing
  * gatsby-plugin-image's gatsbyImageData.
@@ -127,20 +144,21 @@ export const buildRemoteImage = async (
     targetHeight = Math.round((targetWidth * info.height) / info.width);
   }
 
-  const densities = info.width >= targetWidth * 2 ? [1, 2] : [1];
   try {
     const result = await getImage({
       src: url,
       width: targetWidth,
       height: targetHeight,
-      densities,
+      widths: srcsetWidths(targetWidth, info.width),
       format: "webp",
       quality: 100,
       ...(options.width && options.height ? { fit: "cover" as const } : {}),
     });
+    const srcSet = result.srcSet.attribute !== "" ? result.srcSet.attribute : undefined;
     return {
       src: result.src,
-      srcSet: result.srcSet.attribute !== "" ? result.srcSet.attribute : undefined,
+      srcSet,
+      sizes: srcSet ? sizesFor(targetWidth) : undefined,
       width: targetWidth,
       height: targetHeight,
       placeholder: info.placeholder,
@@ -213,21 +231,22 @@ export const buildCollectionImage = async (
     targetHeight = Math.round((targetWidth * meta.height) / meta.width);
   }
 
-  const densities = meta.width >= targetWidth * 2 ? [1, 2] : [1];
   const placeholder = await localImagePlaceholder(meta);
   try {
     const result = await getImage({
       src: meta,
       width: targetWidth,
       height: targetHeight,
-      densities,
+      widths: srcsetWidths(targetWidth, meta.width),
       format: "webp",
       quality: 100,
       ...(options.width && options.height ? { fit: "cover" as const } : {}),
     });
+    const srcSet = result.srcSet.attribute !== "" ? result.srcSet.attribute : undefined;
     return {
       src: result.src,
-      srcSet: result.srcSet.attribute !== "" ? result.srcSet.attribute : undefined,
+      srcSet,
+      sizes: srcSet ? sizesFor(targetWidth) : undefined,
       width: targetWidth,
       height: targetHeight,
       placeholder,
