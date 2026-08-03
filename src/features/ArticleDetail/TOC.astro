@@ -1,0 +1,69 @@
+---
+import { faListUl } from "@fortawesome/free-solid-svg-icons";
+
+import FaIcon from "../../components/FaIcon.astro";
+
+import "./TOC.css";
+
+interface Props {
+  headings?: ReadonlyArray<{
+    readonly depth: number | null;
+    readonly id: string | null;
+    readonly value: string | null;
+  } | null> | null;
+}
+
+const { headings } = Astro.props;
+
+const calcDepth = (depth: number | null | undefined) => {
+  if (!depth) {
+    return 0;
+  }
+  return depth - 1;
+};
+---
+
+<div class="w-full pl-[0.5em]">
+  <div class="w-full border-b backdrop-blur-md [writing-mode:horizontal-tb]">
+    <h2 class="text-xl font-bold whitespace-nowrap">
+      <FaIcon icon={faListUl} class="mr-2" />
+      Table of Contents
+    </h2>
+  </div>
+  <div class="side-toc w-full pt-2">
+    {
+      headings?.map((heading) => (
+        <a href={`#${heading?.id}`}>
+          <span
+            class="block w-full truncate pb-2"
+            style={`text-indent: ${calcDepth(heading?.depth)}em`}
+          >
+            {heading?.value}
+          </span>
+        </a>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  /** smooth-scroll to the heading instead of jumping, keeping the hash in sync */
+  const setupSideTOC = () => {
+    document.querySelectorAll<HTMLElement>(".side-toc").forEach((toc) => {
+      toc.addEventListener("click", (event) => {
+        const target = event.target as HTMLElement | null;
+        const link = target?.closest<HTMLAnchorElement>('a[href^="#"]');
+        if (!link) {
+          return;
+        }
+        event.preventDefault();
+        const id = link.getAttribute("href")?.slice(1) ?? "";
+        document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+        history.replaceState(null, "", `#${id}`);
+      });
+    });
+  };
+
+  setupSideTOC();
+  document.addEventListener("astro:after-swap", setupSideTOC);
+</script>

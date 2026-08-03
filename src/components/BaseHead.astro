@@ -1,0 +1,135 @@
+---
+import { siteMetadata } from "../lib/site";
+import scrollDrivenCss from "../styles/scroll-driven.css?raw";
+
+// port of src/components/SEO.tsx + gatsby-ssr.tsx / gatsby-config.ts head additions
+export interface Props {
+  title?: string;
+  description?: string;
+  path?: string;
+  image?: string;
+  jsonLD?: Record<string, any>[];
+  /** include the scroll-driven animation style (ScrollDrivenAnimationStyle) */
+  scrollDriven?: boolean;
+}
+
+const { path, title, description, image, jsonLD = [], scrollDriven = true } = Astro.props;
+
+const {
+  title: defaultTitle,
+  description: defaultDescription,
+  siteUrl: defaultSiteUrl,
+  lang: defaultLang,
+  image: defaultImage,
+  icon,
+  twitterUsername,
+  facebookAppId,
+} = siteMetadata;
+
+const seo = {
+  title: defaultTitle ? (title ? `${title} | ${defaultTitle}` : defaultTitle) : "",
+  description: description ?? defaultDescription ?? "",
+  url: defaultSiteUrl ? (path ? `${defaultSiteUrl}${path}` : defaultSiteUrl) : "",
+  lang: defaultLang ?? "ja_JP",
+  image: image ? `${defaultSiteUrl}${image}` : `${defaultSiteUrl}${defaultImage}`,
+  icon: icon ?? "",
+  twitterUsername: twitterUsername ?? "",
+  facebookAppId: facebookAppId ?? "",
+};
+
+const gtagId = "G-F1N7VJ0ZX9";
+// astro:after-swap fires on ClientRouter navigations only (not the initial
+// load, which gtag('config') already reports), after the new <title> is set
+const gtagInit = `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${gtagId}');document.addEventListener('astro:after-swap', function () {gtag('event', 'page_view', {page_location: location.href, page_title: document.title});});`;
+
+// gatsby-plugin-manifest icon set
+const manifestIconSizes = [48, 72, 96, 144, 192, 256, 384, 512];
+
+// gatsby-plugin-preconnect
+const preconnectDomains = [
+  "https://cdn.buymeacoffee.com",
+  "https://www.reddit.com",
+  "https://www.googletagmanager.com",
+  "https://opengraph.githubassets.com",
+  "https://t3.gstatic.com",
+];
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<title>{seo.title}</title>
+<meta name="description" content={seo.description} />
+<meta name="author" content="miyamo2" />
+<meta property="og:title" content={seo.title} />
+<meta property="og:site_name" content={defaultTitle ?? ""} />
+<meta property="og:description" content={seo.description} />
+<meta property="og:url" content={seo.url} />
+<meta property="og:type" content="website" />
+<meta property="og:image" content={seo.image} />
+<meta property="og:locale" content={seo.lang} />
+<meta property="fb:app_id" content={seo.facebookAppId} />
+<meta name="twitter:creator" content={seo.twitterUsername} />
+<meta name="twitter:title" content={seo.title} />
+<meta name="twitter:description" content={seo.description} />
+<meta name="twitter:image" content={seo.image} />
+<meta name="twitter:url" content={seo.url} />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href={`${defaultSiteUrl}${icon}`} />
+{jsonLD.map((obj) => <script type="application/ld+json" set:html={JSON.stringify(obj)} />)}
+{scrollDriven && <style type="text/css" set:html={scrollDrivenCss} />}
+
+{/* font preloads (gatsby-ssr.tsx onRenderBody) */}
+<link
+  rel="preload"
+  href="/fonts/UDEVGothic35HS-Regular-Subset.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin="anonymous"
+/>
+<link
+  rel="preload"
+  href="/fonts/UDEVGothic35HS-Bold-Subset.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin="anonymous"
+/>
+<link
+  rel="preload"
+  href="/fonts/UDEVGothic35HS-Italic-Subset.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin="anonymous"
+/>
+<link
+  rel="preload"
+  href="/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin="anonymous"
+/>
+
+{/* gatsby-plugin-preconnect */}
+{preconnectDomains.map((domain) => <link rel="preconnect" href={domain} crossorigin />)}
+
+{/* gatsby-plugin-manifest */}
+<link rel="manifest" href="/manifest.webmanifest" />
+<meta name="theme-color" content="#3f3a3a" />
+{
+  manifestIconSizes.map((size) => (
+    <link
+      rel="apple-touch-icon"
+      sizes={`${size}x${size}`}
+      href={`/icons/icon-${size}x${size}.png`}
+    />
+  ))
+}
+
+{/* gatsby-plugin-google-gtag (head: true, production only) */}
+{
+  import.meta.env.PROD && (
+    <>
+      <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gtagId}`} />
+      <script is:inline set:html={gtagInit} />
+    </>
+  )
+}

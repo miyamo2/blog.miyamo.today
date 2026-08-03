@@ -1,0 +1,50 @@
+---
+import { faHome, faTags, faAddressCard, faRss } from "@fortawesome/free-solid-svg-icons";
+import { Button } from "./starwind/button";
+import ThemeToggle from "./starwind/theme-toggle/ThemeToggle.astro";
+import FaIcon from "./FaIcon.astro";
+import Menu from "./Menu.astro";
+import Search from "./search/Search.astro";
+
+const navItems = [
+  { href: "/", label: "Home", icon: faHome },
+  { href: "/tags", label: "Tags", icon: faTags },
+  { href: "/about", label: "About", icon: faAddressCard },
+  { href: "/feed/rss.xml", label: "RSS", icon: faRss },
+];
+---
+
+<div class="grid grid-cols-[1fr_1fr]">
+  <div class="h-full w-full justify-self-start dark:invert">
+    <a href="/" class="inline-block whitespace-nowrap">
+      <img
+        src="/logo.png"
+        alt="logo"
+        width={65}
+        height={65}
+        style="width: 65px; height: 65px; object-fit: cover;"
+      />
+    </a>
+  </div>
+  <div class="hidden h-full w-full justify-self-end pt-4 lg:block">
+    <div class="flex h-full items-center justify-end gap-2">
+      {
+        navItems.map((item) => (
+          <Button variant="ghost" size="sm" href={item.href} class="text-md font-bold">
+            <FaIcon icon={item.icon} />
+            {item.label}
+          </Button>
+        ))
+      }
+      <ThemeToggle variant="default" size="sm" ariaLabel="toggle-dark-mode" />
+      <Search />
+    </div>
+  </div>
+  <div class="h-full w-full justify-self-end pt-3 lg:hidden">
+    <div class="flex items-center justify-end gap-2">
+      <Search />
+      <ThemeToggle variant="default" size="sm" ariaLabel="toggle-dark-mode" />
+      <Menu />
+    </div>
+  </div>
+</div>

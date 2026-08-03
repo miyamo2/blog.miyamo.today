@@ -1,0 +1,143 @@
+---
+import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
+import { format } from "@formkit/tempo";
+
+import FaIcon from "../components/FaIcon.astro";
+import RemoteImage from "../components/RemoteImage.astro";
+import ShareButtons from "../components/ShareButtons.astro";
+import { Separator } from "../components/starwind/separator";
+import Recommend from "../features/ArticleDetail/Recommend.astro";
+import TOC from "../features/ArticleDetail/TOC.astro";
+import TOCModal from "../features/ArticleDetail/TOCModal.astro";
+import type { ArticleDetailVM } from "../lib/content";
+import { articleCardTransition, articleHeroTransition } from "../lib/viewTransition";
+
+import "./article-detail.css";
+
+interface Props {
+  data: ArticleDetailVM;
+  url: string;
+}
+
+const { data, url } = Astro.props;
+
+const createdAt = format(new Date(data.createdAt ?? ""), "YYYY/MM/DD");
+---
+
+<main>
+  <div class="article-detail grid" style={articleCardTransition(data.id)}>
+    <div style="grid-area: title">
+      <h1 class="pb-4 text-3xl font-bold">{data.title}</h1>
+    </div>
+    <div style="grid-area: tag">
+      <div class="flex flex-wrap gap-2">
+        {
+          data.tags
+            .filter((v) => v)
+            .map((tag) => (
+              <a
+                id={`${tag.id}-${tag.id}`}
+                href={`/tags/${tag.id}`}
+                class="bg-tag inline-flex items-center rounded-md px-2 py-1 text-sm"
+              >
+                #{tag.name}
+              </a>
+            ))
+        }
+      </div>
+    </div>
+    <div style="grid-area: date" class="py-4">
+      <FaIcon icon={faCalendarDay} class="mr-2" />
+      {createdAt}
+    </div>
+    <div style="grid-area: image; justify-self: center;">
+      <RemoteImage
+        image={data.imageData}
+        alt={`ArticleImage:${data.id}`}
+        objectFit="cover"
+        style={articleHeroTransition(data.id)}
+      />
+    </div>
+    <div style="grid-area: lnav" class="hidden h-full self-end lg:block">
+      <div class="h-full w-full overflow-visible">
+        <div style="position: sticky; top: 71px;">
+          <ShareButtons title={data.title ?? ""} url={url} stackType="v" buttonSize={32} />
+        </div>
+      </div>
+    </div>
+    <div style="grid-area: rnav" class="contain-paint hidden h-full w-full self-start lg:block">
+      <div class="h-full overflow-visible">
+        <div style="position: sticky; top: 71px;">
+          <TOC headings={data.headings} />
+          <Recommend recommends={data.recommends} />
+        </div>
+      </div>
+    </div>
+    <div style="grid-area: content" class="scroll-offset w-full">
+      <article>
+        <div class="markdown-body w-full" set:html={data.html ?? ""} />
+      </article>
+    </div>
+    <div style="grid-area: share" class="pt-4 lg:hidden">
+      <div class="flex justify-evenly">
+        <ShareButtons title={data.title ?? ""} url={url} stackType="h" buttonSize={32} />
+      </div>
+    </div>
+    <div style="grid-area: comment; justify-self: stretch;">
+      <Separator class="my-2" />
+      <div id="comments"></div>
+    </div>
+    <div style="grid-area: recommend; justify-self: stretch;" class="lg:hidden">
+      <Recommend recommends={data.recommends} />
+    </div>
+  </div>
+  <TOCModal headings={data.headings} />
+</main>
+
+<script>
+  const GISCUS_ORIGIN = "https://giscus.app";
+
+  /** giscus reads data-theme once on load; later changes go through postMessage */
+  const currentTheme = () =>
+    document.documentElement.classList.contains("dark") ? "dark" : "light";
+
+  const mountGiscus = () => {
+    const container = document.getElementById("comments");
+    if (!container || container.dataset.giscusMounted) {
+      return;
+    }
+    container.dataset.giscusMounted = "true";
+
+    const script = document.createElement("script");
+    script.src = `${GISCUS_ORIGIN}/client.js`;
+    script.async = true;
+    script.crossOrigin = "anonymous";
+    const attributes: Record<string, string> = {
+      "data-repo": "miyamo2/comments.miyamo.today",
+      "data-repo-id": "R_kgDONcgSBA",
+      "data-category": "Announcements",
+      "data-category-id": "DIC_kwDONcgSBM4ClJ66",
+      "data-mapping": "pathname",
+      "data-strict": "1",
+      "data-reactions-enabled": "1",
+      "data-emit-metadata": "0",
+      "data-input-position": "top",
+      "data-theme": currentTheme(),
+      "data-lang": "ja",
+      "data-loading": "lazy",
+    };
+    for (const [name, value] of Object.entries(attributes)) {
+      script.setAttribute(name, value);
+    }
+    container.appendChild(script);
+  };
+
+  document.addEventListener("theme:change", (event) => {
+    const theme = (event as CustomEvent<{ theme: string }>).detail?.theme ?? currentTheme();
+    const frame = document.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
+    frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme } } }, GISCUS_ORIGIN);
+  });
+
+  mountGiscus();
+  document.addEventListener("astro:after-swap", mountGiscus);
+</script>

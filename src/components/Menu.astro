@@ -1,0 +1,38 @@
+---
+import { faBars, faAddressCard, faHome, faTags } from "@fortawesome/free-solid-svg-icons";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./starwind/dialog";
+import { Button } from "./starwind/button";
+import FaIcon from "./FaIcon.astro";
+
+const menuItems = [
+  { href: "/", label: "Home", icon: faHome },
+  { href: "/tags", label: "Tags", icon: faTags },
+  { href: "/about", label: "About", icon: faAddressCard },
+];
+---
+
+<Dialog id="menu-modal" class="lg:hidden">
+  <DialogTrigger
+    aria-label="menu-button"
+    class="hover:bg-muted inline-flex size-11 items-center justify-center rounded-md text-2xl font-bold transition-all"
+  >
+    <FaIcon icon={faBars} />
+  </DialogTrigger>
+  <DialogContent class="w-[92vw] max-w-md" animationDuration={400}>
+    <DialogHeader id="menu-modal-header">
+      <DialogTitle class="text-2xl font-bold">Menu</DialogTitle>
+    </DialogHeader>
+    <div id="menu-modal-body" class="scrollable-y">
+      <div class="flex h-full flex-col gap-2">
+        {
+          menuItems.map((item) => (
+            <Button variant="ghost" href={item.href} class="text-lg font-bold">
+              <FaIcon icon={item.icon} />
+              {item.label}
+            </Button>
+          ))
+        }
+      </div>
+    </div>
+  </DialogContent>
+</Dialog>

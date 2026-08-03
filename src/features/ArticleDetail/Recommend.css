@@ -28,13 +28,16 @@
 }
 .recommend-card_description {
   padding-left: 0.5rem !important;
-  height: 1.5rem !important;
+  height: 2rem !important;
   max-width: 100% !important;
   overflow: hidden !important;
-  -webkit-line-clamp: 1 !important;
-  line-clamp: 1 !important;
-  display: -webkit-inline-box !important;
+}
+.recommend-card_description p {
+  overflow: hidden !important;
+  display: -webkit-box !important;
   -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
 }
 .recommend-card_created {
   padding-left: 0.5rem !important;
@@ -48,5 +51,5 @@
 }
 
 .recommend-card_created_inner {
-  font-size: 0.80rem !important
+  font-size: 0.8rem !important;
 }

@@ -2,8 +2,8 @@ import { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
   overwrite: true,
-  schema: ".graphql/**/*.graphqls",
-  documents: ["source-node.graphql", "github-avatar.graphql"],
+  schema: ".graphql/githubapi/**/*.graphqls",
+  documents: ["github-profile.graphql"],
   generates: {
     "./src/generates/graphql.ts": {
       plugins: ["typescript", "typescript-operations", "typescript-graphql-request"],
@@ -12,7 +12,8 @@ const config: CodegenConfig = {
         withHOC: false,
         withComponent: false,
         scalars: {
-          uniqueidentifier: "string",
+          DateTime: "string",
+          URI: "string",
         },
       },
     },

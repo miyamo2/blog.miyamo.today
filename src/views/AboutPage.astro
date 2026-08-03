@@ -1,0 +1,111 @@
+---
+import { Button } from "../components/starwind/button";
+import RemoteImage from "../components/RemoteImage.astro";
+import type { RemoteImageData } from "../lib/images";
+import "./about.css";
+
+export interface AboutVM {
+  login: string;
+  url: string;
+  bio: string;
+  socialAccounts: { url: string }[];
+  avatarImage: RemoteImageData | null;
+}
+
+interface Props {
+  data: AboutVM;
+}
+
+const { data } = Astro.props;
+
+// simple-icons path data, inlined so the social icons no longer need react-icons
+const GITHUB_ICON =
+  "M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12";
+
+const SOCIAL_ICONS = [
+  {
+    match: "zenn",
+    path: "M.264 23.771h4.984c.264 0 .498-.147.645-.352L19.614.874c.176-.293-.029-.645-.381-.645h-4.72c-.235 0-.44.117-.557.323L.03 23.361c-.088.176.029.41.234.41zM17.445 23.419l6.479-10.408c.205-.323-.029-.733-.41-.733h-4.691c-.176 0-.352.088-.44.235l-6.655 10.643c-.176.264.029.616.352.616h4.779c.234-.001.468-.118.586-.353z",
+  },
+  {
+    match: "qiita",
+    path: "M12 0C5.3726 0 0 5.3726 0 12s5.3726 12 12 12c3.3984 0 6.4665-1.413 8.6498-3.6832-.383-.0574-.7746-.2062-1.1466-.4542-.7145-.4763-1.3486-.9263-1.6817-1.674-1.2945 1.3807-3.0532 1.835-5.1822 2.0503-4.311.4359-8.0456-1.4893-8.4979-6.2996-.1922-2.045.2628-3.989 1.1804-5.582l-.5342-2.1009c-.0862-.3652.2498-.7126.6057-.6262l1.8456.448c1.0974-.9012 2.4249-1.49 3.8892-1.638 1.2526-.1267 2.467.0834 3.571.5624l1.7348-1.0494c.3265-.1974.7399.0257.7711.4164l.1 2.4747v.0002c1.334 1.4084 2.2424 3.3319 2.4478 5.516.116 1.2339-.012 2.1776-.339 3.078-.1531.4215-.1992.7778.0776 1.1305.2674.3408.6915 1.0026 1.1644.8917.7107-.1666 1.4718-.1223 1.9422.1715C23.4925 15.9525 24 14.0358 24 12c0-6.6274-5.3726-12-12-12Zm-.0727 5.727a5.2731 5.2731 0 0 0-.6146.0273c-2.2084.2233-3.9572 1.8135-4.4937 3.8484l-1.3176-.1996-.014.2589 1.2972.1407c-.0352.1497-.0643.2384-.086.3923l-1.1319.0902.0103.2025 1.1032-.088c-.0194.1713-.031.2814-.0332.4565l-1.0078.412.0495.2499.9598-.4492c.002.1339.008.2053.0207.3407.2667 2.8371 2.6364 3.3981 5.4677 3.1118 2.8312-.2863 5.0517-1.3114 4.785-4.1486-.013-.1361-.0324-.2068-.0553-.3392l1.0397.2257.0242-.229-1.0906-.207c-.0342-.1687-.0765-.271-.1264-.4327l1.1208-.1374-.0158-.2019-1.1499.1409a5.1093 5.1093 0 0 0-.1665-.4259l1.2665-.4042-.0397-.2536-1.3471.4667c-.819-1.7168-2.5002-2.8224-4.4546-2.8482Z",
+  },
+  {
+    match: "speakerdeck",
+    path: "M10.025 13.875H4.687a4.688 4.688 0 0 1 0-9.375h6.227a1.875 1.875 0 0 1 0 3.75H4.592a.937.937 0 1 0 0 1.875h5.337a4.687 4.687 0 1 1 0 9.375H1.875a1.875 1.875 0 0 1 0-3.75h8.15a.938.938 0 0 0 0-1.875zM13.97 19.5a5.635 5.635 0 0 0 2.396-3.75h3.026a.93.93 0 0 0 .921-.938V9.189a.93.93 0 0 0-.921-.938h-5.497c.438-.498.704-1.155.704-1.875s-.266-1.377-.704-1.875h6.418C22.35 4.5 24 6.179 24 8.25v7.5c0 2.071-1.65 3.75-3.687 3.75H13.97z",
+  },
+];
+
+// GitHub always comes first, then the accounts we have an icon for
+const socialLinks = [
+  { url: data.url, label: "GitHub", path: GITHUB_ICON },
+  ...data.socialAccounts.flatMap((socialAccount) => {
+    const url = socialAccount?.url ?? "";
+    const icon = SOCIAL_ICONS.find(({ match }) => url.includes(match));
+    return icon ? [{ url, label: `social account link: ${url}`, path: icon.path }] : [];
+  }),
+];
+---
+
+<div class="w-full">
+  <main>
+    <div class="about-grid justify-between">
+      <div class="[grid-area:title]">
+        <h1 class="pb-4 text-3xl font-bold">About</h1>
+      </div>
+      <div class="justify-self-center pb-4 [grid-area:image]">
+        <RemoteImage
+          image={data.avatarImage}
+          alt="GitHubAvatar:miyamo2"
+          objectFit="cover"
+          class="round-image"
+        />
+      </div>
+      <div class="pb-4 [grid-area:name]">
+        <h2 class="text-2xl font-bold">{data.login}</h2>
+      </div>
+      <div class="pb-4 [grid-area:bio]">
+        <p>{data.bio}</p>
+      </div>
+      <div class="justify-self-center [grid-area:social]">
+        <div class="flex flex-row items-center gap-2">
+          {
+            socialLinks.map((link) => (
+              <Button
+                variant="ghost"
+                size="lg"
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={link.label}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                  class="size-8"
+                >
+                  <path d={link.path} />
+                </svg>
+              </Button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<style>
+  .about-grid {
+    display: grid;
+    grid-template-areas:
+      "title title title"
+      ". image ."
+      ". name ."
+      ". bio ."
+      ". social .";
+  }
+</style>

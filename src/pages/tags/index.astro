@@ -1,0 +1,41 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import TagsPage from "../../views/TagsPage.astro";
+import { getContent } from "../../lib/content";
+import { buildJSONLD, buildWebSiteJSONLD } from "../../lib/jsonld";
+
+const { tagSummaries } = await getContent();
+
+const path = "/tags";
+
+const jsonLDTags = tagSummaries.map((tag, i) =>
+  buildJSONLD({
+    type: "ListItem",
+    path: `tags/${tag.cursor}/`,
+    withUrl: true,
+    attributes: {
+      position: i + 1,
+    },
+  })
+);
+
+const jsonLDWebSite = buildWebSiteJSONLD();
+const jsonLDTagsPage = buildJSONLD({
+  type: "ItemList",
+  headline: "Tags",
+  path: path,
+  description: "タグ一覧",
+  withUrl: true,
+  withAuthor: true,
+  withLogo: true,
+  withContext: true,
+  withID: true,
+  attributes: {
+    itemListElement: jsonLDTags,
+  },
+});
+---
+
+<Layout head={{ path, title: "Tags", jsonLD: [jsonLDWebSite, jsonLDTagsPage] }}>
+  <TagsPage data={tagSummaries} />
+</Layout>

@@ -1,0 +1,59 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import TaggedArticlesPage from "../../../views/TaggedArticlesPage.astro";
+import { getContent, type TaggedArticlesPageVM } from "../../../lib/content";
+import { buildJSONLD, buildWebSiteJSONLD } from "../../../lib/jsonld";
+
+export async function getStaticPaths() {
+  const { taggedPages } = await getContent();
+  return taggedPages.map((taggedPage) => ({
+    params: { tag: taggedPage.tagId, page: `${taggedPage.currentPage}` },
+    props: { data: taggedPage },
+  }));
+}
+
+interface Props {
+  data: TaggedArticlesPageVM;
+}
+
+const { data } = Astro.props;
+
+// /tags/{tagId}/1 was a permanent redirect to /tags/{tagId} in the Gatsby build
+if (data.currentPage === 1) {
+  return Astro.redirect(`/tags/${data.tagId}`, 301);
+}
+
+const title = `#${data.tagName}`;
+const path = `/tags/${data.tagId}/${data.currentPage}`;
+const page = path.split("/").at(-1);
+
+const jsonLDWebSite = buildWebSiteJSONLD();
+const jsonLDArticles = data.cards.map((card, i) =>
+  buildJSONLD({
+    type: "ListItem",
+    path: `articles/${card.id}`,
+    withUrl: true,
+    attributes: {
+      position: i + 1,
+    },
+  })
+);
+const jsonLDTaggedArticlesPage = buildJSONLD({
+  type: "ItemList",
+  headline: "Articles",
+  path: path,
+  description: page ? `#${data.tagName}の記事一覧(page ${page})` : `#${data.tagName}の記事一覧`,
+  withUrl: true,
+  withAuthor: true,
+  withLogo: true,
+  withContext: true,
+  withID: true,
+  attributes: {
+    itemListElement: jsonLDArticles,
+  },
+});
+---
+
+<Layout head={{ path, title, jsonLD: [jsonLDWebSite, jsonLDTaggedArticlesPage] }}>
+  <TaggedArticlesPage data={data} />
+</Layout>

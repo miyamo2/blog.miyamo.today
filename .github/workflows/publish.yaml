@@ -34,6 +34,7 @@ jobs:
 
       - name: Install dependencies
         env:
+          # @miyamo2/astro-loader-blogapi-miyamo-today is on GitHub Packages (see .npmrc)
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun install
 
@@ -52,46 +53,60 @@ jobs:
           echo "::add-mask::$ID_TOKEN"
           echo "idtoken=${ID_TOKEN}" >> $GITHUB_OUTPUT
 
-      - name: Restore Gatsby cache
+      - name: Restore Astro cache
         id: cache-primes-restore
         uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         if: ${{ github.event.action ==  'sync-read-model' }}
         with:
           path: |
             ./.cache
-          key: ${{ runner.os }}-gatsby-build-${{ github.sha }}-${{ github.event.client_payload.event_id }}
+            ./src/content/blogapi
+            ./src/assets/blogapi
+          key: ${{ runner.os }}-astro-build-${{ github.sha }}-${{ github.event.client_payload.event_id }}
           restore-keys: |
-            ${{ runner.os }}-gatsby-build-${{ github.sha }}-
+            ${{ runner.os }}-astro-build-${{ github.sha }}-
 
       - name: Build
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           BLOG_API_MIYAMO_TODAY_URL: ${{ secrets.BLOG_API_MIYAMO_TODAY_URL }}
           BLOG_API_MIYAMO_TODAY_TOKEN: ${{ steps.auth-blog-miyamo-today.outputs.idtoken }}
           GITHUB_API_TOKEN: ${{ secrets.READ_MY_REPO }}
           FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
-          BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
-          GATSBY_ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
-          GATSBY_ALGOLIA_SEARCH_KEY: ${{ secrets.ALGOLIA_SEARCH_KEY }}
+          PUBLIC_ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+          PUBLIC_ALGOLIA_SEARCH_KEY: ${{ secrets.ALGOLIA_SEARCH_KEY }}
+          PUBLIC_ALGOLIA_INDEX_NAME: ${{ secrets.ALGOLIA_INDEX_NAME }}
           ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
-          GATSBY_ALGOLIA_INDEX_NAME: ${{ secrets.ALGOLIA_INDEX_NAME }}
-          GATSBY_CPU_COUNT: 2
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: bun run build
 
-      - name: Save Gatsby cache
+      - name: Save Astro cache
         uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: |
             ./.cache
-          key: ${{ runner.os }}-gatsby-build-${{ github.sha }}-${{ github.event.client_payload.event_id }}
+            ./src/content/blogapi
+            ./src/assets/blogapi
+          key: ${{ runner.os }}-astro-build-${{ github.sha }}-${{ github.event.client_payload.event_id }}
 
       - name: Deploy
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: bun run deploy
+          BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
+        run: |
+          # immutable hashed assets first so pages never reference missing files
+          aws s3 sync ./dist/_astro "s3://${BUCKET_NAME}/_astro" --delete \
+            --cache-control "public, max-age=31536000, immutable"
+          aws s3 sync ./dist/fonts "s3://${BUCKET_NAME}/fonts" --delete --exclude "*" --include "*.woff2" \
+            --content-type "font/woff2" --cache-control "public, max-age=31536000, immutable"
+          aws s3 sync ./dist/fonts "s3://${BUCKET_NAME}/fonts" --exclude "*.woff2" \
+            --cache-control "public, max-age=31536000, immutable"
+          # everything else must revalidate (same policy as the previous gatsby-plugin-s3 config)
+          aws s3 sync ./dist "s3://${BUCKET_NAME}" --delete \
+            --exclude "_astro/*" --exclude "fonts/*" --exclude "feed/rss.xml" --exclude "manifest.webmanifest" \
+            --cache-control "public, max-age=0, must-revalidate"
+          aws s3 cp ./dist/feed/rss.xml "s3://${BUCKET_NAME}/feed/rss.xml" \
+            --content-type "application/rss+xml; charset=utf-8" --cache-control "public, max-age=0, must-revalidate"
+          aws s3 cp ./dist/manifest.webmanifest "s3://${BUCKET_NAME}/manifest.webmanifest" \
+            --content-type "application/manifest+json" --cache-control "public, max-age=0, must-revalidate"
 
       - name: Invalidate CloudFront Edge Cache
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"

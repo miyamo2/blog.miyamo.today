@@ -1,0 +1,36 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AboutPage, { type AboutVM } from "../views/AboutPage.astro";
+import { fetchGitHubProfile } from "../lib/api";
+import { buildRemoteImage } from "../lib/images";
+import { buildJSONLD, buildWebSiteJSONLD } from "../lib/jsonld";
+
+const profile = await fetchGitHubProfile();
+const avatarImage = await buildRemoteImage(profile.avatarUrl, { width: 350, height: 350 });
+
+const data: AboutVM = {
+  login: profile.login,
+  url: profile.url,
+  bio: profile.bio,
+  socialAccounts: profile.socialAccounts,
+  avatarImage,
+};
+
+const path = "/about";
+const jsonLDWebSite = buildWebSiteJSONLD();
+const jsonLDAboutPage = buildJSONLD({
+  type: "ProfilePage",
+  headline: "About",
+  path: path,
+  description: "miyamo2について",
+  withMainEntityOfPage: true,
+  withAuthor: true,
+  withLogo: true,
+  withContext: true,
+  withID: true,
+});
+---
+
+<Layout head={{ path, title: "About", jsonLD: [jsonLDWebSite, jsonLDAboutPage] }}>
+  <AboutPage data={data} />
+</Layout>

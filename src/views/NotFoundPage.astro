@@ -1,0 +1,23 @@
+---
+import { Button } from "../components/starwind/button";
+---
+
+<main class="flex min-h-[60vh] w-full items-center justify-center">
+  <div class="w-full text-center">
+    <h1 class="pb-4 text-3xl font-bold">Page Not Found</h1>
+    <p class="pb-4">Oops! This page has been removed or relocated.</p>
+    <Button id="go-back">Go Back</Button>
+  </div>
+</main>
+
+<script>
+  // replaces the old navigate(-1) from the React island
+  const setupGoBack = () => {
+    document.getElementById("go-back")?.addEventListener("click", () => {
+      history.back();
+    });
+  };
+
+  setupGoBack();
+  document.addEventListener("astro:after-swap", setupGoBack);
+</script>

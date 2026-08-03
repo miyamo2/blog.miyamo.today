@@ -1,5 +1,0 @@
-query GitHubAvatar($loginId: String!) {
-  user(login: $loginId) {
-    avatarUrl
-  }
-}

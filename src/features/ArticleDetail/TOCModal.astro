@@ -1,0 +1,108 @@
+---
+import { faListUl } from "@fortawesome/free-solid-svg-icons";
+
+import FaIcon from "../../components/FaIcon.astro";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../components/starwind/dialog";
+
+import "./TOC.css";
+
+interface Props {
+  headings?: ReadonlyArray<{
+    readonly depth: number | null;
+    readonly id: string | null;
+    readonly value: string | null;
+  } | null> | null;
+}
+
+const { headings } = Astro.props;
+
+const calcDepth = (depth: number | null | undefined) => {
+  if (!depth) {
+    return 0;
+  }
+  return depth - 1;
+};
+---
+
+{/* the wrapper is translated away while scrolling down, so it holds the button only */}
+<div id="toc-modal-button" class="toc-modal-button-wrapper hidden-when-scroll-down lg:hidden">
+  <DialogTrigger
+    for="toc-modal"
+    aria-label="table-of-contents-button"
+    class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#186bf2] text-white"
+  >
+    <FaIcon icon={faListUl} class="text-4xl" />
+  </DialogTrigger>
+</div>
+
+<Dialog id="toc-modal" class="lg:hidden">
+  <DialogContent class="w-[92vw] max-w-md" animationDuration={400}>
+    <DialogHeader id="toc-modal-header">
+      <DialogTitle class="text-2xl font-bold">Table of Contents</DialogTitle>
+    </DialogHeader>
+    <div id="toc-modal-body" class="scrollable-y max-h-[60vh] w-full overflow-y-auto">
+      {
+        headings?.map((heading) => (
+          <a href={`#${heading?.id}`}>
+            <span
+              class="block w-full truncate pb-2"
+              style={`text-indent: ${calcDepth(heading?.depth)}em`}
+            >
+              {heading?.value}
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </DialogContent>
+</Dialog>
+
+<script>
+  const setupTOCModal = () => {
+    const wrapper = document.getElementById("toc-modal");
+    const dialog = wrapper?.querySelector("dialog");
+    if (!wrapper || !dialog) {
+      return;
+    }
+    const button = document.getElementById("toc-modal-button");
+
+    /** the Buy Me a Coffee widget floats over the modal, so hide it while it is open */
+    const setBuyMeACoffeeVisibility = (visibility: boolean) => {
+      const buyMeACoffeeWidget = document.getElementById("bmc-wbtn");
+      if (buyMeACoffeeWidget === null) {
+        return;
+      }
+      buyMeACoffeeWidget.hidden = !visibility;
+    };
+
+    // the dialog is opened/closed by the Starwind handler, which only exposes its
+    // state through data-state on the dialog element
+    new MutationObserver(() => {
+      const open = dialog.dataset.state === "open";
+      setBuyMeACoffeeVisibility(!open);
+      button?.classList.toggle("hidden", open);
+    }).observe(dialog, { attributeFilter: ["data-state"] });
+
+    wrapper.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement | null;
+      const link = target?.closest<HTMLAnchorElement>('a[href^="#"]');
+      if (!link) {
+        return;
+      }
+      event.preventDefault();
+      const id = link.getAttribute("href")?.slice(1) ?? "";
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+      history.replaceState(null, "", `#${id}`);
+      wrapper.dispatchEvent(new CustomEvent("dialog:close"));
+    });
+  };
+
+  setupTOCModal();
+  document.addEventListener("astro:after-swap", setupTOCModal);
+</script>

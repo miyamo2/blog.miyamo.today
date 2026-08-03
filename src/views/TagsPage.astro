@@ -1,0 +1,23 @@
+---
+import { Badge } from "../components/starwind/badge";
+import type { TagSummaryVM } from "../lib/content";
+
+interface Props {
+  data: TagSummaryVM[];
+}
+
+const { data } = Astro.props;
+---
+
+<main>
+  <h1 class="pb-4 text-3xl font-bold">Tags</h1>
+  <div class="grid grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-2">
+    {
+      data.map((tag) => (
+        <Badge href={`/tags/${tag.cursor}`} class="bg-tag text-foreground rounded-md">
+          #{tag.name}({tag.totalCount})
+        </Badge>
+      ))
+    }
+  </div>
+</main>
