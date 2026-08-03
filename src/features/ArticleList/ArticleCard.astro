@@ -1,0 +1,86 @@
+---
+import { format } from "@formkit/tempo";
+import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
+import FaIcon from "../../components/FaIcon.astro";
+import RemoteImage from "../../components/RemoteImage.astro";
+import { Badge } from "../../components/starwind/badge";
+import { Separator } from "../../components/starwind/separator";
+import type { RemoteImageData } from "../../lib/images";
+import { articleCardTransition, articleHeroTransition } from "../../lib/viewTransition";
+import "./ArticleCard.css";
+
+interface Tag {
+  id: string;
+  name: string;
+}
+
+interface Props {
+  id: string;
+  title: string;
+  createdAt: string;
+  tags: Tag[];
+  imageData: RemoteImageData | null;
+  articleExcerpt?: string;
+}
+
+const { id, title, createdAt, tags, imageData, articleExcerpt } = Astro.props;
+
+const formattedCreatedAt = format(new Date(createdAt), "YYYY/MM/DD");
+---
+
+<div
+  class="transform-scaleup-then-hover article-card bg-card relative z-1 grid w-full gap-2 overflow-hidden rounded-xl shadow-md"
+  style={`grid-template-rows: subgrid; grid-row: span 6; ${articleCardTransition(id)}`}
+>
+  <div
+    class="transform-scaleup-then-hover-img-wrapper article-card-thumbnail"
+    style={imageData ? articleHeroTransition(id) : undefined}
+  >
+    {
+      imageData && (
+        <RemoteImage
+          image={imageData}
+          alt={`ArticleImage:${id}`}
+          objectPosition="center"
+          objectFit="cover"
+          class="transform-scaleup-then-hover-img-container h-full w-full"
+        />
+      )
+    }
+  </div>
+  <div class="article-card-tags flex flex-wrap content-start items-start gap-2">
+    {
+      tags.map((tag) => (
+        <Badge
+          id={`${id}-${tag.id}`}
+          href={`/tags/${tag.id}`}
+          class="bg-tag text-foreground rounded-md"
+        >
+          #{tag.name}
+        </Badge>
+      ))
+    }
+  </div>
+  <div>
+    <h2 class="text-xl font-bold">
+      {/* stretched link: an <a> inside an <a> is invalid HTML (the parser
+          splits the outer anchor and wrecks the prerendered layout), so the
+          card itself is a div and this link covers it via ::after */}
+      <a href={`/articles/${id}`} aria-label={`link: ${title}`} class="article-card-link">
+        {title}
+      </a>
+    </h2>
+  </div>
+  <div>
+    <p class="text-muted-foreground">{articleExcerpt}</p>
+  </div>
+  <div>
+    <Separator />
+  </div>
+  <div>
+    <p>
+      <FaIcon icon={faCalendarDay} class="mr-2" />
+      {formattedCreatedAt}
+    </p>
+  </div>
+</div>
