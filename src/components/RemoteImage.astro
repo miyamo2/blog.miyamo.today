@@ -1,0 +1,69 @@
+---
+import type { RemoteImageData } from "../lib/images";
+
+/**
+ * Drop-in replacement for gatsby-plugin-image's GatsbyImage.
+ * Renders the optimized remote image with a blurred placeholder background.
+ */
+interface Props {
+  image?: RemoteImageData | null;
+  alt?: string;
+  objectFit?: string;
+  objectPosition?: string;
+  class?: string;
+  /** merged into the wrapper element (e.g. view-transition-name) */
+  style?: string;
+}
+
+const { image, alt, objectFit, objectPosition, class: className, style } = Astro.props;
+
+// transparent svg spacer keeps the intrinsic size, like gatsby-plugin-image's
+// constrained layout, so the wrapper works in auto-sized containers too
+const sizerSvg = image
+  ? `data:image/svg+xml;charset=utf-8,%3Csvg height='${image.height}' width='${image.width}' xmlns='http://www.w3.org/2000/svg' version='1.1'%3E%3C/svg%3E`
+  : "";
+
+const wrapperStyle = image
+  ? [
+      "position: relative",
+      "overflow: hidden",
+      "display: inline-block",
+      "vertical-align: top",
+      "width: 100%",
+      `max-width: ${image.width}px`,
+      ...(image.placeholder
+        ? [
+            `background-image: url('${image.placeholder}')`,
+            "background-size: cover",
+            `background-position: ${objectPosition ?? "center"}`,
+          ]
+        : []),
+    ].join("; ") + (style ? `; ${style}` : "")
+  : undefined;
+---
+
+{
+  image && (
+    <div
+      class:list={["remote-image-wrapper", className]}
+      style={wrapperStyle}
+    >
+      <img
+        aria-hidden="true"
+        role="presentation"
+        alt=""
+        src={sizerSvg}
+        style="max-width: 100%; width: 100%; display: block; position: static;"
+      />
+      <img
+        src={image.src}
+        srcset={image.srcSet}
+        sizes={image.srcSet ? image.sizes : undefined}
+        alt={alt ?? ""}
+        loading="lazy"
+        decoding="async"
+        style={`position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: ${objectFit ?? "cover"}; object-position: ${objectPosition ?? "center"};`}
+      />
+    </div>
+  )
+}

@@ -1,6 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import App from "../../views/App";
+import ArticleDetailPage from "../../views/ArticleDetailPage.astro";
 import { getContent, type ArticleDetailVM } from "../../lib/content";
 import { buildJSONLD, buildWebSiteJSONLD } from "../../lib/jsonld";
 import { siteMetadata } from "../../lib/site";
@@ -52,5 +52,5 @@ const jsonLDArticleDetailPage = buildJSONLD({
     jsonLD: [jsonLDWebSite, jsonLDArticleDetailPage],
   }}
 >
-  <App client:load page="article-detail" data={data} url={url} />
+  <ArticleDetailPage data={data} url={url} />
 </Layout>

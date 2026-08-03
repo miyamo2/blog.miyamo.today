@@ -1,6 +1,6 @@
 import { defineConfig, envField } from "astro/config";
 import { loadEnv } from "vite";
-import react from "@astrojs/react";
+import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
 import { blogApiMiyamoToday } from "@miyamo2/astro-loader-blogapi-miyamo-today";
 import algoliaIndex from "./integrations/algolia-index";
@@ -48,10 +48,17 @@ export default defineConfig({
       url: env.BLOG_API_MIYAMO_TODAY_URL ?? "",
       token: env.BLOG_API_MIYAMO_TODAY_TOKEN ?? "",
     }),
-    react(),
     sitemap(),
     algoliaIndex(),
   ],
+  vite: {
+    plugins: [tailwindcss()],
+    build: {
+      // one stylesheet for every page: per-page chunks duplicated the tailwind
+      // utilities and broke the cascade (`hidden` re-appearing after `lg:block`)
+      cssCodeSplit: false,
+    },
+  },
   image: {
     // article thumbnails / body images / GitHub avatar are all remote
     remotePatterns: [{ protocol: "https" }, { protocol: "http" }],

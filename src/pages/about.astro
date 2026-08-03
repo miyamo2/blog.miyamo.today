@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import App from "../views/App";
-import type { AboutVM } from "../views/AboutPage";
+import AboutPage, { type AboutVM } from "../views/AboutPage.astro";
 import { fetchGitHubProfile } from "../lib/api";
 import { buildRemoteImage } from "../lib/images";
 import { buildJSONLD, buildWebSiteJSONLD } from "../lib/jsonld";
@@ -33,5 +32,5 @@ const jsonLDAboutPage = buildJSONLD({
 ---
 
 <Layout head={{ path, title: "About", jsonLD: [jsonLDWebSite, jsonLDAboutPage] }}>
-  <App client:load page="about" data={data} />
+  <AboutPage data={data} />
 </Layout>

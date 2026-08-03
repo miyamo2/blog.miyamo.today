@@ -1,6 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import App from "../views/App";
+import ArticleListPage from "../views/ArticleListPage.astro";
 import { getContent } from "../lib/content";
 import { buildJSONLD, buildWebSiteJSONLD } from "../lib/jsonld";
 import { PER_PAGE } from "../lib/site";
@@ -44,5 +44,5 @@ const jsonLDArticleListPage = buildJSONLD({
 ---
 
 <Layout head={{ path, title: "Articles", jsonLD: [jsonLDWebSite, jsonLDArticleListPage] }}>
-  <App client:load page="article-list" data={data} />
+  <ArticleListPage data={data} />
 </Layout>

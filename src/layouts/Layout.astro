@@ -1,6 +1,15 @@
 ---
-import { getColorModeScript } from "@yamada-ui/core";
+import { ClientRouter } from "astro:transitions";
 import BaseHead, { type Props as BaseHeadProps } from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+// keep the same css load order as the previous React island (views/App.tsx)
+import "modern-css-reset";
+import "prism-themes/themes/prism-dracula.css";
+import "../styles/starwind.css";
+import "../styles/global.css";
+import "../styles/vendor.css";
 
 export interface Props {
   head?: BaseHeadProps;
@@ -8,11 +17,22 @@ export interface Props {
 
 const { head = {} } = Astro.props;
 
-// gatsby-browser.tsx injected this on the client; inject at build time instead
-// so the initial paint already has the right color mode.
-const colorModeScript = getColorModeScript({
-  initialColorMode: "system",
-});
+// starwind theme init (replaces @yamada-ui/core's getColorModeScript);
+// runs before paint so the initial render already has the right color mode
+const themeInitScript = `(function () {
+  function initTheme() {
+    var colorTheme = localStorage.getItem("colorTheme");
+    var prefersDark =
+      window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (!colorTheme || colorTheme === "system") {
+      document.documentElement.classList.toggle("dark", prefersDark);
+    } else {
+      document.documentElement.classList.toggle("dark", colorTheme === "dark");
+    }
+  }
+  initTheme();
+  document.addEventListener("astro:after-swap", initTheme);
+})();`;
 
 // click handler for the code block copy button (src/lib/rehype-code-block.ts)
 const copyToClipboardScript = `window.copyCodeToClipboard = async (button, codeContainer) => {
@@ -30,24 +50,55 @@ const copyToClipboardScript = `window.copyCodeToClipboard = async (button, codeC
     }, 1500);
   });
 };`;
+
+// the Buy Me a Coffee widget injects #bmc-wbtn / #bmc-iframe into <body> at
+// runtime; carry them over to the next document so the ClientRouter swap
+// doesn't drop them (the widget script itself only ever runs once)
+const bmcPersistScript = `document.addEventListener("astro:before-swap", (event) => {
+  document.querySelectorAll("#bmc-wbtn, #bmc-iframe").forEach((el) => {
+    event.newDocument.body.appendChild(el);
+  });
+});`;
 ---
 
 <!doctype html>
 <html lang="ja">
   <head>
-    <script is:inline set:html={colorModeScript} />
+    <script is:inline set:html={themeInitScript} />
     <BaseHead {...head} />
+    <ClientRouter />
     <script is:inline set:html={copyToClipboardScript} />
+    <script is:inline set:html={bmcPersistScript} />
   </head>
   <body>
     <div id="app-root">
       <div id="app-focus-wrapper">
-        <slot />
+        <div id="layout" class="bg-background h-fit min-h-screen w-full">
+          <div
+            class="header-wrapper scrollbar-offset bg-header flex h-[70px]"
+            transition:persist="site-header"
+          >
+            <div class="flex w-full justify-center">
+              <div class="mx-4 w-full max-w-[1400px] lg:mx-0 lg:w-[95vw]">
+                <Header />
+              </div>
+            </div>
+          </div>
+          <div id="content" class="flex h-fit min-h-screen self-start">
+            <div class="scrollbar-offset flex w-full flex-col justify-between">
+              <div class="flex w-full justify-center">
+                <div class="mx-5 w-full max-w-[1400px] lg:mx-0 lg:w-[95vw]">
+                  <slot />
+                </div>
+              </div>
+              <div class="w-full self-end">
+                <Footer />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    {/* scroll-timeline polyfill (gatsby-shared.tsx wrapRootElementInner) */}
-    <script is:inline async src="https://flackr.github.io/scroll-timeline/dist/scroll-timeline.js"
-    ></script>
     {/* Buy Me a Coffee widget (gatsby-ssr.tsx setPostBodyComponents) */}
     <script
       is:inline

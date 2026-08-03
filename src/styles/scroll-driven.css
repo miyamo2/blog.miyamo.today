@@ -1,7 +1,7 @@
 /*
  * Scroll-driven animation properties.
- * Inlined into <head> as a <style> tag (see BaseHead.astro) instead of being
- * bundled, since it must be loadable from the scroll-driven-animation's polyfill.
+ * Inlined into <head> as a <style> tag (see BaseHead.astro) so pages can opt
+ * out via the scrollDriven prop.
  * (previously src/components/ScrollDrivenAnimation.tsx)
  */
 @property --scroll {

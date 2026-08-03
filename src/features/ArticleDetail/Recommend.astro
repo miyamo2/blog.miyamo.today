@@ -1,0 +1,60 @@
+---
+import { faCalendarDay, faThumbsUp } from "@fortawesome/free-solid-svg-icons";
+import { format } from "@formkit/tempo";
+
+import FaIcon from "../../components/FaIcon.astro";
+import RemoteImage from "../../components/RemoteImage.astro";
+import type { RemoteImageData } from "../../lib/images";
+
+import "./Recommend.css";
+
+interface Props {
+  recommends?: ReadonlyArray<{
+    readonly id: string;
+    readonly title: string;
+    readonly excerpt: string;
+    readonly createdAt: string;
+    readonly imageData: RemoteImageData | null;
+  } | null> | null;
+}
+
+const { recommends } = Astro.props;
+---
+
+<div class="w-full pl-[0.5em] lg:pl-[0.5em]">
+  <div class="w-full backdrop-blur-md [writing-mode:horizontal-tb]">
+    <h2 class="py-2 text-xl font-bold whitespace-nowrap">
+      <FaIcon icon={faThumbsUp} class="mr-2" />
+      Recommend Articles
+    </h2>
+  </div>
+  {
+    recommends?.map((recommend) => (
+      <a href={`/articles/${recommend?.id ?? ""}`}>
+        <div class="recommend-card mb-2 grid rounded-lg shadow-md dark:bg-[#121820]">
+          <div style="grid-area: image" class="recommend-card_thumbnail">
+            <RemoteImage
+              image={recommend?.imageData}
+              alt={`ArticleImage:${recommend?.id ?? ""}`}
+              objectPosition="center"
+              objectFit="cover"
+              class="transform-scaleup-then-hover-img-container h-full"
+            />
+          </div>
+          <div style="grid-area: title" class="recommend-card_title">
+            <h3 class="text-lg font-bold">{recommend?.title ?? ""}</h3>
+          </div>
+          <div style="grid-area: desc" class="recommend-card_description">
+            <p class="text-xs">{recommend?.excerpt ?? ""}</p>
+          </div>
+          <div style="grid-area: date" class="recommend-card_created flex">
+            <p class="recommend-card_created_inner">
+              <FaIcon icon={faCalendarDay} class="mr-2" />
+              {format(new Date(recommend?.createdAt ?? "1970-01-01"), "YYYY/MM/DD")}
+            </p>
+          </div>
+        </div>
+      </a>
+    ))
+  }
+</div>

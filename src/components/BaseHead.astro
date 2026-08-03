@@ -38,14 +38,15 @@ const seo = {
 };
 
 const gtagId = "G-F1N7VJ0ZX9";
-const gtagInit = `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${gtagId}');`;
+// astro:after-swap fires on ClientRouter navigations only (not the initial
+// load, which gtag('config') already reports), after the new <title> is set
+const gtagInit = `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${gtagId}');document.addEventListener('astro:after-swap', function () {gtag('event', 'page_view', {page_location: location.href, page_title: document.title});});`;
 
 // gatsby-plugin-manifest icon set
 const manifestIconSizes = [48, 72, 96, 144, 192, 256, 384, 512];
 
 // gatsby-plugin-preconnect
 const preconnectDomains = [
-  "https://flackr.github.io",
   "https://cdn.buymeacoffee.com",
   "https://www.reddit.com",
   "https://www.googletagmanager.com",

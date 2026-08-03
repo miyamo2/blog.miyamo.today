@@ -1,6 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import App from "../../views/App";
+import TagsPage from "../../views/TagsPage.astro";
 import { getContent } from "../../lib/content";
 import { buildJSONLD, buildWebSiteJSONLD } from "../../lib/jsonld";
 
@@ -37,5 +37,5 @@ const jsonLDTagsPage = buildJSONLD({
 ---
 
 <Layout head={{ path, title: "Tags", jsonLD: [jsonLDWebSite, jsonLDTagsPage] }}>
-  <App client:load page="tags" data={tagSummaries} />
+  <TagsPage data={tagSummaries} />
 </Layout>

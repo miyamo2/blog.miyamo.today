@@ -1,0 +1,36 @@
+---
+import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
+
+/**
+ * Renders a Font Awesome icon from its icon definition data.
+ * Replacement for @yamada-ui/fontawesome's FontAwesomeIcon (no React needed).
+ */
+interface Props {
+  icon: IconDefinition;
+  class?: string;
+}
+
+const { icon, class: className } = Astro.props;
+const [width, height, , , svgPathData] = icon.icon;
+const paths = Array.isArray(svgPathData) ? svgPathData : [svgPathData];
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox={`0 0 ${width} ${height}`}
+  fill="currentColor"
+  aria-hidden="true"
+  class:list={["fa-icon", className]}
+>
+  {paths.map((d) => <path d={d} />)}
+</svg>
+
+<style>
+  /* mimic font-awesome's default inline sizing */
+  .fa-icon {
+    display: inline-block;
+    height: 1em;
+    width: auto;
+    vertical-align: -0.125em;
+  }
+</style>

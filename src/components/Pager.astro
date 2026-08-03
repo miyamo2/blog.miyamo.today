@@ -1,0 +1,119 @@
+---
+import ChevronsLeft from "@tabler/icons/outline/chevrons-left.svg";
+import ChevronsRight from "@tabler/icons/outline/chevrons-right.svg";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "./starwind/pagination";
+
+interface Props {
+  currentPage: number;
+  totalItems: number;
+  perPage: number;
+  /** base path of the paginated list; "" for the article list, `/tags/${tagId}` for tagged lists */
+  basePath?: string;
+  /** path segment inserted before the page number (e.g. "pages" -> /pages/2). omit for /tags/${tagId}/2 style */
+  pagePrefix?: string;
+}
+
+const { currentPage, totalItems, perPage, basePath = "", pagePrefix } = Astro.props;
+
+const totalPages = Math.ceil(totalItems / perPage);
+
+const hrefOf = (page: number): string => {
+  if (page === 1) {
+    return basePath === "" ? "/" : basePath;
+  }
+  return pagePrefix ? `${basePath}/${pagePrefix}/${page}` : `${basePath}/${page}`;
+};
+
+/** every page while they fit, otherwise both edges plus the current page's neighbours */
+const pageItems: (number | "ellipsis")[] = (() => {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  const first = Math.max(2, currentPage - 1);
+  const last = Math.min(totalPages - 1, currentPage + 1);
+  return [
+    1,
+    ...(first > 2 ? (["ellipsis"] as const) : []),
+    ...Array.from({ length: last - first + 1 }, (_, i) => first + i),
+    ...(last < totalPages - 1 ? (["ellipsis"] as const) : []),
+    totalPages,
+  ];
+})();
+
+const isFirstPage = currentPage <= 1;
+const isLastPage = currentPage >= totalPages;
+// the edge/step links are plain anchors, so disable them by dropping the href
+const disabledClass = "pointer-events-none opacity-50";
+---
+
+{
+  totalPages > 1 && (
+    <div class="flex items-center justify-center">
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationLink
+              aria-label="Go to first page"
+              href={isFirstPage ? undefined : hrefOf(1)}
+              aria-disabled={isFirstPage ? "true" : undefined}
+              class={isFirstPage ? disabledClass : undefined}
+            >
+              <ChevronsLeft class="size-4" />
+            </PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationPrevious
+              size="icon"
+              href={isFirstPage ? undefined : hrefOf(currentPage - 1)}
+              aria-disabled={isFirstPage ? "true" : undefined}
+              class={isFirstPage ? disabledClass : undefined}
+            />
+          </PaginationItem>
+          {pageItems.map((item) =>
+            item === "ellipsis" ? (
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            ) : (
+              <PaginationItem>
+                <PaginationLink
+                  href={hrefOf(item)}
+                  isActive={item === currentPage}
+                  aria-label={`Go to page ${item}`}
+                >
+                  {item}
+                </PaginationLink>
+              </PaginationItem>
+            )
+          )}
+          <PaginationItem>
+            <PaginationNext
+              size="icon"
+              href={isLastPage ? undefined : hrefOf(currentPage + 1)}
+              aria-disabled={isLastPage ? "true" : undefined}
+              class={isLastPage ? disabledClass : undefined}
+            />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink
+              aria-label="Go to last page"
+              href={isLastPage ? undefined : hrefOf(totalPages)}
+              aria-disabled={isLastPage ? "true" : undefined}
+              class={isLastPage ? disabledClass : undefined}
+            >
+              <ChevronsRight class="size-4" />
+            </PaginationLink>
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    </div>
+  )
+}

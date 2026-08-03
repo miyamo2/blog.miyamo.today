@@ -1,6 +1,6 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
-import App from "../../../views/App";
+import TaggedArticlesPage from "../../../views/TaggedArticlesPage.astro";
 import { getContent, type TaggedArticlesPageVM } from "../../../lib/content";
 import { buildJSONLD, buildWebSiteJSONLD } from "../../../lib/jsonld";
 
@@ -55,5 +55,5 @@ const jsonLDTaggedArticlesPage = buildJSONLD({
 ---
 
 <Layout head={{ path, title, jsonLD: [jsonLDWebSite, jsonLDTaggedArticlesPage] }}>
-  <App client:load page="tagged-articles" data={data} />
+  <TaggedArticlesPage data={data} />
 </Layout>

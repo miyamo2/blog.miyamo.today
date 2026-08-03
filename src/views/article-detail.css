@@ -1,6 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 .side-toc {
   overflow: hidden;
@@ -30,7 +27,7 @@ pre[class*="language-"] {
     "comment comment comment"
     "recommend recommend recommend";
   grid-template-columns: 1fr 1fr 1fr;
-  @screen lg {
+  @media (min-width: 1200px) {
     grid-template-areas:
       "title title title"
       "tag tag tag"
@@ -47,7 +44,7 @@ pre[class*="language-"] {
 
 .code-copy-button {
   display: none;
-  @screen lg {
+  @media (min-width: 1200px) {
     display: flex;
   }
 }
@@ -55,7 +52,7 @@ pre[class*="language-"] {
 .code-block {
   margin-top: 2rem;
   margin-bottom: 1rem;
-  @screen lg {
+  @media (min-width: 1200px) {
     margin-top: 1rem;
     margin-bottom: 1rem;
   }
