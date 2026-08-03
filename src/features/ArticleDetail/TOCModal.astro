@@ -42,23 +42,28 @@ const calcDepth = (depth: number | null | undefined) => {
 </div>
 
 <Dialog id="toc-modal" class="lg:hidden">
-  <DialogContent class="w-[92vw] max-w-md" animationDuration={400}>
-    <DialogHeader id="toc-modal-header">
-      <DialogTitle class="text-2xl font-bold">Table of Contents</DialogTitle>
-    </DialogHeader>
-    <div id="toc-modal-body" class="scrollable-y max-h-[60vh] w-full overflow-y-auto">
-      {
-        headings?.map((heading) => (
-          <a href={`#${heading?.id}`}>
-            <span
-              class="block w-full truncate pb-2"
-              style={`text-indent: ${calcDepth(heading?.depth)}em`}
-            >
-              {heading?.value}
-            </span>
-          </a>
-        ))
-      }
+  <DialogContent
+    class="inset-0 sm:inset-0 h-dvh w-full max-w-none translate-x-0 translate-y-0 sm:translate-x-0 sm:translate-y-0 rounded-none border-0"
+    animationDuration={400}
+  >
+    <div class="flex h-full flex-col gap-6">
+      <DialogHeader id="toc-modal-header">
+        <DialogTitle class="text-2xl font-bold">Table of Contents</DialogTitle>
+      </DialogHeader>
+      <div id="toc-modal-body" class="scrollable-y min-h-0 w-full flex-1 overflow-y-auto">
+        {
+          headings?.map((heading) => (
+            <a href={`#${heading?.id}`}>
+              <span
+                class="block w-full truncate pb-2"
+                style={`text-indent: ${calcDepth(heading?.depth)}em`}
+              >
+                {heading?.value}
+              </span>
+            </a>
+          ))
+        }
+      </div>
     </div>
   </DialogContent>
 </Dialog>

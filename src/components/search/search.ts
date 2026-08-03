@@ -114,6 +114,7 @@ const pageWindow = (currentPage: number, totalPages: number): (number | "ellipsi
 };
 
 class SearchPanel {
+  private readonly root: HTMLElement;
   private readonly dialog: HTMLDialogElement;
   private readonly input: HTMLInputElement;
   private readonly clearButton: HTMLButtonElement;
@@ -144,6 +145,7 @@ class SearchPanel {
       throw new Error("Search: markup is incomplete");
     }
 
+    this.root = root;
     this.dialog = dialog;
     this.input = input;
     this.clearButton = clearButton;
@@ -188,6 +190,15 @@ class SearchPanel {
       this.clearButton.hidden = true;
       this.clearResults();
       this.input.focus();
+    });
+
+    // clicking a result navigates away; close the dialog so it isn't still
+    // open when the header (persisted across ClientRouter transitions) reappears
+    this.hits.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("a")) {
+        this.root.dispatchEvent(new CustomEvent("dialog:close"));
+      }
     });
 
     // the starwind dialog exposes no open event, so follow the `open` attribute it toggles

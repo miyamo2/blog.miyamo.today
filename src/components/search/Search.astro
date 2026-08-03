@@ -22,8 +22,9 @@ import "./Search.css";
   </DialogTrigger>
 
   {/* no display utility here: it would override the closed <dialog>'s ua display:none */}
+  {/* mobile-first: fills the screen below lg, then lg: restores the centered card */}
   <DialogContent
-    class="search-dialog top-[10vh] max-h-[80vh] w-[92vw] max-w-3xl translate-y-0 overflow-hidden p-4 sm:top-[10vh] sm:translate-y-0"
+    class="search-dialog top-0 left-0 h-dvh max-h-none w-full max-w-none translate-x-0 translate-y-0 sm:top-0 sm:translate-y-0 rounded-none border-0 overflow-hidden p-4 lg:top-[10vh] lg:left-[50%] lg:h-auto lg:max-h-[80vh] lg:w-[92vw] lg:max-w-3xl lg:translate-x-[-50%] lg:rounded-lg lg:border"
     animationDuration={300}
   >
     <DialogHeader class="sr-only">

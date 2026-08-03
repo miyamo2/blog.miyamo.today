@@ -18,21 +18,48 @@ const menuItems = [
   >
     <FaIcon icon={faBars} />
   </DialogTrigger>
-  <DialogContent class="w-[92vw] max-w-md" animationDuration={400}>
-    <DialogHeader id="menu-modal-header">
-      <DialogTitle class="text-2xl font-bold">Menu</DialogTitle>
-    </DialogHeader>
-    <div id="menu-modal-body" class="scrollable-y">
-      <div class="flex h-full flex-col gap-2">
-        {
-          menuItems.map((item) => (
-            <Button variant="ghost" href={item.href} class="text-lg font-bold">
-              <FaIcon icon={item.icon} />
-              {item.label}
-            </Button>
-          ))
-        }
+  <DialogContent
+    class="inset-0 sm:inset-0 h-dvh w-full max-w-none translate-x-0 translate-y-0 sm:translate-x-0 sm:translate-y-0 rounded-none border-0"
+    animationDuration={400}
+  >
+    <div class="flex h-full flex-col gap-6">
+      <DialogHeader id="menu-modal-header">
+        <DialogTitle class="text-2xl font-bold">Menu</DialogTitle>
+      </DialogHeader>
+      <div id="menu-modal-body" class="scrollable-y min-h-0 flex-1 overflow-y-auto">
+        <div class="flex h-full flex-col gap-2">
+          {
+            menuItems.map((item) => (
+              <Button variant="ghost" href={item.href} class="text-lg font-bold">
+                <FaIcon icon={item.icon} />
+                {item.label}
+              </Button>
+            ))
+          }
+        </div>
       </div>
     </div>
   </DialogContent>
 </Dialog>
+
+<script>
+  const setupMenuModal = () => {
+    const wrapper = document.getElementById("menu-modal");
+    const dialog = wrapper?.querySelector("dialog");
+    if (!wrapper || !dialog) {
+      return;
+    }
+
+    wrapper.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement | null;
+      const link = target?.closest<HTMLAnchorElement>("#menu-modal-body a[href]");
+      if (!link) {
+        return;
+      }
+      wrapper.dispatchEvent(new CustomEvent("dialog:close"));
+    });
+  };
+
+  setupMenuModal();
+  document.addEventListener("astro:after-swap", setupMenuModal);
+</script>
