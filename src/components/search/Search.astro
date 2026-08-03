@@ -31,7 +31,7 @@ import "./Search.css";
       <DialogTitle>Search articles</DialogTitle>
     </DialogHeader>
 
-    <div class="flex min-h-0 flex-col gap-3">
+    <div class="flex h-full min-h-0 flex-col gap-3">
       <div class="relative pr-9">
         <FaIcon
           icon={faSearch}
@@ -58,7 +58,7 @@ import "./Search.css";
         </button>
       </div>
 
-      <div data-search-results hidden class="scrollable-y flex min-h-0 flex-col gap-2">
+      <div data-search-results hidden class="scrollable-y flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
         <p data-search-count class="text-muted-foreground text-right text-sm" hidden></p>
         <p data-search-status class="text-muted-foreground py-6 text-center text-sm" hidden></p>
         <div data-search-hits class="flex flex-col gap-2"></div>
