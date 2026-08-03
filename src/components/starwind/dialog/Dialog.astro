@@ -260,6 +260,9 @@ const { class: className, ...rest } = Astro.props;
       this.updateNestedState();
 
       this.dialog.showModal();
+      // Prevent the browser's default autofocus on the first focusable element
+      // inside the dialog (which would show an unwanted focus-visible ring).
+      this.dialog.focus();
       document.body.classList.add("overflow-hidden");
 
       // For nested dialogs, hide the backdrop and notify parent

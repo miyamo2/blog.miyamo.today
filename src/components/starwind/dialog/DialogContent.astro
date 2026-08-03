@@ -28,6 +28,7 @@ const { class: className, animationDuration = 200, ...rest } = Astro.props;
 <dialog
   class={dialogContent({ class: className })}
   data-state="closed"
+  tabindex="-1"
   style={{ animationDuration: `${animationDuration}ms` }}
   {...rest}
   data-slot="dialog-content"
