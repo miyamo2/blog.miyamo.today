@@ -58,6 +58,7 @@ const wrapperStyle = image
         style="max-width: 100%; width: 100%; display: block; position: static;"
       />
       <img
+        data-remote-image
         src={image.src}
         srcset={image.srcSet}
         sizes={image.srcSet ? image.sizes : undefined}
@@ -69,3 +70,24 @@ const wrapperStyle = image
     </div>
   )
 }
+
+<script>
+  // Once the real image has loaded, drop the blurred placeholder background so it
+  // can't show through images with transparent areas (e.g. transparent PNGs).
+  const clearPlaceholder = (img: HTMLImageElement) => {
+    img.closest<HTMLElement>(".remote-image-wrapper")?.style.setProperty("background-image", "none");
+  };
+
+  const setupPlaceholders = () => {
+    document.querySelectorAll<HTMLImageElement>(".remote-image-wrapper img[data-remote-image]").forEach((img) => {
+      if (img.complete && img.naturalWidth > 0) {
+        clearPlaceholder(img);
+      } else {
+        img.addEventListener("load", () => clearPlaceholder(img), { once: true });
+      }
+    });
+  };
+
+  setupPlaceholders();
+  document.addEventListener("astro:after-swap", setupPlaceholders);
+</script>

@@ -141,3 +141,27 @@ const createdAt = format(new Date(data.createdAt ?? ""), "YYYY/MM/DD");
   mountGiscus();
   document.addEventListener("astro:after-swap", mountGiscus);
 </script>
+
+<script>
+  // Once article body images finish loading, drop their blurred placeholder
+  // background so it can't show through images with transparent areas.
+  const clearRespImagePlaceholder = (img: HTMLImageElement) => {
+    img
+      .closest<HTMLElement>(".resp-image-wrapper")
+      ?.querySelector<HTMLElement>(".resp-image-background-image")
+      ?.style.setProperty("background-image", "none");
+  };
+
+  const setupRespImagePlaceholders = () => {
+    document.querySelectorAll<HTMLImageElement>(".resp-image-wrapper img.resp-image-image").forEach((img) => {
+      if (img.complete && img.naturalWidth > 0) {
+        clearRespImagePlaceholder(img);
+      } else {
+        img.addEventListener("load", () => clearRespImagePlaceholder(img), { once: true });
+      }
+    });
+  };
+
+  setupRespImagePlaceholders();
+  document.addEventListener("astro:after-swap", setupRespImagePlaceholders);
+</script>
