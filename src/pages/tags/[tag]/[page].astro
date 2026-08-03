@@ -1,6 +1,5 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
-import Redirect from "../../../components/Redirect.astro";
 import App from "../../../views/App";
 import { getContent, type TaggedArticlesPageVM } from "../../../lib/content";
 import { buildJSONLD, buildWebSiteJSONLD } from "../../../lib/jsonld";
@@ -18,6 +17,11 @@ interface Props {
 }
 
 const { data } = Astro.props;
+
+// /tags/{tagId}/1 was a permanent redirect to /tags/{tagId} in the Gatsby build
+if (data.currentPage === 1) {
+  return Astro.redirect(`/tags/${data.tagId}`, 301);
+}
 
 const title = `#${data.tagName}`;
 const path = `/tags/${data.tagId}/${data.currentPage}`;
@@ -50,13 +54,6 @@ const jsonLDTaggedArticlesPage = buildJSONLD({
 });
 ---
 
-{/* /tags/{tagId}/1 was a permanent redirect to /tags/{tagId} in the Gatsby build */}
-{
-  data.currentPage === 1 ? (
-    <Redirect to={`/tags/${data.tagId}`} />
-  ) : (
-    <Layout head={{ path, title, jsonLD: [jsonLDWebSite, jsonLDTaggedArticlesPage] }}>
-      <App client:load page="tagged-articles" data={data} />
-    </Layout>
-  )
-}
+<Layout head={{ path, title, jsonLD: [jsonLDWebSite, jsonLDTaggedArticlesPage] }}>
+  <App client:load page="tagged-articles" data={data} />
+</Layout>

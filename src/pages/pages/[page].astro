@@ -1,6 +1,5 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import Redirect from "../../components/Redirect.astro";
 import App from "../../views/App";
 import { getContent, type ArticleListPageVM } from "../../lib/content";
 import { buildJSONLD, buildWebSiteJSONLD } from "../../lib/jsonld";
@@ -18,6 +17,11 @@ interface Props {
 }
 
 const { data } = Astro.props;
+
+// /pages/1 was a permanent redirect to / in the Gatsby build (createRedirect)
+if (data.currentPage === 1) {
+  return Astro.redirect("/", 301);
+}
 
 const path = `/pages/${data.currentPage}`;
 const page = path.split("/").at(-1);
@@ -49,13 +53,6 @@ const jsonLDArticleListPage = buildJSONLD({
 });
 ---
 
-{/* /pages/1 was a permanent redirect to / in the Gatsby build (createRedirect) */}
-{
-  data.currentPage === 1 ? (
-    <Redirect to="/" />
-  ) : (
-    <Layout head={{ path, title: "Articles", jsonLD: [jsonLDWebSite, jsonLDArticleListPage] }}>
-      <App client:load page="article-list" data={data} />
-    </Layout>
-  )
-}
+<Layout head={{ path, title: "Articles", jsonLD: [jsonLDWebSite, jsonLDArticleListPage] }}>
+  <App client:load page="article-list" data={data} />
+</Layout>
