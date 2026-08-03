@@ -1,0 +1,9 @@
+{
+  "name": "mock-blogapi",
+  "private": true,
+  "description": "dev-only mock server for blogapi.miyamo.today and the GitHub GraphQL API",
+  "dependencies": {
+    "@graphql-tools/mock": "^9.1.12",
+    "graphql": "16.9.0"
+  }
+}
