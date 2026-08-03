@@ -41,40 +41,24 @@ export default function algoliaIndex(): AstroIntegration {
           return;
         }
 
-        const { default: algoliasearch } = await import("algoliasearch");
+        const { algoliasearch } = await import("algoliasearch");
         const client = algoliasearch(appId, apiKey);
-        const index = client.initIndex(indexName);
 
         // mergeSettings: true equivalent -- only set the managed attributes
-        await index.setSettings({
-          searchableAttributes: ["title", "content", "tags"],
-          indexLanguages: ["ja"],
-          queryLanguages: ["ja"],
-          attributesToSnippet: ["content:10"],
-        });
-        await index.saveObjects(objects);
-
-        // remove records that no longer exist (matchFields-less variant of
-        // gatsby-plugin-algolia's stale object cleanup)
-        const knownIds = new Set(objects.map((object) => object.objectID));
-        const staleIds: string[] = [];
-        await index.browseObjects({
-          query: "",
-          attributesToRetrieve: ["objectID"],
-          batch: (hits) => {
-            for (const hit of hits) {
-              if (!knownIds.has(hit.objectID)) {
-                staleIds.push(hit.objectID);
-              }
-            }
+        await client.setSettings({
+          indexName,
+          indexSettings: {
+            searchableAttributes: ["title", "content", "tags"],
+            indexLanguages: ["ja"],
+            queryLanguages: ["ja"],
+            attributesToSnippet: ["content:10"],
           },
         });
-        if (staleIds.length > 0) {
-          await index.deleteObjects(staleIds);
-        }
-        logger.info(
-          `indexed ${objects.length} records into ${indexName} (${staleIds.length} stale records removed)`
-        );
+
+        // atomic reindex through a temporary index: pushes every record and
+        // drops the ones that no longer exist in a single swap
+        await client.replaceAllObjects({ indexName, objects });
+        logger.info(`indexed ${objects.length} records into ${indexName} (atomic replace)`);
       },
     },
   };
