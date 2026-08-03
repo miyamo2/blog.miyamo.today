@@ -2,12 +2,10 @@ import { useDisclosure } from "@yamada-ui/use-disclosure";
 import { useBuyMeACoffee } from "../hooks/useBuyMeACoffee";
 import { IconButton, Button } from "@yamada-ui/button";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
-import { faBars, faAddressCard, faHome, faListUl, faTags } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faAddressCard, faHome, faTags } from "@fortawesome/free-solid-svg-icons";
 import { Modal, ModalBody, ModalHeader } from "@yamada-ui/modal";
 import { Heading } from "@yamada-ui/typography";
 import { VStack } from "@yamada-ui/layouts";
-import * as React from "react";
-import Link from "./Link";
 
 export const MenuModal = () => {
   const { open, onOpen, onClose } = useDisclosure();
@@ -42,13 +40,13 @@ export const MenuModal = () => {
             Menu
           </Heading>
         </ModalHeader>
-        <ModalBody id={"menu-modal-body scrollable-y"}>
+        <ModalBody id={"menu-modal-body"} className={"scrollable-y"}>
           <VStack h={"full"}>
             <Button
               startIcon={<FontAwesomeIcon icon={faHome} />}
               variant="ghost"
-              as={Link}
-              to="/"
+              as="a"
+              href="/"
               onClick={() => {
                 onClose();
                 setVisibility(true);
@@ -60,8 +58,8 @@ export const MenuModal = () => {
             <Button
               startIcon={<FontAwesomeIcon icon={faTags} />}
               variant="ghost"
-              as={Link}
-              to="/tags"
+              as="a"
+              href="/tags"
               onClick={() => {
                 onClose();
                 setVisibility(true);
@@ -73,8 +71,8 @@ export const MenuModal = () => {
             <Button
               startIcon={<FontAwesomeIcon icon={faAddressCard} />}
               variant="ghost"
-              as={Link}
-              to="/about"
+              as="a"
+              href="/about"
               onClick={() => {
                 onClose();
                 setVisibility(true);

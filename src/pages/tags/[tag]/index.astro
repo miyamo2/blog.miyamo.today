@@ -22,7 +22,6 @@ const { data } = Astro.props;
 
 const title = `#${data.tagName}`;
 const path = `/tags/${data.tagId}`;
-const page = path.split("/").at(-1);
 
 const jsonLDWebSite = buildWebSiteJSONLD();
 const jsonLDArticles = data.cards.map((card, i) =>
@@ -39,7 +38,7 @@ const jsonLDTaggedArticlesPage = buildJSONLD({
   type: "ItemList",
   headline: "Articles",
   path: path,
-  description: page ? `#${data.tagName}の記事一覧(page ${page})` : `#${data.tagName}の記事一覧`,
+  description: `#${data.tagName}の記事一覧`,
   withUrl: true,
   withAuthor: true,
   withLogo: true,

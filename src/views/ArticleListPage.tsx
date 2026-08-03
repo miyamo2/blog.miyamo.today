@@ -1,6 +1,5 @@
 import { Heading } from "@yamada-ui/typography";
 import { Grid, Box } from "@yamada-ui/layouts";
-import * as React from "react";
 import Pager from "../components/Pager";
 import ArticleCard from "../features/ArticleList/ArticleCard";
 import type { ArticleListPageVM } from "../lib/content";

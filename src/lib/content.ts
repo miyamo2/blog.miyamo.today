@@ -5,27 +5,25 @@ import { excerptOf, renderMarkdown, type ArticleHeading } from "./markdown";
 import { buildCollectionImage, remoteImagesTransform, type RemoteImageData } from "./images";
 import { PER_PAGE, siteMetadata } from "./site";
 
-export interface TagVM {
+interface TagVM {
   id: string;
   name: string;
 }
 
-export interface ArticleCardVM {
+interface ArticleCardVM {
   id: string;
   title: string;
   createdAt: string;
-  updatedAt: string;
   tags: TagVM[];
   imageData: RemoteImageData | null;
   articleExcerpt?: string;
 }
 
-export interface RecommendVM {
+interface RecommendVM {
   id: string;
   title: string;
   excerpt: string;
   createdAt: string;
-  updatedAt: string;
   imageData: RemoteImageData | null;
 }
 
@@ -63,7 +61,7 @@ export interface TagSummaryVM {
   totalCount: number;
 }
 
-export interface RssItemVM {
+interface RssItemVM {
   id: string;
   title: string;
   description: string;
@@ -74,7 +72,6 @@ export interface Content {
   listPages: ArticleListPageVM[];
   taggedPages: TaggedArticlesPageVM[];
   tagSummaries: TagSummaryVM[];
-  tagIds: string[];
   details: ArticleDetailVM[];
   rssItems: RssItemVM[];
 }
@@ -114,7 +111,6 @@ const toCard = (rendered: RenderedArticle): ArticleCardVM => {
     id: rendered.id,
     title: rendered.title,
     createdAt: rendered.createdAt,
-    updatedAt: rendered.updatedAt,
     tags: rendered.tags,
     imageData: rendered.cardImage,
     // article-list template used excerpt with default options (pruneLength: 140, truncate: false)
@@ -221,7 +217,6 @@ const buildContent = async (): Promise<Content> => {
           title: rec.title,
           excerpt: excerptOf(rec.plainText, 140, true),
           createdAt: rec.createdAt,
-          updatedAt: rec.updatedAt,
           imageData: rec.recommendImage,
         })
       );
@@ -291,7 +286,6 @@ const buildContent = async (): Promise<Content> => {
     listPages,
     taggedPages,
     tagSummaries,
-    tagIds: tags.map((tag) => tag.id),
     details,
     rssItems,
   };

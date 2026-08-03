@@ -1,17 +1,13 @@
-import Link from "./Link";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faHome, faTags, faAddressCard, faRss } from "@fortawesome/free-solid-svg-icons";
 import { Grid, GridItem, HStack } from "@yamada-ui/layouts";
 import { useColorMode } from "@yamada-ui/core";
 import { Button } from "@yamada-ui/button";
-import React from "react";
 import DarkmodeToggle from "./DarkmodeToggle";
 import SearchForm from "./search/Form";
 import { MenuModal } from "./Menu";
 
-interface HeaderProp {}
-
-const Header = (prop: HeaderProp) => {
+const Header = () => {
   const { colorMode } = useColorMode();
 
   return (
@@ -22,7 +18,7 @@ const Header = (prop: HeaderProp) => {
         justifySelf={"start"}
         className={`${colorMode === "dark" ? "invert" : ""}`}
       >
-        <Link to="/" className={"btn btn-ghost no-animation whitespace-nowrap"}>
+        <a href="/" className={"btn btn-ghost no-animation whitespace-nowrap"}>
           <img
             src={"/logo.png"}
             alt={"logo"}
@@ -30,7 +26,7 @@ const Header = (prop: HeaderProp) => {
             height={65}
             style={{ width: "65px", height: "65px", objectFit: "cover" }}
           />
-        </Link>
+        </a>
       </GridItem>
       <GridItem
         paddingTop={"lg"}
@@ -43,8 +39,8 @@ const Header = (prop: HeaderProp) => {
           <Button
             startIcon={<FontAwesomeIcon icon={faHome} />}
             variant="ghost"
-            as={Link}
-            to="/"
+            as="a"
+            href="/"
             className={"text-md font-bold"}
           >
             Home
@@ -52,8 +48,8 @@ const Header = (prop: HeaderProp) => {
           <Button
             startIcon={<FontAwesomeIcon icon={faTags} />}
             variant="ghost"
-            as={Link}
-            to="/tags"
+            as="a"
+            href="/tags"
             className={"text-md font-bold"}
           >
             Tags
@@ -61,8 +57,8 @@ const Header = (prop: HeaderProp) => {
           <Button
             startIcon={<FontAwesomeIcon icon={faAddressCard} />}
             variant="ghost"
-            as={Link}
-            to="/about"
+            as="a"
+            href="/about"
             className={"text-md font-bold"}
           >
             About
@@ -70,8 +66,8 @@ const Header = (prop: HeaderProp) => {
           <Button
             startIcon={<FontAwesomeIcon icon={faRss} />}
             variant="ghost"
-            as={Link}
-            to="/feed/rss.xml"
+            as="a"
+            href="/feed/rss.xml"
             className={"text-md font-bold"}
           >
             RSS

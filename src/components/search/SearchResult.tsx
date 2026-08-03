@@ -1,4 +1,4 @@
-import { default as React, useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import {
   Highlight,
   PoweredBy,
@@ -30,7 +30,7 @@ const HitCount = () => {
   ) : null;
 };
 
-export interface HitDoc {
+interface HitDoc {
   objectID: string;
   title: string;
   content: string;
@@ -105,13 +105,13 @@ interface SearchResultProps extends SearchBoxRenderState {
   closeModal: () => void;
 }
 
-const SearchResult = ({ refine, clear, closeModal }: SearchResultProps) => {
+const SearchResult = ({ clear, closeModal }: SearchResultProps) => {
   const { nbHits, nbPages } = useStats();
 
   const onCardClick = useCallback(() => {
     clear();
     closeModal();
-  }, [refine]);
+  }, [clear, closeModal]);
 
   return (
     <Box

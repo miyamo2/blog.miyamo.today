@@ -7,14 +7,13 @@ export interface Props {
   title?: string;
   description?: string;
   path?: string;
-  lang?: string;
   image?: string;
   jsonLD?: Record<string, any>[];
   /** include the scroll-driven animation style (ScrollDrivenAnimationStyle) */
   scrollDriven?: boolean;
 }
 
-const { path, title, description, image, lang, jsonLD = [], scrollDriven = true } = Astro.props;
+const { path, title, description, image, jsonLD = [], scrollDriven = true } = Astro.props;
 
 const {
   title: defaultTitle,
@@ -31,7 +30,7 @@ const seo = {
   title: defaultTitle ? (title ? `${title} | ${defaultTitle}` : defaultTitle) : "",
   description: description ?? defaultDescription ?? "",
   url: defaultSiteUrl ? (path ? `${defaultSiteUrl}${path}` : defaultSiteUrl) : "",
-  lang: lang ?? defaultLang ?? "ja_JP",
+  lang: defaultLang ?? "ja_JP",
   image: image ? `${defaultSiteUrl}${image}` : `${defaultSiteUrl}${defaultImage}`,
   icon: icon ?? "",
   twitterUsername: twitterUsername ?? "",

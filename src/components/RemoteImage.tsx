@@ -1,28 +1,19 @@
-import * as React from "react";
 import type { CSSProperties } from "react";
 import type { RemoteImageData } from "../lib/images";
 
-export interface RemoteImageProps {
+interface RemoteImageProps {
   image?: RemoteImageData | null;
   alt?: string;
   objectFit?: CSSProperties["objectFit"];
   objectPosition?: string;
   className?: string;
-  loading?: "eager" | "lazy";
 }
 
 /**
  * Drop-in replacement for gatsby-plugin-image's GatsbyImage.
  * Renders the optimized remote image with a blurred placeholder background.
  */
-const RemoteImage = ({
-  image,
-  alt,
-  objectFit,
-  objectPosition,
-  className,
-  loading = "lazy",
-}: RemoteImageProps) => {
+const RemoteImage = ({ image, alt, objectFit, objectPosition, className }: RemoteImageProps) => {
   if (!image) {
     return <></>;
   }
@@ -60,7 +51,7 @@ const RemoteImage = ({
         srcSet={image.srcSet}
         sizes={image.srcSet ? image.sizes : undefined}
         alt={alt ?? ""}
-        loading={loading}
+        loading="lazy"
         decoding="async"
         style={{
           position: "absolute",

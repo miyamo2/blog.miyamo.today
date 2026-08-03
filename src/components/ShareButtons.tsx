@@ -15,12 +15,11 @@ import {
   LinkedinIcon,
   LinkedinShareButton,
 } from "react-share";
-import React from "react";
 import { VStack } from "@yamada-ui/layouts";
 
 type StackType = "v" | "h";
 
-export interface ShareButtonProps {
+interface ShareButtonProps {
   title: string;
   url: string;
   stackType: StackType;

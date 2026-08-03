@@ -7,7 +7,7 @@ import { getSdk } from "../generates/graphql";
 
 // ---- GitHub API -------------------------------------------------------------
 
-export interface GitHubProfile {
+interface GitHubProfile {
   login: string;
   avatarUrl: string;
   url: string;

@@ -21,11 +21,6 @@
   }
 }
 
-.HitCount {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .index-hit-card {
   grid-template-areas:
     "image title title"

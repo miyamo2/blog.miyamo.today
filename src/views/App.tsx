@@ -1,4 +1,3 @@
-import * as React from "react";
 import { UIProvider } from "@yamada-ui/providers";
 import Layout from "../components/Layout";
 import ArticleListPage from "./ArticleListPage";
@@ -20,7 +19,7 @@ import "prism-themes/themes/prism-dracula.css";
 import "../styles/global.css";
 import "../styles/vendor.css";
 
-export type AppProps =
+type AppProps =
   | { page: "article-list"; data: ArticleListPageVM }
   | { page: "tagged-articles"; data: TaggedArticlesPageVM }
   | { page: "article-detail"; data: ArticleDetailVM; url: string }

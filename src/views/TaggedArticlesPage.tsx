@@ -1,6 +1,5 @@
 import { Grid, Box } from "@yamada-ui/layouts";
 import { Heading } from "@yamada-ui/typography";
-import * as React from "react";
 import Pager from "../components/Pager";
 import ArticleCard from "../features/ArticleList/ArticleCard";
 import type { TaggedArticlesPageVM } from "../lib/content";
@@ -12,8 +11,8 @@ const TaggedArticlesPage = ({ data }: { data: TaggedArticlesPageVM }) => {
         #{data.tagName}
       </Heading>
       <Grid templateColumns={"repeat(auto-fill, minmax(280px, 1fr))"} gap={"sm"}>
-        {data.cards.map((card, i) => (
-          <ArticleCard {...card} />
+        {data.cards.map((card) => (
+          <ArticleCard key={card.id} {...card} />
         ))}
       </Grid>
       <Box paddingTop={"lg"} paddingBottom={"sm"}>

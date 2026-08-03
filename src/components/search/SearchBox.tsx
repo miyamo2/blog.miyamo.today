@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useSearchBox } from "react-instantsearch";
 import { faSearch, faCancel } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { Input, InputGroup, InputLeftElement, InputRightElement } from "@yamada-ui/input";
 import { IconButton } from "@yamada-ui/button";
 
-export interface SearchBoxProps {}
-
-const SearchBox = (props: SearchBoxProps) => {
+const SearchBox = () => {
   const { query, refine, clear } = useSearchBox();
   const [enteredValue, setEnteredValue] = useState(query);
   const [compositionOngoing, setCompositionOngoing] = useState(false);

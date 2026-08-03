@@ -1,4 +1,3 @@
-import React from "react";
 import { useDisclosure } from "@yamada-ui/use-disclosure";
 import { Button } from "@yamada-ui/button";
 import { Text } from "@yamada-ui/typography";

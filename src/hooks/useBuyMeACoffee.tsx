@@ -2,7 +2,6 @@ export const useBuyMeACoffee = () => {
   if (typeof window === "undefined") {
     return {
       setVisibility: (visibility: boolean) => {},
-      toggleVisibility: () => {},
     };
   }
 
@@ -14,13 +13,6 @@ export const useBuyMeACoffee = () => {
         return;
       }
       buyMeACoffeeWidget.hidden = !visibility;
-      return;
-    },
-    toggleVisibility: () => {
-      if (buyMeACoffeeWidget === null) {
-        return;
-      }
-      buyMeACoffeeWidget.hidden = !buyMeACoffeeWidget.hidden;
       return;
     },
   };

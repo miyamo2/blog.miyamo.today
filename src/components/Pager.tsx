@@ -1,6 +1,5 @@
 import { Flex } from "@yamada-ui/layouts";
 import { Pagination } from "@yamada-ui/pagination";
-import React from "react";
 import { navigate } from "../lib/navigate";
 
 interface PagerProps {

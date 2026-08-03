@@ -1,13 +1,9 @@
-import { usePagination, UsePaginationProps, useStats } from "react-instantsearch";
+import { usePagination } from "react-instantsearch";
 import { Flex } from "@yamada-ui/layouts";
 import { Pagination } from "@yamada-ui/pagination";
-import React from "react";
 
-interface PagerProps extends UsePaginationProps {}
-
-const Pager = (props: PagerProps) => {
-  const { currentRefinement, nbPages, refine } = usePagination(props);
-  const { nbHits } = useStats();
+const Pager = () => {
+  const { currentRefinement, nbPages, refine } = usePagination();
 
   return (
     <>

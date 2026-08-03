@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { Modal, ModalOverlay, ModalProps } from "@yamada-ui/modal";
+import { useMemo } from "react";
+import { Modal, ModalOverlay } from "@yamada-ui/modal";
 import { Configure, InstantSearch } from "react-instantsearch";
 import type { SearchClient } from "instantsearch.js";
 import SearchBox from "./SearchBox";
@@ -11,12 +11,12 @@ import { IconButton } from "@yamada-ui/button";
 import { HStack } from "@yamada-ui/layouts";
 import { PUBLIC_ALGOLIA_INDEX_NAME } from "astro:env/client";
 
-interface SearchModalProps extends ModalProps {
+interface SearchModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
+const SearchModal = ({ open, onClose }: SearchModalProps) => {
   const searchClient: SearchClient = useMemo(UseSearchClient, []);
 
   return (
@@ -26,7 +26,6 @@ const SearchModal = ({ open, onClose, ...rest }: SearchModalProps) => {
       placement="top"
       onClose={onClose}
       withCloseButton={false}
-      {...rest}
       className={"h-fit"}
       lockFocusAcrossFrames={true}
       bg={"transparent"}

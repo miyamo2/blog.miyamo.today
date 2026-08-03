@@ -2,7 +2,6 @@ import { Grid, GridItem, HStack } from "@yamada-ui/layouts";
 import { Button } from "@yamada-ui/button";
 import { Heading, Text } from "@yamada-ui/typography";
 import { Link } from "@yamada-ui/link";
-import * as React from "react";
 import { SiGithub, SiZenn, SiQiita, SiSpeakerdeck } from "react-icons/si";
 import RemoteImage from "../components/RemoteImage";
 import type { RemoteImageData } from "../lib/images";

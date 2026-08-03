@@ -1,4 +1,3 @@
-import React from "react";
 import { useColorMode } from "@yamada-ui/core";
 import { Switch } from "@yamada-ui/switch";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";

@@ -1,6 +1,4 @@
-import React from "react";
 import { Box, Grid, GridItem } from "@yamada-ui/layouts";
-import Link from "../../components/Link";
 import { Heading, Text } from "@yamada-ui/typography";
 import RemoteImage from "../../components/RemoteImage";
 import type { RemoteImageData } from "../../lib/images";
@@ -16,7 +14,6 @@ interface RecommendArticleProps {
     readonly title: string;
     readonly excerpt: string;
     readonly createdAt: string;
-    readonly updatedAt: string;
     readonly imageData: RemoteImageData | null;
   } | null> | null;
 }
@@ -78,7 +75,7 @@ const Recommend = (props: RecommendArticleCardProps) => {
   const createdAt = format(new Date(props.createdAt ?? ""), "YYYY/MM/DD");
 
   return (
-    <Link to={`/articles/${props.id}`}>
+    <a href={`/articles/${props.id}`}>
       <Grid
         className={"recommend-card"}
         bg={["", "#121820"]}
@@ -104,6 +101,6 @@ const Recommend = (props: RecommendArticleCardProps) => {
           </Text>
         </GridItem>
       </Grid>
-    </Link>
+    </a>
   );
 };

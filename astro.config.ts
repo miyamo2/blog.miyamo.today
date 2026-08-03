@@ -39,12 +39,6 @@ export default defineConfig({
         optional: true,
         default: "",
       }),
-      // used only by integrations/algolia-index.ts at astro:build:done
-      ALGOLIA_ADMIN_KEY: envField.string({
-        context: "server",
-        access: "secret",
-        optional: true,
-      }),
     },
   },
   // keep the same cache directory as the previous Gatsby setup so the CI cache step keeps working

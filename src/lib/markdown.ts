@@ -152,10 +152,3 @@ export const renderMarkdown = async (
 
   return { html: String(html), headings, plainText };
 };
-
-/** excerpt of plain markdown without rendering (no OGP fetch, no highlight) */
-export const plainTextOfMarkdown = (markdown: string): string => {
-  const parser = unified().use(remarkParse).use(remarkGfm);
-  const tree = parser.parse(markdown) as Root;
-  return collectPlainText(tree);
-};

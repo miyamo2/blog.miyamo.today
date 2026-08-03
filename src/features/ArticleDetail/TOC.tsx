@@ -2,7 +2,6 @@ import { Box } from "@yamada-ui/layouts";
 import { Heading, Text } from "@yamada-ui/typography";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { faListUl } from "@fortawesome/free-solid-svg-icons";
-import * as React from "react";
 import { useDisclosure } from "@yamada-ui/use-disclosure";
 import { Button } from "@yamada-ui/button";
 import { Modal, ModalBody, ModalHeader } from "@yamada-ui/modal";
@@ -55,7 +54,7 @@ export const ArticleTOCModal = ({ headings }: ArticleTOCProps) => {
             Table of Contents
           </Heading>
         </ModalHeader>
-        <ModalBody id={"toc-modal-body scrollable-y"}>
+        <ModalBody id={"toc-modal-body"} className={"scrollable-y"}>
           <Box w={"full"}>
             {headings?.map((heading) => (
               <a

@@ -1,4 +1,3 @@
-import React from "react";
 import { Box } from "@yamada-ui/layouts";
 import { Text } from "@yamada-ui/typography";
 

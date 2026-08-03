@@ -1,4 +1,3 @@
-import Link from "../../components/Link";
 import RemoteImage from "../../components/RemoteImage";
 import type { RemoteImageData } from "../../lib/images";
 import { format } from "@formkit/tempo";
@@ -7,7 +6,6 @@ import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
 import { Grid, GridItem, Separator } from "@yamada-ui/layouts";
 import { Heading, Text } from "@yamada-ui/typography";
 import { Tag } from "@yamada-ui/tag";
-import * as React from "react";
 import "./ArticleCard.css";
 
 interface Tag {
@@ -19,7 +17,6 @@ interface ArticleCardProps {
   id: string;
   title: string;
   createdAt: string;
-  updatedAt: string;
   tags: Tag[];
   imageData: RemoteImageData | null;
   articleExcerpt?: string;
@@ -62,11 +59,11 @@ const ArticleCard = (props: ArticleCardProps) => {
       <GridItem className={"article-card-tags"}>
         {props.tags.map((tag) => (
           <Tag
-            as={Link}
+            as="a"
             key={tag.id}
             size={"md"}
             id={`${props.id}-${tag.id}`}
-            to={`/tags/${tag.id}`}
+            href={`/tags/${tag.id}`}
             bg={["#ddf4ff", "#121d2f"]}
           >
             #{tag.name}
@@ -78,13 +75,13 @@ const ArticleCard = (props: ArticleCardProps) => {
           {/* stretched link: an <a> inside an <a> is invalid HTML (the parser
               splits the outer anchor and wrecks the prerendered layout), so the
               card itself is a div and this link covers it via ::after */}
-          <Link
-            to={`/articles/${props.id}`}
+          <a
+            href={`/articles/${props.id}`}
             aria-label={`link: ${props.title}`}
             className={"article-card-link"}
           >
             {props.title}
-          </Link>
+          </a>
         </Heading>
       </GridItem>
       <GridItem>

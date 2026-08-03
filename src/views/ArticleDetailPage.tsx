@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Box, Flex, Grid, GridItem, Separator } from "@yamada-ui/layouts";
 import { Heading } from "@yamada-ui/typography";
 import { FontAwesomeIcon } from "@yamada-ui/fontawesome";
@@ -7,7 +6,6 @@ import { useColorMode } from "@yamada-ui/core";
 import Giscus from "@giscus/react";
 import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
 import { format } from "@formkit/tempo";
-import Link from "../components/Link";
 import RemoteImage from "../components/RemoteImage";
 import "./article-detail.css";
 import { ArticleTOCLarge, ArticleTOCModal } from "../features/ArticleDetail/TOC";
@@ -34,11 +32,11 @@ const ArticleDetailPage = ({ data, url }: { data: ArticleDetailVM; url: string }
               .filter((v) => v)
               .map((tag) => (
                 <Tag
-                  as={Link}
+                  as="a"
                   key={tag.id}
                   size={"md"}
                   id={`${tag.id}-${tag.id}`}
-                  to={`/tags/${tag.id}`}
+                  href={`/tags/${tag.id}`}
                   bg={["#ddf4ff", "#121d2f"]}
                 >
                   #{tag.name}

@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Heading, Text } from "@yamada-ui/typography";
 import { Button } from "@yamada-ui/button";
 import { navigate } from "../lib/navigate";

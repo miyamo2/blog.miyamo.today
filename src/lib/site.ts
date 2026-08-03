@@ -11,10 +11,8 @@ export const siteMetadata = {
   facebookAppId: `${import.meta.env.FACEBOOK_APP_ID ?? process.env.FACEBOOK_APP_ID ?? ""}`,
 } as const;
 
-export type SiteMetadata = typeof siteMetadata;
-
 export const PER_PAGE = (() => {
-  const v = process.env.ARTICLE_PER_PAGE ?? process.env.GATSBY_ARTICLE_PER_PAGE;
+  const v = process.env.ARTICLE_PER_PAGE;
   if (!v) {
     return 24;
   }
