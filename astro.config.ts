@@ -3,6 +3,7 @@ import { loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
 import { blogApiMiyamoToday } from "@miyamo2/astro-loader-blogapi-miyamo-today";
+import { imagePlaceholderService } from "@miyamo2/astro-image-placeholder";
 import algoliaIndex from "./integrations/algolia-index";
 
 // `.env` files are not loaded into process.env while the config itself is being
@@ -60,6 +61,10 @@ export default defineConfig({
     },
   },
   image: {
+    // adds the blurred placeholder to every getImage() result as
+    // `data-placeholder`, and caches remote image metadata under
+    // .cache/remote-image-meta (kept by the CI cache step)
+    service: imagePlaceholderService,
     // article thumbnails / body images / GitHub avatar are all remote
     remotePatterns: [{ protocol: "https" }, { protocol: "http" }],
   },

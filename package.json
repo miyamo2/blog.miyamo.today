@@ -55,6 +55,7 @@
   "dependencies": {
     "@formkit/tempo": "^0.1.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@miyamo2/astro-image-placeholder": "https://registry.npmjs.org/@miyamo2/astro-image-placeholder/-/astro-image-placeholder-0.1.0.tgz",
     "@miyamo2/astro-loader-blogapi-miyamo-today": "^0.2.0",
     "@miyamo2/astro-recommend-article": "https://registry.npmjs.org/@miyamo2/astro-recommend-article/-/astro-recommend-article-0.1.0.tgz",
     "algoliasearch": "^5.56.0",

@@ -2,7 +2,9 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { getCollection, type CollectionEntry } from "astro:content";
 import { excerptOf, renderMarkdown, type ArticleHeading } from "./markdown";
-import { buildCollectionImage, remoteImagesTransform, type RemoteImageData } from "./images";
+import { remarkImagePlaceholder } from "@miyamo2/astro-image-placeholder";
+import { buildCollectionImage, type RemoteImageData } from "./images";
+import { renderRemoteImage } from "./remote-image-render";
 import { PER_PAGE, siteMetadata } from "./site";
 
 interface TagVM {
@@ -127,7 +129,9 @@ const renderAll = async (entries: BlogEntry[]): Promise<Map<string, RenderedArti
     while (index < entries.length) {
       const entry = entries[index++];
       const [markdown, cardImage, detailImage, recommendImage] = await Promise.all([
-        renderMarkdown(entry.body ?? "", [remoteImagesTransform()]),
+        renderMarkdown(entry.body ?? "", [
+          remarkImagePlaceholder({ width: 800, render: renderRemoteImage }),
+        ]),
         buildCollectionImage(entry.data.thumbnail),
         buildCollectionImage(entry.data.thumbnail, { width: 1000, height: 500 }),
         buildCollectionImage(entry.data.thumbnail, { width: 840, height: 420 }),
