@@ -42,13 +42,19 @@ func main() {
 
 ## リンクカード
 
-http://mock-ogp.example.com:${PORT}/ogp-page
+http://localhost:${PORT}/ogp-page
 
 ## テーブル
 
 | 列A | 列B |
 | --- | --- |
 | a   | b   |
+
+## 生HTML埋め込み
+
+<div class="raw-html-test">
+  <strong>生HTMLブロック</strong>のテストです。<em>インライン</em>も含みます。
+</div>
 
 ## おわりに
 

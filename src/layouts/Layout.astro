@@ -6,7 +6,6 @@ import Footer from "../components/Footer.astro";
 
 // keep the same css load order as the previous React island (views/App.tsx)
 import "modern-css-reset";
-import "prism-themes/themes/prism-dracula.css";
 import "../styles/starwind.css";
 import "../styles/global.css";
 import "../styles/vendor.css";
@@ -34,7 +33,7 @@ const themeInitScript = `(function () {
   document.addEventListener("astro:after-swap", initTheme);
 })();`;
 
-// click handler for the code block copy button (src/lib/rehype-code-block.ts)
+// click handler for the code block copy button (src/lib/satteri-plugins.ts)
 const copyToClipboardScript = `window.copyCodeToClipboard = async (button, codeContainer) => {
   if (button.textContent === "Copied") {
     return;

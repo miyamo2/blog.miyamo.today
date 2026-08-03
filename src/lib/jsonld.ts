@@ -1,12 +1,19 @@
+import type { Thing, WithContext, WebSite } from "schema-dts";
 import { siteMetadata } from "./site";
+
+/** every schema.org type name known to schema-dts (e.g. "WebSite", "ItemList") */
+type SchemaType = Exclude<Thing, string>["@type"];
+
+/** a JSON-LD node; kept loose because the builder assembles it dynamically */
+export type JSONLD = Record<string, unknown> & { "@type": SchemaType };
 
 interface BuildJSONLDParams {
   path?: string;
-  type?: string;
+  type?: SchemaType;
   headline?: string;
   description?: string;
   image?: string;
-  attributes?: Record<string, any>;
+  attributes?: Record<string, unknown>;
   withSiteName?: boolean;
   withMainEntityOfPage?: boolean;
   withUrl?: boolean;
@@ -31,11 +38,11 @@ export const buildJSONLD = ({
   withAuthor,
   withLogo,
   withID,
-}: BuildJSONLDParams): Record<string, any> => {
-  const jsonLD = {
+}: BuildJSONLDParams): JSONLD => {
+  const jsonLD: JSONLD = {
     "@type": type ?? "WebSite",
     ...attributes,
-  } as Record<string, any>;
+  };
   if (withContext) {
     jsonLD["@context"] = "https://schema.org";
   }
@@ -97,7 +104,7 @@ export const buildJSONLD = ({
   return jsonLD;
 };
 
-export const buildWebSiteJSONLD = (): Record<string, any> => {
+export const buildWebSiteJSONLD = (): WithContext<WebSite> => {
   return buildJSONLD({
     type: "WebSite",
     withContext: true,
@@ -107,5 +114,5 @@ export const buildWebSiteJSONLD = (): Record<string, any> => {
     attributes: {
       alternateName: "blog miyamo today",
     },
-  });
+  }) as unknown as WithContext<WebSite>;
 };

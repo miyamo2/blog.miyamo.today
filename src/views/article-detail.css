@@ -5,12 +5,6 @@
   white-space: nowrap;
 }
 
-code[class*="language-"],
-code[class*="language-"] *,
-pre[class*="language-"] {
-  overflow-x: scroll !important;
-}
-
 :root {
   scroll-padding-top: 70px;
 }
@@ -49,7 +43,7 @@ pre[class*="language-"] {
   }
 }
 
-.code-block {
+.markdown-body .code-block {
   margin-top: 2rem;
   margin-bottom: 1rem;
   @media (min-width: 1200px) {
@@ -238,7 +232,7 @@ pre[class*="language-"] {
 }
 
 .markdown-body kbd,
-.markdown-body pre:not([class*="language-"]),
+.markdown-body pre:not([data-language]),
 .markdown-body samp {
   font-family: monospace;
   font-size: 1em;
@@ -492,7 +486,7 @@ pre[class*="language-"] {
   font-size: 12px;
 }
 
-.markdown-body pre:not([class*="language-"]) {
+.markdown-body pre:not([data-language]) {
   margin-top: 0;
   margin-bottom: 0;
   font-family: var(
@@ -571,7 +565,7 @@ pre[class*="language-"] {
 .markdown-body ol,
 .markdown-body dl,
 .markdown-body table,
-.markdown-body pre:not([class*="language-"]),
+.markdown-body pre:not([data-language]),
 .markdown-body details {
   margin-top: 0;
   margin-bottom: var(--base-size-16);
@@ -863,7 +857,7 @@ pre[class*="language-"] {
   font-size: 85%;
 }
 
-.markdown-body pre:not([class*="language-"]) tt {
+.markdown-body pre:not([data-language]) tt {
   display: inline;
   max-width: auto;
   padding: 0;
