@@ -147,7 +147,10 @@ const renderAll = async (entries: BlogEntry[]): Promise<Map<string, RenderedArti
       limit(async () => {
         const [html, cardImage, detailImage, recommendImage] = await Promise.all([
           replaceRemoteImagePlaceholders(entry.rendered?.html ?? ""),
-          buildCollectionImage(entry.data.thumbnail),
+          // matches the article-card thumbnail's CSS box (ArticleCard.css
+          // .article-card-thumbnail height: 220px, fluid width up to ~560px
+          // on the widest single-column grid cell)
+          buildCollectionImage(entry.data.thumbnail, { width: 560, height: 220 }),
           buildCollectionImage(entry.data.thumbnail, { width: 1000, height: 500 }),
           buildCollectionImage(entry.data.thumbnail, { width: 840, height: 420 }),
         ]);

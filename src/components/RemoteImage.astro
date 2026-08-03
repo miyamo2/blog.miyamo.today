@@ -13,9 +13,11 @@ interface Props {
   class?: string;
   /** merged into the wrapper element (e.g. view-transition-name) */
   style?: string;
+  /** fill the parent container instead of capping at the image's own width (e.g. fluid grid cards) */
+  fill?: boolean;
 }
 
-const { image, alt, objectFit, objectPosition, class: className, style } = Astro.props;
+const { image, alt, objectFit, objectPosition, class: className, style, fill } = Astro.props;
 
 // transparent svg spacer keeps the intrinsic size, like gatsby-plugin-image's
 // constrained layout, so the wrapper works in auto-sized containers too
@@ -30,7 +32,7 @@ const wrapperStyle = image
       "display: inline-block",
       "vertical-align: top",
       "width: 100%",
-      `max-width: ${image.width}px`,
+      ...(fill ? [] : [`max-width: ${image.width}px`]),
       ...(image.placeholder
         ? [
             `background-image: url('${image.placeholder}')`,
