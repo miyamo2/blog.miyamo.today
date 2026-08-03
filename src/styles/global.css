@@ -110,12 +110,6 @@ body,
   }
 }
 
-@media (min-width: 1200px) {
-  #bmc-close-btn {
-    display: none !important;
-  }
-}
-
 /* ---------- View Transitions (<ClientRouter />, same-document) ---------- */
 
 /* the fixed header is identical on every page: give it its own group and
