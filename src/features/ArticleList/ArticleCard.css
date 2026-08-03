@@ -1,6 +1,10 @@
 .article-card {
   isolation: isolate !important;
   z-index: 1 !important;
+  /* without an explicit column, the implicit auto column sizes to the
+     widest min-content among children -- an unbreakable long token (e.g.
+     a bare URL in the excerpt) can blow the card past its grid track */
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .article-card-thumbnail {

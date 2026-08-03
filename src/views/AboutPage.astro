@@ -107,5 +107,9 @@ const socialLinks = [
       ". name ."
       ". bio ."
       ". social .";
+    /* the center column holds free-form text (GitHub bio); bound it so an
+       unbroken long token (e.g. a URL) can't blow the grid past its container
+       (see ArticleCard.css .article-card for the same fix) */
+    grid-template-columns: 1fr minmax(0, 1fr) 1fr;
   }
 </style>
