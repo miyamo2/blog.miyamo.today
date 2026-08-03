@@ -1,5 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { writeRecords } from "@miyamo2/astro-algolia-index/records";
 import { getCollection, type CollectionEntry } from "astro:content";
 import { excerptOf, renderMarkdown, type ArticleHeading } from "./markdown";
 import { buildCollectionImage, remoteImagesTransform, type RemoteImageData } from "./images";
@@ -254,8 +253,8 @@ const buildContent = async (): Promise<Content> => {
   });
 
   // ---- Algolia records (mirrors gatsby-plugin-algolia's transformer) ----
-  // Written to a build artifact; pushed to Algolia in integrations/algolia-index.ts
-  // after the build finishes.
+  // Handed to the sink here; @miyamo2/astro-algolia-index picks them up and
+  // pushes them once the build finishes.
   const algoliaRecords = sorted.map((entry) => {
     const r = rendered.get(entry.data.id)!;
     return {
@@ -275,12 +274,7 @@ const buildContent = async (): Promise<Content> => {
       url: `${siteMetadata.siteUrl}/articles/${r.id}`,
     };
   });
-  const artifactDir = path.join(process.cwd(), ".cache", "build-artifacts");
-  await mkdir(artifactDir, { recursive: true });
-  await writeFile(
-    path.join(artifactDir, "algolia-records.json"),
-    JSON.stringify(algoliaRecords, null, 2)
-  );
+  await writeRecords(algoliaRecords);
 
   return {
     listPages,

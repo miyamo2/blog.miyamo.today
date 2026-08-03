@@ -11,6 +11,6 @@
     "allowJs": true,
     "types": ["astro/client"]
   },
-  "include": [".astro/types.d.ts", "src/**/*", "integrations/**/*", "astro.config.ts"],
+  "include": [".astro/types.d.ts", "src/**/*", "astro.config.ts"],
   "exclude": ["dist", "node_modules", ".cache"]
 }
