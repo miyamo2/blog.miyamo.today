@@ -127,8 +127,12 @@ document.addEventListener("astro:page-load", initBmcCloseButton);`;
       </div>
     </div>
     {/* Buy Me a Coffee widget (gatsby-ssr.tsx setPostBodyComponents) */}
+    {/* defer keeps the third-party widget from blocking parsing and the load event;
+      document.currentScript is still set while a deferred classic script runs, so
+      the widget can read its data-* attributes as before */}
     <script
       is:inline
+      defer
       data-name="BMC-Widget"
       src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
       data-id="miyamo2"
