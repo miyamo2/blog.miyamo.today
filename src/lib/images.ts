@@ -35,6 +35,14 @@ const srcsetWidths = (targetWidth: number, sourceWidth: number): number[] => {
 const sizesFor = (targetWidth: number): string =>
   `(min-width: ${targetWidth}px) ${targetWidth}px, 100vw`;
 
+// webp encode quality. 100 disables webp's perceptual quantization almost
+// entirely and made every variant 3-4x larger than it needs to be (PageSpeed
+// Insights' "increasing the image compression factor could improve this
+// image's download size"). 80 is both sharp's and astro's own default
+// (`quality: "high"` maps to 80 for webp) and is visually indistinguishable
+// here at the sizes we serve.
+const IMAGE_QUALITY = 80;
+
 /**
  * Builds an optimized (webp) remote image via astro:assets, replacing
  * gatsby-plugin-image's gatsbyImageData. Dimension probing and the blur
@@ -74,7 +82,7 @@ export const buildRemoteImage = async (
       height: targetHeight,
       widths: srcsetWidths(targetWidth, size.width),
       format: "webp",
-      quality: 100,
+      quality: IMAGE_QUALITY,
       ...(options.width && options.height ? { fit: "cover" as const } : {}),
     });
     const srcSet = result.srcSet.attribute !== "" ? result.srcSet.attribute : undefined;
@@ -133,7 +141,7 @@ export const buildCollectionImage = async (
       height: targetHeight,
       widths: srcsetWidths(targetWidth, meta.width),
       format: "webp",
-      quality: 100,
+      quality: IMAGE_QUALITY,
       ...(options.width && options.height ? { fit: "cover" as const } : {}),
     });
     const srcSet = result.srcSet.attribute !== "" ? result.srcSet.attribute : undefined;
