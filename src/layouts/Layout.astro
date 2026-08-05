@@ -91,10 +91,7 @@ document.addEventListener("astro:page-load", initBmcCloseButton);`;
 <!doctype html>
 <html lang="ja">
   <head>
-    {/* data-cfasync="false" keeps this blocking so it still runs before first
-      paint under Cloudflare Rocket Loader, which otherwise defers every
-      script (inline included) until after render and causes a theme flash */}
-    <script is:inline data-cfasync="false" set:html={themeInitScript} />
+    <script is:inline set:html={themeInitScript} />
     <BaseHead {...head} />
     <ClientRouter />
     <script is:inline set:html={copyToClipboardScript} />
@@ -130,12 +127,8 @@ document.addEventListener("astro:page-load", initBmcCloseButton);`;
       </div>
     </div>
     {/* Buy Me a Coffee widget (gatsby-ssr.tsx setPostBodyComponents) */}
-    {/* data-cfasync="false" excludes this tag from Cloudflare Rocket Loader, which
-      rewrites the script's type attribute and breaks the widget's use of
-      document.currentScript to read its own data-* attributes */}
     <script
       is:inline
-      data-cfasync="false"
       data-name="BMC-Widget"
       src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
       data-id="miyamo2"
@@ -145,6 +138,6 @@ document.addEventListener("astro:page-load", initBmcCloseButton);`;
       data-position="Right"
       data-x_margin="18"
       data-y_margin="18"></script>
-    <script is:inline data-cfasync="false" set:html={bmcCloseButtonScript} />
+    <script is:inline set:html={bmcCloseButtonScript} />
   </body>
 </html>
