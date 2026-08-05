@@ -102,9 +102,10 @@ const calcDepth = (depth: number | null | undefined) => {
       }
       event.preventDefault();
       const id = link.getAttribute("href")?.slice(1) ?? "";
+      // close first: nothing below may keep the modal open by throwing
+      wrapper.dispatchEvent(new CustomEvent("dialog:close"));
       document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
       history.replaceState(null, "", `#${id}`);
-      wrapper.dispatchEvent(new CustomEvent("dialog:close"));
     });
   };
 
