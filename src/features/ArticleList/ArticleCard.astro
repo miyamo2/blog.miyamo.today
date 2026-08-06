@@ -21,9 +21,11 @@ interface Props {
   tags: Tag[];
   imageData: RemoteImageData | null;
   articleExcerpt?: string;
+  /** this card sits above the fold, so its thumbnail is the page's LCP candidate */
+  priority?: boolean;
 }
 
-const { id, title, createdAt, tags, imageData, articleExcerpt } = Astro.props;
+const { id, title, createdAt, tags, imageData, articleExcerpt, priority } = Astro.props;
 
 const formattedCreatedAt = format(new Date(createdAt), "YYYY/MM/DD");
 ---
@@ -44,6 +46,7 @@ const formattedCreatedAt = format(new Date(createdAt), "YYYY/MM/DD");
           objectPosition="center"
           objectFit="cover"
           fill
+          priority={priority}
           class="transform-scaleup-then-hover-img-container h-full w-full"
         />
       )
