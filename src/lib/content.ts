@@ -5,6 +5,7 @@ import type { MarkdownHeading } from "astro";
 import { excerptOf, type ArticleHeading } from "./markdown";
 import {
   buildCollectionImage,
+  optimizeLinkCardImages,
   replaceRemoteImagePlaceholders,
   type RemoteImageData,
 } from "./images";
@@ -138,15 +139,16 @@ const renderAll = async (entries: BlogEntry[]): Promise<Map<string, RenderedArti
   const result = new Map<string, RenderedArticle>();
   // markdown itself is already rendered by astro's content-layer glob() loader
   // (satteri, see astro.config.ts); this phase resolves the remote-image
-  // placeholders that rendering left behind (getImage() needs the build's
-  // Vite module runner, not content-sync's -- see satteri-plugins.ts) and
-  // builds the thumbnail image variants
+  // placeholders that rendering left behind and re-sizes the link-card
+  // images satteri-link-card left pointing at their origin (getImage() needs
+  // the build's Vite module runner, not content-sync's -- see
+  // satteri-plugins.ts), then builds the thumbnail image variants
   const limit = pLimit(6);
   await Promise.all(
     entries.map((entry) =>
       limit(async () => {
         const [html, cardImage, detailImage, recommendImage] = await Promise.all([
-          replaceRemoteImagePlaceholders(entry.rendered?.html ?? ""),
+          replaceRemoteImagePlaceholders(entry.rendered?.html ?? "").then(optimizeLinkCardImages),
           // matches the article-card thumbnail's CSS box (ArticleCard.css
           // .article-card-thumbnail height: 220px, fluid width up to ~560px
           // on the widest single-column grid cell)
