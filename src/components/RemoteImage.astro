@@ -15,9 +15,29 @@ interface Props {
   style?: string;
   /** fill the parent container instead of capping at the image's own width (e.g. fluid grid cards) */
   fill?: boolean;
+  /**
+   * this image is (or is likely to be) the LCP element: fetch it eagerly at high
+   * priority instead of lazily. `loading="lazy"` hides the image from the preload
+   * scanner, so its request cannot start until the render-blocking CSS has landed
+   * and layout has run -- on a throttled mobile connection that alone pushes LCP
+   * several seconds out. It also drops `decoding="async"`, which would otherwise
+   * let a frame be presented before the LCP candidate has finished decoding.
+   * Only ever set this on above-the-fold images; marking extra ones just steals
+   * bandwidth from the real LCP candidate.
+   */
+  priority?: boolean;
 }
 
-const { image, alt, objectFit, objectPosition, class: className, style, fill } = Astro.props;
+const {
+  image,
+  alt,
+  objectFit,
+  objectPosition,
+  class: className,
+  style,
+  fill,
+  priority = false,
+} = Astro.props;
 
 // transparent svg spacer keeps the intrinsic size, like gatsby-plugin-image's
 // constrained layout, so the wrapper works in auto-sized containers too
@@ -63,8 +83,9 @@ const wrapperStyle = image
         srcset={image.srcSet}
         sizes={image.srcSet ? image.sizes : undefined}
         alt={alt ?? ""}
-        loading="lazy"
-        decoding="async"
+        loading={priority ? "eager" : "lazy"}
+        fetchpriority={priority ? "high" : undefined}
+        decoding={priority ? undefined : "async"}
         style={`position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: ${objectFit ?? "cover"}; object-position: ${objectPosition ?? "center"};`}
       />
     </div>

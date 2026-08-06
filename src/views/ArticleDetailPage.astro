@@ -56,6 +56,7 @@ const createdAt = format(new Date(data.createdAt ?? ""), "YYYY/MM/DD");
         alt={`ArticleImage:${data.id}`}
         objectFit="cover"
         style={articleHeroTransition(data.id)}
+        priority
       />
     </div>
     <div style="grid-area: lnav" class="hidden h-full self-end lg:block">
