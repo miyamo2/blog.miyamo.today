@@ -96,6 +96,9 @@ document.addEventListener("astro:page-load", initBmcCloseButton);`;
     <ClientRouter />
     <script is:inline set:html={copyToClipboardScript} />
     <script is:inline set:html={bmcPersistScript} />
+    <script>
+      import "../lib/viewTransition.client";
+    </script>
   </head>
   <body>
     <div id="app-root">
