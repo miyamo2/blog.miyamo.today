@@ -45,13 +45,17 @@ const gtagInit = `window.dataLayer = window.dataLayer || [];function gtag(){data
 // gatsby-plugin-manifest icon set
 const manifestIconSizes = [48, 72, 96, 144, 192, 256, 384, 512];
 
-// gatsby-plugin-preconnect
+// Origins the page actually requests during load. `crossorigin` is intentionally
+// omitted: it buckets the socket into the anonymous (CORS) connection pool, and
+// every cross-origin subresource here (scripts, stylesheets, images) is fetched
+// in no-cors mode, so a crossorigin preconnect would sit unused. The only
+// CORS-fetched resources are the fonts, and those are same-origin.
 const preconnectDomains = [
+  // Buy Me a Coffee widget loader, then the widget's own assets
+  "https://cdnjs.buymeacoffee.com",
   "https://cdn.buymeacoffee.com",
-  "https://www.reddit.com",
+  // gtag.js (production only, see below)
   "https://www.googletagmanager.com",
-  "https://opengraph.githubassets.com",
-  "https://t3.gstatic.com",
 ];
 ---
 
@@ -108,8 +112,7 @@ const preconnectDomains = [
   crossorigin="anonymous"
 />
 
-{/* gatsby-plugin-preconnect */}
-{preconnectDomains.map((domain) => <link rel="preconnect" href={domain} crossorigin />)}
+{preconnectDomains.map((domain) => <link rel="preconnect" href={domain} />)}
 
 {/* gatsby-plugin-manifest */}
 <link rel="manifest" href="/manifest.webmanifest" />
