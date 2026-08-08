@@ -8,6 +8,7 @@ import { satteriLinkCard } from "satteri-link-card";
 import { blogApiMiyamoToday } from "@miyamo2/astro-loader-blogapi-miyamo-today";
 import algoliaIndex from "@miyamo2/astro-algolia-index";
 import { imagePlaceholderService } from "@miyamo2/astro-image-placeholder";
+import { remoteImageStaging } from "./integrations/remote-image-staging";
 import {
   headingAnchorPlugin,
   plainTextMdastPlugin,
@@ -91,6 +92,7 @@ export default defineConfig({
     ),
   },
   integrations: [
+    remoteImageStaging(),
     blogApiMiyamoToday({
       url: env.BLOG_API_MIYAMO_TODAY_URL ?? "",
       token: env.BLOG_API_MIYAMO_TODAY_TOKEN ?? "",

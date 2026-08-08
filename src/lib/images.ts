@@ -1,6 +1,12 @@
 import { getImage } from "astro:assets";
 import { getRemoteImageSize, getImagePlaceholder, escapeHtml } from "@miyamo2/astro-image-placeholder";
 import type { ImageMetadata } from "astro";
+import {
+  stagedImageMetadata,
+  stageRemoteImage,
+  stagingEnabled,
+  type StagedImage,
+} from "./staged-remote-image";
 
 export interface RemoteImageData {
   src: string;
@@ -18,10 +24,6 @@ export interface BuildRemoteImageOptions {
   width?: number;
   /** target height. requires width; crops with fit: cover like gatsbyImageData(width, height) */
   height?: number;
-  /** srcSet width descriptors. omitted -> [target, 2x target] (see srcsetWidths) */
-  widths?: number[];
-  /** sizes attribute paired with the srcSet. omitted -> sizesFor(target) */
-  sizes?: string;
 }
 
 // like gatsby's CONSTRAINED layout: offer up to 2x of the target width (capped
@@ -36,19 +38,6 @@ const srcsetWidths = (targetWidth: number, sourceWidth: number): number[] => {
   return widths;
 };
 
-// explicit `widths` win over the 1x/2x default, but never upscale past the
-// source (astro happily emits an upscaled variant, which is pure bytes)
-const candidateWidths = (
-  widths: number[] | undefined,
-  targetWidth: number,
-  sourceWidth: number
-): number[] => {
-  if (!widths || widths.length === 0) {
-    return srcsetWidths(targetWidth, sourceWidth);
-  }
-  return [...new Set(widths.map((width) => Math.min(width, sourceWidth)))].sort((a, b) => a - b);
-};
-
 const sizesFor = (targetWidth: number): string =>
   `(min-width: ${targetWidth}px) ${targetWidth}px, 100vw`;
 
@@ -60,44 +49,40 @@ const sizesFor = (targetWidth: number): string =>
 // here at the sizes we serve.
 const IMAGE_QUALITY = 80;
 
-/**
- * Builds an optimized (webp) remote image via astro:assets, replacing
- * gatsby-plugin-image's gatsbyImageData. Dimension probing and the blur
- * placeholder are provided by @miyamo2/astro-image-placeholder's image
- * service (configured in astro.config.ts), so this only decides target
- * sizes and calls getImage().
- */
-export const buildRemoteImage = async (
-  url: string | undefined | null,
-  options: BuildRemoteImageOptions = {}
-): Promise<RemoteImageData | null> => {
-  if (!url) {
-    return null;
-  }
-  const size = await getRemoteImageSize(url);
-  if (!size || size.width === 0 || size.height === 0) {
-    return null;
-  }
-
-  let targetWidth: number;
-  let targetHeight: number;
+// `width` + `height` is taken as given (the caller wants that exact box, and
+// getImage() crops to it); a lone `width` -- or neither, which means "up to
+// 800" -- is constrained to the source and keeps its aspect ratio.
+const resolveTargetSize = (
+  source: { width: number; height: number },
+  options: BuildRemoteImageOptions
+): { width: number; height: number } => {
   if (options.width && options.height) {
-    targetWidth = options.width;
-    targetHeight = options.height;
-  } else if (options.width) {
-    targetWidth = Math.min(options.width, size.width);
-    targetHeight = Math.round((targetWidth * size.height) / size.width);
-  } else {
-    targetWidth = Math.min(800, size.width);
-    targetHeight = Math.round((targetWidth * size.height) / size.width);
+    return { width: options.width, height: options.height };
   }
+  const width = Math.min(options.width ?? 800, source.width);
+  return { width, height: Math.round((width * source.height) / source.width) };
+};
 
+/**
+ * Builds an optimized (webp) image from an original this build has already
+ * downloaded and staged (see ./staged-remote-image), which astro:assets treats
+ * as a local image -- so its generation phase never touches the network.
+ */
+const buildStagedImage = async (
+  staged: StagedImage,
+  options: BuildRemoteImageOptions
+): Promise<RemoteImageData> => {
+  const { width: targetWidth, height: targetHeight } = resolveTargetSize(staged, options);
+  const meta = stagedImageMetadata(staged);
+  // same reason as buildCollectionImage: the image service's getHTMLAttributes
+  // hook cannot see a local image's fsPath, so the placeholder is fetched here
+  const placeholder = await getImagePlaceholder(meta).catch(() => undefined);
   try {
     const result = await getImage({
-      src: url,
+      src: meta,
       width: targetWidth,
       height: targetHeight,
-      widths: candidateWidths(options.widths, targetWidth, size.width),
+      widths: srcsetWidths(targetWidth, staged.width),
       format: "webp",
       quality: IMAGE_QUALITY,
       ...(options.width && options.height ? { fit: "cover" as const } : {}),
@@ -106,7 +91,58 @@ export const buildRemoteImage = async (
     return {
       src: result.src,
       srcSet,
-      sizes: srcSet ? (options.sizes ?? sizesFor(targetWidth)) : undefined,
+      sizes: srcSet ? sizesFor(targetWidth) : undefined,
+      width: targetWidth,
+      height: targetHeight,
+      placeholder,
+    };
+  } catch (e) {
+    console.warn(`[images] failed to optimize ${staged.src}: ${String(e)}`);
+    // the staged original survives in the output: astro only deletes it after
+    // generating variants from it, which is exactly what did not happen here
+    return {
+      src: staged.src,
+      width: targetWidth,
+      height: targetHeight,
+      placeholder,
+    };
+  }
+};
+
+/**
+ * Builds an optimized (webp) remote image via astro:assets, replacing
+ * gatsby-plugin-image's gatsbyImageData. Dimension probing and the blur
+ * placeholder are provided by @miyamo2/astro-image-placeholder's image
+ * service (configured in astro.config.ts), so this only decides target
+ * sizes and calls getImage().
+ *
+ * Only reachable outside a build -- see buildRemoteImage.
+ */
+const buildUrlImage = async (
+  url: string,
+  options: BuildRemoteImageOptions
+): Promise<RemoteImageData | null> => {
+  const size = await getRemoteImageSize(url);
+  if (!size || size.width === 0 || size.height === 0) {
+    return null;
+  }
+  const { width: targetWidth, height: targetHeight } = resolveTargetSize(size, options);
+
+  try {
+    const result = await getImage({
+      src: url,
+      width: targetWidth,
+      height: targetHeight,
+      widths: srcsetWidths(targetWidth, size.width),
+      format: "webp",
+      quality: IMAGE_QUALITY,
+      ...(options.width && options.height ? { fit: "cover" as const } : {}),
+    });
+    const srcSet = result.srcSet.attribute !== "" ? result.srcSet.attribute : undefined;
+    return {
+      src: result.src,
+      srcSet,
+      sizes: srcSet ? sizesFor(targetWidth) : undefined,
       width: targetWidth,
       height: targetHeight,
       placeholder: result.attributes["data-placeholder"] as string | undefined,
@@ -122,6 +158,33 @@ export const buildRemoteImage = async (
 };
 
 /**
+ * Builds an optimized (webp) image from a remote url.
+ *
+ * A build must not hand that url to getImage() directly: astro would download
+ * it in its image-generation phase, where a host that has gone down, a 429, or
+ * a format sharp cannot decode aborts the whole build rather than this one
+ * image. So a build stages the bytes first (./staged-remote-image) and a
+ * failure is a `null` the caller renders around -- for article body images,
+ * `renderRemoteImageMarkup`'s plain `<img>` pointing back at the origin.
+ *
+ * `astro dev` has neither that phase nor a build output to stage into, and
+ * resolves a remote src per request, so there it keeps using the url.
+ */
+export const buildRemoteImage = async (
+  url: string | undefined | null,
+  options: BuildRemoteImageOptions = {}
+): Promise<RemoteImageData | null> => {
+  if (!url) {
+    return null;
+  }
+  if (!stagingEnabled()) {
+    return buildUrlImage(url, options);
+  }
+  const staged = await stageRemoteImage(url);
+  return staged ? await buildStagedImage(staged, options) : null;
+};
+
+/**
  * Builds an optimized (webp) image from a local content-collection image
  * (thumbnails downloaded by @miyamo2/astro-loader-blogapi-miyamo-today),
  * producing the same RemoteImageData shape as buildRemoteImage.
@@ -133,19 +196,7 @@ export const buildCollectionImage = async (
   if (!meta || meta.width === 0 || meta.height === 0) {
     return null;
   }
-
-  let targetWidth: number;
-  let targetHeight: number;
-  if (options.width && options.height) {
-    targetWidth = options.width;
-    targetHeight = options.height;
-  } else if (options.width) {
-    targetWidth = Math.min(options.width, meta.width);
-    targetHeight = Math.round((targetWidth * meta.height) / meta.width);
-  } else {
-    targetWidth = Math.min(800, meta.width);
-    targetHeight = Math.round((targetWidth * meta.height) / meta.width);
-  }
+  const { width: targetWidth, height: targetHeight } = resolveTargetSize(meta, options);
 
   // the image service's getHTMLAttributes hook cannot see local images'
   // fsPath (getImage() clones the metadata before invoking any hook, and
@@ -156,7 +207,7 @@ export const buildCollectionImage = async (
       src: meta,
       width: targetWidth,
       height: targetHeight,
-      widths: candidateWidths(options.widths, targetWidth, meta.width),
+      widths: srcsetWidths(targetWidth, meta.width),
       format: "webp",
       quality: IMAGE_QUALITY,
       ...(options.width && options.height ? { fit: "cover" as const } : {}),
@@ -165,7 +216,7 @@ export const buildCollectionImage = async (
     return {
       src: result.src,
       srcSet,
-      sizes: srcSet ? (options.sizes ?? sizesFor(targetWidth)) : undefined,
+      sizes: srcSet ? sizesFor(targetWidth) : undefined,
       width: targetWidth,
       height: targetHeight,
       placeholder,
@@ -250,137 +301,15 @@ export const replaceRemoteImagePlaceholders = async (html: string): Promise<stri
   }
   const replacements = await Promise.all(
     matches.map(async (match) => {
-      const { url, alt, title } = JSON.parse(Buffer.from(match[1], "base64").toString("utf-8")) as {
-        url: string;
-        alt: string;
-        title: string;
-      };
+      const { url, alt, title } = JSON.parse(
+        Buffer.from(match[1], "base64").toString("utf-8")
+      ) as { url: string; alt: string; title: string };
       return [match[0], await renderRemoteImageMarkup(url, alt, title)] as const;
     })
   );
   let result = html;
   for (const [placeholder, markup] of replacements) {
     result = result.replace(placeholder, markup);
-  }
-  return result;
-};
-
-// satteri-link-card emits the OGP image / favicon URLs verbatim (its own
-// `imageCache` only self-hosts the original bytes, it never resizes), so a
-// 1200x600 og:image lands in a box that is never wider than ~273 CSS px --
-// PageSpeed Insights' "Improve image delivery". These constants describe that
-// box; see `.satteri-link-card__media` / `__favicon` in styles/vendor.css.
-const LINK_CARD_IMAGE_WIDTH = 280;
-const LINK_CARD_IMAGE_HEIGHT = 140;
-// 448w is the mobile candidate lighthouse asks for (412px viewport, 40vw slot,
-// DPR 1.75); 560w covers the widest desktop box (273px) at DPR 2
-const LINK_CARD_IMAGE_WIDTHS = [160, 280, 448, 560];
-// media box is 40% of the card below 768px and 30% above it; the card itself is
-// the content column, which stops growing at 1400px * 65% (see article-detail.css)
-const LINK_CARD_IMAGE_SIZES = `(min-width: 1200px) ${LINK_CARD_IMAGE_WIDTH}px, (min-width: 768px) 30vw, 40vw`;
-const LINK_CARD_FAVICON_WIDTH = 14;
-
-const LINK_CARD_IMG = /<img\b[^>]*\bclass="satteri-link-card__(image|favicon)"[^>]*>/g;
-const SRC_ATTRIBUTE = /\ssrc="([^"]*)"/;
-
-const decodeHtml = (value: string): string =>
-  value
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    // last: an escaped entity must not be produced by an earlier replacement
-    .replace(/&amp;/g, "&");
-
-/** sets (or adds, keeping the tag's self-closing form) attributes on one tag */
-const withAttributes = (tag: string, attributes: Record<string, string | undefined>): string => {
-  let result = tag;
-  for (const [name, value] of Object.entries(attributes)) {
-    if (value === undefined) {
-      continue;
-    }
-    const attribute = ` ${name}="${value}"`;
-    const existing = new RegExp(`\\s${name}="[^"]*"`);
-    result = existing.test(result)
-      ? result.replace(existing, () => attribute)
-      : result.replace(/\s*\/?>$/, (close) => `${attribute}${close}`);
-  }
-  return result;
-};
-
-// one build fetches/optimizes the same og:image and (especially) the same
-// favicon over and over -- articles link to the same hosts repeatedly
-const linkCardImageCache = new Map<string, Promise<RemoteImageData | null>>();
-
-const linkCardImage = (url: string, kind: "image" | "favicon"): Promise<RemoteImageData | null> => {
-  const key = `${kind}:${url}`;
-  const cached = linkCardImageCache.get(key);
-  if (cached) {
-    return cached;
-  }
-  const pending = buildRemoteImage(
-    url,
-    kind === "image"
-      ? {
-          width: LINK_CARD_IMAGE_WIDTH,
-          height: LINK_CARD_IMAGE_HEIGHT,
-          widths: LINK_CARD_IMAGE_WIDTHS,
-          sizes: LINK_CARD_IMAGE_SIZES,
-        }
-      : { width: LINK_CARD_FAVICON_WIDTH }
-  );
-  linkCardImageCache.set(key, pending);
-  return pending;
-};
-
-/**
- * Re-points the `<img>`s satteri-link-card rendered at astro:assets-optimized
- * (webp, responsive) variants sized for the card's actual box, which also
- * moves the third-party thumbnails onto our own origin.
- *
- * Rewriting the serialized HTML rather than the hast tree is deliberate, for
- * the same reason `replaceRemoteImagePlaceholders` exists: satteri's
- * hastPlugins -- where satteri-link-card builds these nodes -- run during
- * content-layer sync, where `getImage()` is not usable.
- *
- * Anything that cannot be probed or optimized (an .ico favicon, an
- * unreachable host) keeps its original markup, courtesy of buildRemoteImage
- * returning null / the source url.
- */
-export const optimizeLinkCardImages = async (html: string): Promise<string> => {
-  const matches = [...html.matchAll(LINK_CARD_IMG)];
-  if (matches.length === 0) {
-    return html;
-  }
-  const replacements = await Promise.all(
-    matches.map(async (match) => {
-      const tag = match[0];
-      const src = SRC_ATTRIBUTE.exec(tag)?.[1];
-      if (!src) {
-        return [tag, tag] as const;
-      }
-      const kind = match[1] as "image" | "favicon";
-      const image = await linkCardImage(decodeHtml(src), kind);
-      if (!image) {
-        return [tag, tag] as const;
-      }
-      return [
-        tag,
-        withAttributes(tag, {
-          src: escapeHtml(image.src),
-          srcset: image.srcSet ? escapeHtml(image.srcSet) : undefined,
-          sizes: image.sizes,
-          // the favicon is the only one satteri-link-card leaves eager
-          loading: "lazy",
-        }),
-      ] as const;
-    })
-  );
-  let result = html;
-  for (const [tag, markup] of replacements) {
-    if (tag !== markup) {
-      result = result.replace(tag, () => markup);
-    }
   }
   return result;
 };
