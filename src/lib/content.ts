@@ -1,7 +1,7 @@
 import pLimit from "p-limit";
 import { writeRecords } from "@miyamo2/astro-algolia-index/records";
 import { getCollection, type CollectionEntry } from "astro:content";
-import type { MarkdownHeading } from "astro";
+import type { ImageMetadata, MarkdownHeading } from "astro";
 import { excerptOf, type ArticleHeading } from "./markdown";
 import {
   buildCollectionImage,
@@ -137,6 +137,14 @@ const toCard = (rendered: RenderedArticle): ArticleCardVM => {
 
 const renderAll = async (entries: BlogEntry[]): Promise<Map<string, RenderedArticle>> => {
   const result = new Map<string, RenderedArticle>();
+  // link cards pointing back at this blog resolve their thumbnail from here
+  // instead of from the og:image satteri-link-card scraped off the live site
+  // (see optimizeLinkCardImages)
+  const thumbnails = new Map<string, ImageMetadata>(
+    entries.flatMap((entry) =>
+      entry.data.thumbnail ? [[entry.data.id, entry.data.thumbnail]] : []
+    )
+  );
   // markdown itself is already rendered by astro's content-layer glob() loader
   // (satteri, see astro.config.ts); this phase resolves the remote-image
   // placeholders that rendering left behind and re-sizes the link-card
@@ -148,7 +156,9 @@ const renderAll = async (entries: BlogEntry[]): Promise<Map<string, RenderedArti
     entries.map((entry) =>
       limit(async () => {
         const [html, cardImage, detailImage, recommendImage] = await Promise.all([
-          replaceRemoteImagePlaceholders(entry.rendered?.html ?? "").then(optimizeLinkCardImages),
+          replaceRemoteImagePlaceholders(entry.rendered?.html ?? "").then((html) =>
+            optimizeLinkCardImages(html, thumbnails)
+          ),
           // matches the article-card thumbnail's CSS box (ArticleCard.css
           // .article-card-thumbnail height: 220px, fluid width up to ~560px
           // on the widest single-column grid cell)
