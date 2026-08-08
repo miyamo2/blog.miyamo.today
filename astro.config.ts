@@ -47,17 +47,20 @@ const serializeRenders = (processor: ReturnType<typeof satteri>): typeof process
 };
 
 /**
- * Publishes the build output / cache directories to `optimizeLinkCardImages`
- * (src/lib/link-card-images.ts), which downloads the link cards' remote images
- * itself and stages them in the build output for astro:assets to pick up as
- * local images. Page rendering runs in its own module graph, so process.env is
- * the only channel to it; only a real build sets them (`astro dev` has no build
- * output, and there the images stay as satteri-link-card emitted them).
+ * Publishes the build output / cache / assets directories to
+ * src/lib/staged-remote-image.ts, which downloads every remote image (article
+ * bodies and link cards alike) itself and stages it in the build output for
+ * astro:assets to pick up as a local image -- keeping astro's own
+ * image-generation phase, where a failure is fatal, off the network.
+ *
+ * Page rendering runs in its own module graph, so process.env is the only
+ * channel to it. Only a real build sets them: `astro dev` has no build output
+ * to stage into, and resolves remote images per request instead.
  */
-const linkCardImages = (): AstroIntegration => {
+const remoteImageStaging = (): AstroIntegration => {
   let enabled = false;
   return {
-    name: "link-card-images",
+    name: "remote-image-staging",
     hooks: {
       "astro:config:setup": ({ command }) => {
         enabled = command === "build";
@@ -66,9 +69,9 @@ const linkCardImages = (): AstroIntegration => {
         if (!enabled) {
           return;
         }
-        process.env.LINK_CARD_IMAGE_OUT_DIR = fileURLToPath(config.outDir);
-        process.env.LINK_CARD_IMAGE_CACHE_DIR = fileURLToPath(config.cacheDir);
-        process.env.LINK_CARD_IMAGE_ASSETS_DIR = config.build.assets;
+        process.env.REMOTE_IMAGE_OUT_DIR = fileURLToPath(config.outDir);
+        process.env.REMOTE_IMAGE_CACHE_DIR = fileURLToPath(config.cacheDir);
+        process.env.REMOTE_IMAGE_ASSETS_DIR = config.build.assets;
       },
     },
   };
@@ -121,7 +124,7 @@ export default defineConfig({
     ),
   },
   integrations: [
-    linkCardImages(),
+    remoteImageStaging(),
     blogApiMiyamoToday({
       url: env.BLOG_API_MIYAMO_TODAY_URL ?? "",
       token: env.BLOG_API_MIYAMO_TODAY_TOKEN ?? "",
