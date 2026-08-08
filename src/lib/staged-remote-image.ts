@@ -3,6 +3,11 @@ import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import pLimit from "p-limit";
 import type { ImageMetadata } from "astro";
+import {
+  remoteImageAssetsDir,
+  remoteImageCacheDir,
+  remoteImageOutDir,
+} from "../../integrations/remote-image-staging/env";
 
 const FETCH_TIMEOUT_MS = 10_000;
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
@@ -32,27 +37,12 @@ export interface StagedImage {
 }
 
 /**
- * Build output / cache / assets directories, published by the
- * `remoteImageStaging` integration in astro.config.ts. Page rendering and the
- * astro config live in separate module graphs, so process.env is the only
- * channel between them; their absence means "not a production build".
- */
-const outDir = (): string | undefined => process.env.REMOTE_IMAGE_OUT_DIR || undefined;
-const cacheDir = (): string | undefined => process.env.REMOTE_IMAGE_CACHE_DIR || undefined;
-/**
- * Originals are staged in the assets folder so the variants astro derives from
- * them land next to every other hashed asset -- the deploy step uploads
- * `dist/_astro` first and as `immutable` (see .github/workflows/publish.yaml),
- * which is exactly what they are.
- */
-const assetsDir = (): string => process.env.REMOTE_IMAGE_ASSETS_DIR || "_astro";
-
-/**
  * Whether remote images have to be staged before astro:assets may see them.
- * True during `astro build` only: `astro dev` resolves a remote src per
+ * True during `astro build` only -- that is when the `remote-image-staging`
+ * integration publishes the directories. `astro dev` resolves a remote src per
  * request, where a failure costs one broken image rather than the build.
  */
-export const stagingEnabled = (): boolean => outDir() !== undefined;
+export const stagingEnabled = (): boolean => remoteImageOutDir() !== undefined;
 
 const keyFor = (url: string): string => createHash("sha1").update(url).digest("hex").slice(0, 16);
 
@@ -77,7 +67,7 @@ const fetchImageBytes = async (url: string): Promise<Buffer | null> => {
 };
 
 const downloadOriginal = async (url: string): Promise<Buffer | null> => {
-  const cache = cacheDir();
+  const cache = remoteImageCacheDir();
   const cacheFile = cache ? join(cache, "remote-images", keyFor(url)) : undefined;
   if (cacheFile) {
     try {
@@ -121,7 +111,7 @@ const downloadOriginal = async (url: string): Promise<Buffer | null> => {
  * variants, since nothing else references it.
  */
 const stage = async (url: string): Promise<StagedImage | null> => {
-  const out = outDir();
+  const out = remoteImageOutDir();
   if (!out) {
     return null;
   }
@@ -141,7 +131,7 @@ const stage = async (url: string): Promise<StagedImage | null> => {
   if (!format || !DECODABLE_FORMATS.has(format) || !width || !height) {
     return null;
   }
-  const src = `/${assetsDir()}/${keyFor(url)}.${EXTENSIONS[format] ?? format}`;
+  const src = `/${remoteImageAssetsDir()}/${keyFor(url)}.${EXTENSIONS[format] ?? format}`;
   const fsPath = join(out, src);
   try {
     await mkdir(dirname(fsPath), { recursive: true });

@@ -1,6 +1,4 @@
-import { fileURLToPath } from "node:url";
 import { defineConfig, envField } from "astro/config";
-import type { AstroIntegration } from "astro";
 import { loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
@@ -10,6 +8,7 @@ import { satteriLinkCard } from "satteri-link-card";
 import { blogApiMiyamoToday } from "@miyamo2/astro-loader-blogapi-miyamo-today";
 import algoliaIndex from "@miyamo2/astro-algolia-index";
 import { imagePlaceholderService } from "@miyamo2/astro-image-placeholder";
+import { remoteImageStaging } from "./integrations/remote-image-staging";
 import {
   headingAnchorPlugin,
   plainTextMdastPlugin,
@@ -42,37 +41,6 @@ const serializeRenders = (processor: ReturnType<typeof satteri>): typeof process
         ...renderer,
         render: (content, renderOpts) => limit(() => renderer.render(content, renderOpts)),
       };
-    },
-  };
-};
-
-/**
- * Publishes the build output / cache / assets directories to
- * src/lib/staged-remote-image.ts, which downloads every remote image (article
- * bodies and link cards alike) itself and stages it in the build output for
- * astro:assets to pick up as a local image -- keeping astro's own
- * image-generation phase, where a failure is fatal, off the network.
- *
- * Page rendering runs in its own module graph, so process.env is the only
- * channel to it. Only a real build sets them: `astro dev` has no build output
- * to stage into, and resolves remote images per request instead.
- */
-const remoteImageStaging = (): AstroIntegration => {
-  let enabled = false;
-  return {
-    name: "remote-image-staging",
-    hooks: {
-      "astro:config:setup": ({ command }) => {
-        enabled = command === "build";
-      },
-      "astro:config:done": ({ config }) => {
-        if (!enabled) {
-          return;
-        }
-        process.env.REMOTE_IMAGE_OUT_DIR = fileURLToPath(config.outDir);
-        process.env.REMOTE_IMAGE_CACHE_DIR = fileURLToPath(config.cacheDir);
-        process.env.REMOTE_IMAGE_ASSETS_DIR = config.build.assets;
-      },
     },
   };
 };
