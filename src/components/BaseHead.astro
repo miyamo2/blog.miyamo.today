@@ -46,9 +46,9 @@ const manifestIconSizes = [48, 72, 96, 144, 192, 256, 384, 512];
 // in no-cors mode, so a crossorigin preconnect would sit unused. The only
 // CORS-fetched resources are the fonts, and those are same-origin.
 // www.googletagmanager.com is deliberately absent: gtag.js is requested from an
-// idle callback after load (see src/integrations/inline-scripts.ts), long after
-// the preconnected socket would have been reclaimed, so warming it here would
-// only take a connection slot away from the resources that do load with the page.
+// idle callback after load (see integrations/inline-scripts), long after the
+// preconnected socket would have been reclaimed, so warming it here would only
+// take a connection slot away from the resources that do load with the page.
 const preconnectDomains = [
   // Buy Me a Coffee widget loader, then the widget's own assets
   "https://cdnjs.buymeacoffee.com",

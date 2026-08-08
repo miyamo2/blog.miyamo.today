@@ -141,7 +141,7 @@ document.addEventListener('astro:after-swap', function () {
   else window.addEventListener('load', schedule, { once: true });
 })();`;
 
-export default function inlineScripts(): AstroIntegration {
+export const inlineScripts = (): AstroIntegration => {
   return {
     name: "inline-scripts",
     hooks: {
@@ -160,4 +160,4 @@ export default function inlineScripts(): AstroIntegration {
       },
     },
   };
-}
+};

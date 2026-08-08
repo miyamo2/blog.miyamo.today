@@ -17,8 +17,8 @@ export interface Props {
 const { head = {} } = Astro.props;
 
 // The page-level inline scripts (theme init, code-block copy handler, Buy Me a
-// Coffee persistence and close button) live in src/integrations/inline-scripts.ts
-// and are injected into <head> from there, so `security.csp` can digest them.
+// Coffee persistence and close button) live in integrations/inline-scripts and
+// are injected into <head> from there, so `security.csp` can digest them.
 ---
 
 <!doctype html>

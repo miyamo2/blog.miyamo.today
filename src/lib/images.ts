@@ -1,6 +1,12 @@
 import { getImage } from "astro:assets";
 import { getRemoteImageSize, getImagePlaceholder, escapeHtml } from "@miyamo2/astro-image-placeholder";
 import type { ImageMetadata } from "astro";
+import {
+  stagedImageMetadata,
+  stageRemoteImage,
+  stagingEnabled,
+  type StagedImage,
+} from "./staged-remote-image";
 
 export interface RemoteImageData {
   src: string;
@@ -43,37 +49,84 @@ const sizesFor = (targetWidth: number): string =>
 // here at the sizes we serve.
 const IMAGE_QUALITY = 80;
 
+// `width` + `height` is taken as given (the caller wants that exact box, and
+// getImage() crops to it); a lone `width` -- or neither, which means "up to
+// 800" -- is constrained to the source and keeps its aspect ratio.
+const resolveTargetSize = (
+  source: { width: number; height: number },
+  options: BuildRemoteImageOptions
+): { width: number; height: number } => {
+  if (options.width && options.height) {
+    return { width: options.width, height: options.height };
+  }
+  const width = Math.min(options.width ?? 800, source.width);
+  return { width, height: Math.round((width * source.height) / source.width) };
+};
+
+/**
+ * Builds an optimized (webp) image from an original this build has already
+ * downloaded and staged (see ./staged-remote-image), which astro:assets treats
+ * as a local image -- so its generation phase never touches the network.
+ */
+const buildStagedImage = async (
+  staged: StagedImage,
+  options: BuildRemoteImageOptions
+): Promise<RemoteImageData> => {
+  const { width: targetWidth, height: targetHeight } = resolveTargetSize(staged, options);
+  const meta = stagedImageMetadata(staged);
+  // same reason as buildCollectionImage: the image service's getHTMLAttributes
+  // hook cannot see a local image's fsPath, so the placeholder is fetched here
+  const placeholder = await getImagePlaceholder(meta).catch(() => undefined);
+  try {
+    const result = await getImage({
+      src: meta,
+      width: targetWidth,
+      height: targetHeight,
+      widths: srcsetWidths(targetWidth, staged.width),
+      format: "webp",
+      quality: IMAGE_QUALITY,
+      ...(options.width && options.height ? { fit: "cover" as const } : {}),
+    });
+    const srcSet = result.srcSet.attribute !== "" ? result.srcSet.attribute : undefined;
+    return {
+      src: result.src,
+      srcSet,
+      sizes: srcSet ? sizesFor(targetWidth) : undefined,
+      width: targetWidth,
+      height: targetHeight,
+      placeholder,
+    };
+  } catch (e) {
+    console.warn(`[images] failed to optimize ${staged.src}: ${String(e)}`);
+    // the staged original survives in the output: astro only deletes it after
+    // generating variants from it, which is exactly what did not happen here
+    return {
+      src: staged.src,
+      width: targetWidth,
+      height: targetHeight,
+      placeholder,
+    };
+  }
+};
+
 /**
  * Builds an optimized (webp) remote image via astro:assets, replacing
  * gatsby-plugin-image's gatsbyImageData. Dimension probing and the blur
  * placeholder are provided by @miyamo2/astro-image-placeholder's image
  * service (configured in astro.config.ts), so this only decides target
  * sizes and calls getImage().
+ *
+ * Only reachable outside a build -- see buildRemoteImage.
  */
-export const buildRemoteImage = async (
-  url: string | undefined | null,
-  options: BuildRemoteImageOptions = {}
+const buildUrlImage = async (
+  url: string,
+  options: BuildRemoteImageOptions
 ): Promise<RemoteImageData | null> => {
-  if (!url) {
-    return null;
-  }
   const size = await getRemoteImageSize(url);
   if (!size || size.width === 0 || size.height === 0) {
     return null;
   }
-
-  let targetWidth: number;
-  let targetHeight: number;
-  if (options.width && options.height) {
-    targetWidth = options.width;
-    targetHeight = options.height;
-  } else if (options.width) {
-    targetWidth = Math.min(options.width, size.width);
-    targetHeight = Math.round((targetWidth * size.height) / size.width);
-  } else {
-    targetWidth = Math.min(800, size.width);
-    targetHeight = Math.round((targetWidth * size.height) / size.width);
-  }
+  const { width: targetWidth, height: targetHeight } = resolveTargetSize(size, options);
 
   try {
     const result = await getImage({
@@ -105,6 +158,33 @@ export const buildRemoteImage = async (
 };
 
 /**
+ * Builds an optimized (webp) image from a remote url.
+ *
+ * A build must not hand that url to getImage() directly: astro would download
+ * it in its image-generation phase, where a host that has gone down, a 429, or
+ * a format sharp cannot decode aborts the whole build rather than this one
+ * image. So a build stages the bytes first (./staged-remote-image) and a
+ * failure is a `null` the caller renders around -- for article body images,
+ * `renderRemoteImageMarkup`'s plain `<img>` pointing back at the origin.
+ *
+ * `astro dev` has neither that phase nor a build output to stage into, and
+ * resolves a remote src per request, so there it keeps using the url.
+ */
+export const buildRemoteImage = async (
+  url: string | undefined | null,
+  options: BuildRemoteImageOptions = {}
+): Promise<RemoteImageData | null> => {
+  if (!url) {
+    return null;
+  }
+  if (!stagingEnabled()) {
+    return buildUrlImage(url, options);
+  }
+  const staged = await stageRemoteImage(url);
+  return staged ? await buildStagedImage(staged, options) : null;
+};
+
+/**
  * Builds an optimized (webp) image from a local content-collection image
  * (thumbnails downloaded by @miyamo2/astro-loader-blogapi-miyamo-today),
  * producing the same RemoteImageData shape as buildRemoteImage.
@@ -116,19 +196,7 @@ export const buildCollectionImage = async (
   if (!meta || meta.width === 0 || meta.height === 0) {
     return null;
   }
-
-  let targetWidth: number;
-  let targetHeight: number;
-  if (options.width && options.height) {
-    targetWidth = options.width;
-    targetHeight = options.height;
-  } else if (options.width) {
-    targetWidth = Math.min(options.width, meta.width);
-    targetHeight = Math.round((targetWidth * meta.height) / meta.width);
-  } else {
-    targetWidth = Math.min(800, meta.width);
-    targetHeight = Math.round((targetWidth * meta.height) / meta.width);
-  }
+  const { width: targetWidth, height: targetHeight } = resolveTargetSize(meta, options);
 
   // the image service's getHTMLAttributes hook cannot see local images'
   // fsPath (getImage() clones the metadata before invoking any hook, and
