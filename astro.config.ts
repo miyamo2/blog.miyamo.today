@@ -14,6 +14,7 @@ import {
   codeCopyButtonPlugin,
   remoteImagesMdastPlugin,
 } from "./src/lib/satteri-plugins";
+import inlineScripts from "./src/integrations/inline-scripts";
 
 // `.env` files are not loaded into process.env while the config itself is being
 // evaluated, so load them explicitly here (empty prefix -> load every var).
@@ -91,6 +92,7 @@ export default defineConfig({
     ),
   },
   integrations: [
+    inlineScripts(),
     blogApiMiyamoToday({
       url: env.BLOG_API_MIYAMO_TODAY_URL ?? "",
       token: env.BLOG_API_MIYAMO_TODAY_TOKEN ?? "",

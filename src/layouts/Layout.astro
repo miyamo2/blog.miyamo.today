@@ -16,86 +16,16 @@ export interface Props {
 
 const { head = {} } = Astro.props;
 
-// starwind theme init (replaces @yamada-ui/core's getColorModeScript);
-// runs before paint so the initial render already has the right color mode
-const themeInitScript = `(function () {
-  function initTheme() {
-    var colorTheme = localStorage.getItem("colorTheme");
-    var prefersDark =
-      window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (!colorTheme || colorTheme === "system") {
-      document.documentElement.classList.toggle("dark", prefersDark);
-    } else {
-      document.documentElement.classList.toggle("dark", colorTheme === "dark");
-    }
-  }
-  initTheme();
-  document.addEventListener("astro:after-swap", initTheme);
-})();`;
-
-// click handler for the code block copy button (src/lib/satteri-plugins.ts)
-const copyToClipboardScript = `window.copyCodeToClipboard = async (button, codeContainer) => {
-  if (button.textContent === "Copied") {
-    return;
-  }
-  navigator.clipboard.writeText(codeContainer.textContent || "");
-  button.classList.add("copied");
-  button.textContent = "Copied!";
-  await new Promise((resolve) => {
-    setTimeout(() => {
-      button.classList.remove("copied");
-      button.textContent = "Copy";
-      resolve("done");
-    }, 1500);
-  });
-};`;
-
-// the Buy Me a Coffee widget injects #bmc-wbtn into <body>, plus an
-// unlabelled overlay div (click-outside-to-close target) that wraps
-// #bmc-iframe and #bmc-close-btn; carry all of it over to the next document
-// so the ClientRouter swap doesn't drop it (the widget script itself only
-// ever runs once). Moving #bmc-iframe alone would detach it from the overlay
-// and silently break both the outside-click close and the close button.
-const bmcPersistScript = `document.addEventListener("astro:before-swap", (event) => {
-  const wbtn = document.getElementById("bmc-wbtn");
-  if (wbtn) event.newDocument.body.appendChild(wbtn);
-  const overlay = document.getElementById("bmc-iframe")?.parentElement;
-  if (overlay) event.newDocument.body.appendChild(overlay);
-});`;
-
-// the widget ships a close button (#bmc-close-btn) for the opened panel, but
-// its own script only reveals it below the 480px breakpoint (relies on
-// clicking outside the panel to close on wider screens); show/hide it on the
-// widget's own open/close clicks so a close button is always available
-const bmcCloseButtonScript = `function initBmcCloseButton() {
-  const closeBtn = document.getElementById("bmc-close-btn");
-  const wbtn = document.getElementById("bmc-wbtn");
-  if (!closeBtn || !wbtn || closeBtn.dataset.closeButtonWired) return;
-  closeBtn.dataset.closeButtonWired = "true";
-  const overlay = closeBtn.parentElement;
-  wbtn.addEventListener("click", () => {
-    closeBtn.style.visibility = "visible";
-  });
-  overlay.addEventListener("click", () => {
-    closeBtn.style.visibility = "hidden";
-  });
-}
-if (document.readyState === "loading") {
-  window.addEventListener("DOMContentLoaded", initBmcCloseButton);
-} else {
-  initBmcCloseButton();
-}
-document.addEventListener("astro:page-load", initBmcCloseButton);`;
+// The page-level inline scripts (theme init, code-block copy handler, Buy Me a
+// Coffee persistence and close button) live in src/integrations/inline-scripts.ts
+// and are injected into <head> from there, so `security.csp` can digest them.
 ---
 
 <!doctype html>
 <html lang="ja">
   <head>
-    <script is:inline set:html={themeInitScript} />
     <BaseHead {...head} />
     <ClientRouter />
-    <script is:inline set:html={copyToClipboardScript} />
-    <script is:inline set:html={bmcPersistScript} />
   </head>
   <body>
     <div id="app-root">
@@ -142,6 +72,5 @@ document.addEventListener("astro:page-load", initBmcCloseButton);`;
       data-position="Right"
       data-x_margin="18"
       data-y_margin="18"></script>
-    <script is:inline set:html={bmcCloseButtonScript} />
   </body>
 </html>
