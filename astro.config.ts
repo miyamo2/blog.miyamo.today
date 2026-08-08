@@ -9,6 +9,7 @@ import { blogApiMiyamoToday } from "@miyamo2/astro-loader-blogapi-miyamo-today";
 import algoliaIndex from "@miyamo2/astro-algolia-index";
 import { imagePlaceholderService } from "@miyamo2/astro-image-placeholder";
 import { remoteImageStaging } from "./integrations/remote-image-staging";
+import { inlineScripts } from "./integrations/inline-scripts";
 import {
   headingAnchorPlugin,
   plainTextMdastPlugin,
@@ -93,6 +94,7 @@ export default defineConfig({
   },
   integrations: [
     remoteImageStaging(),
+    inlineScripts(),
     blogApiMiyamoToday({
       url: env.BLOG_API_MIYAMO_TODAY_URL ?? "",
       token: env.BLOG_API_MIYAMO_TODAY_TOKEN ?? "",

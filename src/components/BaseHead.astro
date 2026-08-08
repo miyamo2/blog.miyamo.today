@@ -37,11 +37,6 @@ const seo = {
   facebookAppId: facebookAppId ?? "",
 };
 
-const gtagId = "G-F1N7VJ0ZX9";
-// astro:after-swap fires on ClientRouter navigations only (not the initial
-// load, which gtag('config') already reports), after the new <title> is set
-const gtagInit = `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${gtagId}');document.addEventListener('astro:after-swap', function () {gtag('event', 'page_view', {page_location: location.href, page_title: document.title});});`;
-
 // gatsby-plugin-manifest icon set
 const manifestIconSizes = [48, 72, 96, 144, 192, 256, 384, 512];
 
@@ -50,12 +45,14 @@ const manifestIconSizes = [48, 72, 96, 144, 192, 256, 384, 512];
 // every cross-origin subresource here (scripts, stylesheets, images) is fetched
 // in no-cors mode, so a crossorigin preconnect would sit unused. The only
 // CORS-fetched resources are the fonts, and those are same-origin.
+// www.googletagmanager.com is deliberately absent: gtag.js is requested from an
+// idle callback after load (see integrations/inline-scripts), long after the
+// preconnected socket would have been reclaimed, so warming it here would only
+// take a connection slot away from the resources that do load with the page.
 const preconnectDomains = [
   // Buy Me a Coffee widget loader, then the widget's own assets
   "https://cdnjs.buymeacoffee.com",
   "https://cdn.buymeacoffee.com",
-  // gtag.js (production only, see below)
-  "https://www.googletagmanager.com",
 ];
 ---
 
@@ -125,14 +122,4 @@ const preconnectDomains = [
       href={`/icons/icon-${size}x${size}.png`}
     />
   ))
-}
-
-{/* gatsby-plugin-google-gtag (head: true, production only) */}
-{
-  import.meta.env.PROD && (
-    <>
-      <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gtagId}`} />
-      <script is:inline set:html={gtagInit} />
-    </>
-  )
 }
