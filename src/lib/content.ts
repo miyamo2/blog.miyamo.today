@@ -5,10 +5,10 @@ import type { MarkdownHeading } from "astro";
 import { excerptOf, type ArticleHeading } from "./markdown";
 import {
   buildCollectionImage,
-  optimizeLinkCardImages,
   replaceRemoteImagePlaceholders,
   type RemoteImageData,
 } from "./images";
+import { optimizeLinkCardImages } from "./link-card-images";
 import { PER_PAGE, siteMetadata } from "./site";
 
 interface TagVM {

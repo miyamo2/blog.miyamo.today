@@ -1,4 +1,6 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig, envField } from "astro/config";
+import type { AstroIntegration } from "astro";
 import { loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
@@ -40,6 +42,34 @@ const serializeRenders = (processor: ReturnType<typeof satteri>): typeof process
         ...renderer,
         render: (content, renderOpts) => limit(() => renderer.render(content, renderOpts)),
       };
+    },
+  };
+};
+
+/**
+ * Publishes the build output / cache directories to `optimizeLinkCardImages`
+ * (src/lib/link-card-images.ts), which downloads the link cards' remote images
+ * itself and stages them in the build output for astro:assets to pick up as
+ * local images. Page rendering runs in its own module graph, so process.env is
+ * the only channel to it; only a real build sets them (`astro dev` has no build
+ * output, and there the images stay as satteri-link-card emitted them).
+ */
+const linkCardImages = (): AstroIntegration => {
+  let enabled = false;
+  return {
+    name: "link-card-images",
+    hooks: {
+      "astro:config:setup": ({ command }) => {
+        enabled = command === "build";
+      },
+      "astro:config:done": ({ config }) => {
+        if (!enabled) {
+          return;
+        }
+        process.env.LINK_CARD_IMAGE_OUT_DIR = fileURLToPath(config.outDir);
+        process.env.LINK_CARD_IMAGE_CACHE_DIR = fileURLToPath(config.cacheDir);
+        process.env.LINK_CARD_IMAGE_ASSETS_DIR = config.build.assets;
+      },
     },
   };
 };
@@ -91,6 +121,7 @@ export default defineConfig({
     ),
   },
   integrations: [
+    linkCardImages(),
     blogApiMiyamoToday({
       url: env.BLOG_API_MIYAMO_TODAY_URL ?? "",
       token: env.BLOG_API_MIYAMO_TODAY_TOKEN ?? "",

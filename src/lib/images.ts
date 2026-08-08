@@ -18,10 +18,6 @@ export interface BuildRemoteImageOptions {
   width?: number;
   /** target height. requires width; crops with fit: cover like gatsbyImageData(width, height) */
   height?: number;
-  /** srcSet width descriptors. omitted -> [target, 2x target] (see srcsetWidths) */
-  widths?: number[];
-  /** sizes attribute paired with the srcSet. omitted -> sizesFor(target) */
-  sizes?: string;
 }
 
 // like gatsby's CONSTRAINED layout: offer up to 2x of the target width (capped
@@ -34,19 +30,6 @@ const srcsetWidths = (targetWidth: number, sourceWidth: number): number[] => {
     widths.push(cap);
   }
   return widths;
-};
-
-// explicit `widths` win over the 1x/2x default, but never upscale past the
-// source (astro happily emits an upscaled variant, which is pure bytes)
-const candidateWidths = (
-  widths: number[] | undefined,
-  targetWidth: number,
-  sourceWidth: number
-): number[] => {
-  if (!widths || widths.length === 0) {
-    return srcsetWidths(targetWidth, sourceWidth);
-  }
-  return [...new Set(widths.map((width) => Math.min(width, sourceWidth)))].sort((a, b) => a - b);
 };
 
 const sizesFor = (targetWidth: number): string =>
@@ -97,7 +80,7 @@ export const buildRemoteImage = async (
       src: url,
       width: targetWidth,
       height: targetHeight,
-      widths: candidateWidths(options.widths, targetWidth, size.width),
+      widths: srcsetWidths(targetWidth, size.width),
       format: "webp",
       quality: IMAGE_QUALITY,
       ...(options.width && options.height ? { fit: "cover" as const } : {}),
@@ -106,7 +89,7 @@ export const buildRemoteImage = async (
     return {
       src: result.src,
       srcSet,
-      sizes: srcSet ? (options.sizes ?? sizesFor(targetWidth)) : undefined,
+      sizes: srcSet ? sizesFor(targetWidth) : undefined,
       width: targetWidth,
       height: targetHeight,
       placeholder: result.attributes["data-placeholder"] as string | undefined,
@@ -156,7 +139,7 @@ export const buildCollectionImage = async (
       src: meta,
       width: targetWidth,
       height: targetHeight,
-      widths: candidateWidths(options.widths, targetWidth, meta.width),
+      widths: srcsetWidths(targetWidth, meta.width),
       format: "webp",
       quality: IMAGE_QUALITY,
       ...(options.width && options.height ? { fit: "cover" as const } : {}),
@@ -165,7 +148,7 @@ export const buildCollectionImage = async (
     return {
       src: result.src,
       srcSet,
-      sizes: srcSet ? (options.sizes ?? sizesFor(targetWidth)) : undefined,
+      sizes: srcSet ? sizesFor(targetWidth) : undefined,
       width: targetWidth,
       height: targetHeight,
       placeholder,
@@ -250,137 +233,15 @@ export const replaceRemoteImagePlaceholders = async (html: string): Promise<stri
   }
   const replacements = await Promise.all(
     matches.map(async (match) => {
-      const { url, alt, title } = JSON.parse(Buffer.from(match[1], "base64").toString("utf-8")) as {
-        url: string;
-        alt: string;
-        title: string;
-      };
+      const { url, alt, title } = JSON.parse(
+        Buffer.from(match[1], "base64").toString("utf-8")
+      ) as { url: string; alt: string; title: string };
       return [match[0], await renderRemoteImageMarkup(url, alt, title)] as const;
     })
   );
   let result = html;
   for (const [placeholder, markup] of replacements) {
     result = result.replace(placeholder, markup);
-  }
-  return result;
-};
-
-// satteri-link-card emits the OGP image / favicon URLs verbatim (its own
-// `imageCache` only self-hosts the original bytes, it never resizes), so a
-// 1200x600 og:image lands in a box that is never wider than ~273 CSS px --
-// PageSpeed Insights' "Improve image delivery". These constants describe that
-// box; see `.satteri-link-card__media` / `__favicon` in styles/vendor.css.
-const LINK_CARD_IMAGE_WIDTH = 280;
-const LINK_CARD_IMAGE_HEIGHT = 140;
-// 448w is the mobile candidate lighthouse asks for (412px viewport, 40vw slot,
-// DPR 1.75); 560w covers the widest desktop box (273px) at DPR 2
-const LINK_CARD_IMAGE_WIDTHS = [160, 280, 448, 560];
-// media box is 40% of the card below 768px and 30% above it; the card itself is
-// the content column, which stops growing at 1400px * 65% (see article-detail.css)
-const LINK_CARD_IMAGE_SIZES = `(min-width: 1200px) ${LINK_CARD_IMAGE_WIDTH}px, (min-width: 768px) 30vw, 40vw`;
-const LINK_CARD_FAVICON_WIDTH = 14;
-
-const LINK_CARD_IMG = /<img\b[^>]*\bclass="satteri-link-card__(image|favicon)"[^>]*>/g;
-const SRC_ATTRIBUTE = /\ssrc="([^"]*)"/;
-
-const decodeHtml = (value: string): string =>
-  value
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    // last: an escaped entity must not be produced by an earlier replacement
-    .replace(/&amp;/g, "&");
-
-/** sets (or adds, keeping the tag's self-closing form) attributes on one tag */
-const withAttributes = (tag: string, attributes: Record<string, string | undefined>): string => {
-  let result = tag;
-  for (const [name, value] of Object.entries(attributes)) {
-    if (value === undefined) {
-      continue;
-    }
-    const attribute = ` ${name}="${value}"`;
-    const existing = new RegExp(`\\s${name}="[^"]*"`);
-    result = existing.test(result)
-      ? result.replace(existing, () => attribute)
-      : result.replace(/\s*\/?>$/, (close) => `${attribute}${close}`);
-  }
-  return result;
-};
-
-// one build fetches/optimizes the same og:image and (especially) the same
-// favicon over and over -- articles link to the same hosts repeatedly
-const linkCardImageCache = new Map<string, Promise<RemoteImageData | null>>();
-
-const linkCardImage = (url: string, kind: "image" | "favicon"): Promise<RemoteImageData | null> => {
-  const key = `${kind}:${url}`;
-  const cached = linkCardImageCache.get(key);
-  if (cached) {
-    return cached;
-  }
-  const pending = buildRemoteImage(
-    url,
-    kind === "image"
-      ? {
-          width: LINK_CARD_IMAGE_WIDTH,
-          height: LINK_CARD_IMAGE_HEIGHT,
-          widths: LINK_CARD_IMAGE_WIDTHS,
-          sizes: LINK_CARD_IMAGE_SIZES,
-        }
-      : { width: LINK_CARD_FAVICON_WIDTH }
-  );
-  linkCardImageCache.set(key, pending);
-  return pending;
-};
-
-/**
- * Re-points the `<img>`s satteri-link-card rendered at astro:assets-optimized
- * (webp, responsive) variants sized for the card's actual box, which also
- * moves the third-party thumbnails onto our own origin.
- *
- * Rewriting the serialized HTML rather than the hast tree is deliberate, for
- * the same reason `replaceRemoteImagePlaceholders` exists: satteri's
- * hastPlugins -- where satteri-link-card builds these nodes -- run during
- * content-layer sync, where `getImage()` is not usable.
- *
- * Anything that cannot be probed or optimized (an .ico favicon, an
- * unreachable host) keeps its original markup, courtesy of buildRemoteImage
- * returning null / the source url.
- */
-export const optimizeLinkCardImages = async (html: string): Promise<string> => {
-  const matches = [...html.matchAll(LINK_CARD_IMG)];
-  if (matches.length === 0) {
-    return html;
-  }
-  const replacements = await Promise.all(
-    matches.map(async (match) => {
-      const tag = match[0];
-      const src = SRC_ATTRIBUTE.exec(tag)?.[1];
-      if (!src) {
-        return [tag, tag] as const;
-      }
-      const kind = match[1] as "image" | "favicon";
-      const image = await linkCardImage(decodeHtml(src), kind);
-      if (!image) {
-        return [tag, tag] as const;
-      }
-      return [
-        tag,
-        withAttributes(tag, {
-          src: escapeHtml(image.src),
-          srcset: image.srcSet ? escapeHtml(image.srcSet) : undefined,
-          sizes: image.sizes,
-          // the favicon is the only one satteri-link-card leaves eager
-          loading: "lazy",
-        }),
-      ] as const;
-    })
-  );
-  let result = html;
-  for (const [tag, markup] of replacements) {
-    if (tag !== markup) {
-      result = result.replace(tag, () => markup);
-    }
   }
   return result;
 };
