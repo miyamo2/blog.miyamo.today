@@ -3,7 +3,11 @@ import type { JsonLdNode } from "@miyamo2/astro-jsonld";
 import JsonLd from "@miyamo2/astro-jsonld/JsonLd.astro";
 import { absoluteUrl } from "virtual:jsonld";
 import { siteMetadata } from "../lib/site";
-import scrollDrivenCss from "../styles/scroll-driven.css?raw";
+// `?inline` rather than `?raw`: both hand the stylesheet over as a string
+// without adding it to the CSS bundle, but `?inline` is the one that goes
+// through Vite's CSS pipeline, so a build inlines it minified (`?raw` shipped
+// the comments and indentation to every page).
+import scrollDrivenCss from "../styles/scroll-driven.css?inline";
 
 // port of src/components/SEO.tsx + gatsby-ssr.tsx / gatsby-config.ts head additions
 export interface Props {

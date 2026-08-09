@@ -1,4 +1,5 @@
 import type { AstroIntegration } from "astro";
+import { transformWithEsbuild } from "vite";
 
 /*
  * The page-level inline scripts, previously written as `<script is:inline
@@ -145,17 +146,31 @@ export const inlineScripts = (): AstroIntegration => {
   return {
     name: "inline-scripts",
     hooks: {
-      "astro:config:setup": ({ command, injectScript }) => {
+      "astro:config:setup": async ({ command, injectScript }) => {
+        // Injected content never reaches Vite, so these ship to every page
+        // exactly as written above -- ~2.8kB of indentation and comments per
+        // page. Minify them here instead, on builds only, so `astro dev` still
+        // steps through the source (which is also when `?inline` stylesheets
+        // stay unminified).
+        const inject =
+          command === "build"
+            ? async (code: string) =>
+                injectScript(
+                  "head-inline",
+                  (await transformWithEsbuild(code, "inline-script.js", { minify: true })).code
+                )
+            : async (code: string) => injectScript("head-inline", code);
+
         // theme first: it is the only one that has to beat the first paint
-        injectScript("head-inline", themeInitScript);
-        injectScript("head-inline", copyToClipboardScript);
-        injectScript("head-inline", bmcPersistScript);
-        injectScript("head-inline", bmcCloseButtonScript);
+        await inject(themeInitScript);
+        await inject(copyToClipboardScript);
+        await inject(bmcPersistScript);
+        await inject(bmcCloseButtonScript);
         // gatsby-plugin-google-gtag (head: true, production only). Injected
         // content is not processed by Vite, so `import.meta.env.PROD` would
         // survive into the browser as-is; gate on the command instead.
         if (command === "build") {
-          injectScript("head-inline", gtagInit);
+          await inject(gtagInit);
         }
       },
     },
