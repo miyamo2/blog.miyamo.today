@@ -20,7 +20,15 @@
     "clean": "rm -rf dist .cache",
     "typecheck": "bunx astro sync && tsc --noEmit",
     "check": "bunx astro check",
-    "graphqlgen": "graphql-codegen generate"
+    "graphqlgen": "graphql-codegen generate",
+    "e2e": "node scripts/e2e.mjs",
+    "e2e:setup": "cd e2e && bun install && ./node_modules/.bin/playwright install --with-deps chromium",
+    "e2e:ui": "node scripts/e2e.mjs --ui",
+    "e2e:headed": "node scripts/e2e.mjs --headed",
+    "e2e:debug": "node scripts/e2e.mjs --debug",
+    "e2e:rerun": "node scripts/e2e.mjs --skip-build",
+    "e2e:report": "cd e2e && ./node_modules/.bin/playwright show-report",
+    "e2e:typecheck": "cd e2e && ./node_modules/.bin/tsc --noEmit"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
