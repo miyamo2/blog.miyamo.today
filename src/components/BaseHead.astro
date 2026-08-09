@@ -9,7 +9,7 @@ import type { RemoteImageData } from "../lib/images";
 // through Vite's CSS pipeline, so a build inlines it minified (`?raw` shipped
 // the comments and indentation to every page).
 import scrollDrivenCss from "../styles/scroll-driven.css?inline";
-import { FACES, fullHref, subsetHref } from "../../integrations/font-subset/corpus";
+import fontFaceCss from "virtual:font-subset";
 
 // port of src/components/SEO.tsx + gatsby-ssr.tsx / gatsby-config.ts head additions
 export interface Props {
@@ -25,11 +25,11 @@ export interface Props {
    * article card's thumbnail, the avatar), preloaded at the top of the head.
    *
    * Its `<img>` already carries `fetchpriority="high"`, but the preload scanner
-   * only reaches it after the whole head -- json-ld, the inline style, the font
-   * preloads, the stylesheet -- has gone by, which on a throttled connection is
-   * several round trips of html. PageSpeed Insights measured 910ms of "resource
-   * load delay" against 190ms of actual download. A `<link>` here is in the
-   * first bytes of the document instead, so the request goes out immediately.
+   * only reaches it after the whole head -- json-ld, the inline styles, the
+   * stylesheet -- has gone by, which on a throttled connection is several round
+   * trips of html. PageSpeed Insights measured 910ms of "resource load delay"
+   * against 190ms of actual download. A `<link>` here is in the first bytes of
+   * the document instead, so the request goes out immediately.
    */
   preloadImage?: RemoteImageData | null;
 }
@@ -79,30 +79,14 @@ const preconnectDomains = [
   "https://cdn.buymeacoffee.com",
 ];
 
-/**
- * The webfont declarations, inline rather than in styles/global.css.
- *
- * Each subset is named after the characters that went into it, so its filename
- * is only known once the build has read the sources -- too late for a bundled
- * stylesheet, but not for a page. It also means the name changes exactly when
- * the bytes do, which is what lets the deploy keep serving /fonts as immutable
- * (see integrations/font-subset/corpus.ts).
- *
- * Every face is declared twice: once as "UDEVGothicHS" from the subset, once as
- * "UDEVGothicHSFull" from the complete file. global.css puts them in that order
- * in the stack, so a character the subset lacks -- something typed into the
- * search box, say -- reaches the full face by ordinary font fallback, which
- * fetches it then and not during the load.
- */
-const fontFace = (family: string, src: string, style: string, weight: string): string =>
-  `@font-face{font-family:"${family}";font-display:swap;font-style:${style};font-weight:${weight};` +
-  `font-named-instance:"UDEVGothicHS";src:url(${src}) format("woff2")}`;
-
-const fontFaceCss = FACES.map(
-  (face) =>
-    fontFace("UDEVGothicHS", subsetHref(face), face.style, face.weight) +
-    fontFace("UDEVGothicHSFull", fullHref(face), face.style, face.weight)
-).join("");
+/* The @font-face rules come from integrations/font-subset (see
+   `virtual:font-subset`): each subset's filename carries a digest of the
+   characters that went into it, so nothing outside that integration can name
+   the file. They are inline here rather than in the bundled stylesheet for the
+   same reason -- a stylesheet is hashed before the build knows the name, and
+   would then be served immutable under a name whose contents had moved on. A
+   page is revalidated on every request, so this always points at the subset
+   the deploy just wrote. */
 ---
 
 <meta charset="utf-8" />
@@ -151,14 +135,11 @@ const fontFaceCss = FACES.map(
 <JsonLd nodes={jsonLD} />
 {scrollDriven && <style type="text/css" set:html={scrollDrivenCss} />}
 
-{/* The four faces (gatsby-ssr.tsx onRenderBody preloaded all of them) are
-    1.26MB of subset woff2 -- more than the rest of the page put together, and
-    on the 1.6Mb/s link PageSpeed Insights emulates that is seconds of the same
-    connection the LCP image needs. Preloading them put every byte of that in
-    front of it. Nothing here is render-blocking: every face is
-    `font-display: swap` (styles/global.css), so the text paints in the
-    fallback either way and the stylesheet fetches each face when a node
-    actually uses it. */}
+{/* gatsby-ssr.tsx onRenderBody preloaded all four faces -- 1.26MB of woff2 in
+    front of the LCP image, on a connection PageSpeed Insights throttles to
+    1.6Mb/s. There is no preload now: the faces above are `font-display: swap`,
+    so the text paints either way, and each one is fetched when a node actually
+    uses it. */}
 {preconnectDomains.map((domain) => <link rel="preconnect" href={domain} />)}
 
 {/* gatsby-plugin-manifest */}

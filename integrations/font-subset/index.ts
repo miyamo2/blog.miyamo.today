@@ -3,23 +3,64 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { AstroIntegration } from "astro";
 import subsetFont from "subset-font";
-import { FACES, corpus, subsetFileName, type Face } from "./corpus";
+import { FACES, corpus, fullHref, subsetFileName, subsetHref, type Face } from "./corpus";
 
 /**
- * Writes the subset faces `corpus.ts` describes into the build output.
+ * Cuts each UDEVGothic face down to the characters the site can paint, and
+ * hands the page the @font-face rules that point at the result.
  *
- * The character set -- and so each subset's filename -- is derived from the
- * sources, not from the generated pages, so BaseHead can already name the file
- * while it renders the @font-face rules. This hook only produces the bytes.
+ * Both halves have to name the same file, and a subset's name carries a digest
+ * of the characters that produced it (see ./corpus) -- so the name is not
+ * something a hand-written stylesheet could hold. That is why the css comes
+ * from here too, as `virtual:font-subset`, rather than the filename being
+ * repeated somewhere a later edit could leave behind: one module decides it,
+ * the build writes the bytes under it, and BaseHead only prints what it is
+ * given.
  */
+const VIRTUAL_ID = "virtual:font-subset";
+const RESOLVED_ID = `\0${VIRTUAL_ID}`;
+
 const sourcePath = (face: Face): string =>
   resolve(process.cwd(), "public/fonts", `${face.file}.woff2`);
+
+const fontFace = (family: string, src: string, face: Face): string =>
+  `@font-face{font-family:"${family}";font-display:swap;font-style:${face.style};` +
+  `font-weight:${face.weight};font-named-instance:"UDEVGothicHS";` +
+  `src:url(${src}) format("woff2")}`;
+
+/**
+ * Every face declared twice: once as "UDEVGothicHS" from the subset, once as
+ * "UDEVGothicHSFull" from the complete file. styles/global.css stacks them in
+ * that order, so a character the subset lacks reaches the full face by ordinary
+ * font fallback -- fetched at that point and not during the load.
+ */
+const fontFaceCss = (): string =>
+  FACES.map(
+    (face) =>
+      fontFace("UDEVGothicHS", subsetHref(face), face) +
+      fontFace("UDEVGothicHSFull", fullHref(face), face)
+  ).join("");
 
 const kib = (bytes: number): string => `${(bytes / 1024).toFixed(1)}KiB`;
 
 export const fontSubset = (): AstroIntegration => ({
   name: "font-subset",
   hooks: {
+    "astro:config:setup": ({ updateConfig }) => {
+      updateConfig({
+        vite: {
+          plugins: [
+            {
+              name: "font-subset-virtual",
+              resolveId: (id: string) => (id === VIRTUAL_ID ? RESOLVED_ID : undefined),
+              load: (id: string) =>
+                id === RESOLVED_ID ? `export default ${JSON.stringify(fontFaceCss())};` : undefined,
+            },
+          ],
+        },
+      });
+    },
+
     "astro:build:done": async ({ dir, logger }) => {
       const fontsDir = join(fileURLToPath(dir), "fonts");
       const text = corpus();
