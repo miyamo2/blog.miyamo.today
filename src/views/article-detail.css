@@ -57,25 +57,63 @@
   }
 }
 
-/* the sticky side nav scrolls inside itself once the table of contents and the
-   recommendations together outgrow the viewport, so its tail stays reachable.
-   Scroll chaining is deliberately left at the default: containing it would trap
-   the wheel here once the nav bottoms out, instead of carrying on down the page */
+/* The side nav is capped at the viewport and lays its two blocks out as a flex
+   column, so the only thing that ever scrolls is the list of headings: the
+   recommendations keep their natural height and the heading list takes whatever
+   is left. Scroll chaining is deliberately left at the default -- containing it
+   would trap the wheel here once the list bottoms out, instead of carrying on
+   down the page.
+   The overflow on the nav itself is a fallback, not the normal path: it only
+   engages when the recommendations alone are taller than the viewport, and
+   without it those cards would be stranded below the fold. */
 .article-sidebar {
   position: sticky;
   top: 71px;
   max-height: calc(100vh - 71px - 1rem);
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   scrollbar-width: thin;
 }
 
-.side-toc a {
-  display: block;
+.side-toc-block {
+  display: flex;
+  flex-direction: column;
+  /* gives its space up to the recommendations, but never below the point where
+     the list stops being a usable nav -- past that the fallback overflow on
+     .article-sidebar takes over rather than leaving a one-line peephole */
+  flex: 0 1 auto;
+  min-height: 14rem;
 }
 
-/* headings wrap onto as many lines as they need instead of being cut off at the
-   column edge; the depth indent is padding so continuation lines line up too */
+.side-toc {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  /* bookends the header rule, so a list cut off mid-entry reads as a bounded
+     box that scrolls rather than as text that just stops */
+  border-bottom: 1px solid var(--border);
+}
+
+.article-sidebar > .recommend-block {
+  flex: 0 0 auto;
+}
+
+.side-toc a {
+  display: block;
+  padding-bottom: 0.75rem;
+}
+
+/* two lines per heading, ellipsised past that: long headings stay readable
+   without letting one of them eat the column. The depth indent is padding so
+   the second line lines up with the first */
 .side-toc span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
