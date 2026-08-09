@@ -9,12 +9,23 @@ import "./Search.css";
  * Algolia search, previously react-instantsearch inside a Yamada UI modal.
  * The markup is static; `./search.ts` wires the querying and result rendering
  * and is fetched on demand (see the bootstrap script at the bottom).
- * This component is rendered twice by Header.astro (mobile / desktop), so every
- * hook below is scoped to the `.algolia-search` wrapper instead of an id.
+ * Header.astro renders exactly one of these for every breakpoint, so
+ * `.algolia-search` marks the single panel the script binds to.
  */
+
+interface Props {
+  /** merged into the dialog wrapper, which is a flex child of the header row */
+  class?: string;
+}
+
+// joined here rather than handed to Dialog as a class:list: on a component that
+// directive arrives as a prop of its own, which Dialog would spread onto a div
+// that already carries a class attribute
+const { class: className } = Astro.props;
+const wrapperClass = ["algolia-search", className].filter(Boolean).join(" ");
 ---
 
-<Dialog class="algolia-search">
+<Dialog class={wrapperClass}>
   <DialogTrigger
     aria-label="search"
     class="bg-background border-border hover:bg-muted focus-visible:ring-outline/50 inline-flex h-9 w-16 items-center justify-center rounded-3xl border text-sm font-bold transition-all outline-none focus-visible:ring-3 lg:text-base"
@@ -62,7 +73,8 @@ import "./Search.css";
       <div data-search-results hidden class="scrollable-y flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
         <p data-search-count class="text-muted-foreground text-right text-sm" hidden></p>
         <p data-search-status class="text-muted-foreground py-6 text-center text-sm" hidden></p>
-        <div data-search-hits class="flex flex-col gap-2"></div>
+        {/* the 1.5rem the recommendation rows are spaced by */}
+        <div data-search-hits class="flex flex-col gap-6"></div>
         <nav data-search-pager class="search-pager" aria-label="search result pages" hidden></nav>
         <a
           class="ais-PoweredBy"

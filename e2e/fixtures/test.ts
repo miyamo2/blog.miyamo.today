@@ -167,9 +167,16 @@ export const settle = async (page: Page): Promise<void> => {
 };
 
 /**
- * The header renders a mobile and a desktop copy of the search box and the theme
- * toggle; only one of the two is on screen at any width. Every helper below picks
- * the visible one.
+ * Narrows a locator to what is actually on screen.
+ *
+ * Several surfaces are rendered once per layout and hidden by breakpoint -- the
+ * share rail and the recommendations both exist twice on an article page -- so a
+ * plain selector matches copies a visitor cannot reach.
+ *
+ * The header is no longer one of them: it renders a single search box and a
+ * single theme toggle for every width. The helpers below keep the filter anyway,
+ * because a closed <dialog> is invisible too, which is what lets searchDialog()
+ * describe the panel only while it is open.
  */
 export const visible = (locator: Locator): Locator => locator.filter({ visible: true });
 
