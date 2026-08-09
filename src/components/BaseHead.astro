@@ -1,6 +1,8 @@
 ---
+import type { JsonLdNode } from "@miyamo2/astro-jsonld";
+import JsonLd from "@miyamo2/astro-jsonld/JsonLd.astro";
+import { absoluteUrl } from "virtual:jsonld";
 import { siteMetadata } from "../lib/site";
-import { globalJSONLD, serializeJSONLD } from "../../integrations/jsonld/builder";
 import scrollDrivenCss from "../styles/scroll-driven.css?raw";
 
 // port of src/components/SEO.tsx + gatsby-ssr.tsx / gatsby-config.ts head additions
@@ -9,7 +11,7 @@ export interface Props {
   description?: string;
   path?: string;
   image?: string;
-  jsonLD?: Record<string, any>[];
+  jsonLD?: JsonLdNode[];
   /** include the scroll-driven animation style (ScrollDrivenAnimationStyle) */
   scrollDriven?: boolean;
 }
@@ -19,7 +21,6 @@ const { path, title, description, image, jsonLD = [], scrollDriven = true } = As
 const {
   title: defaultTitle,
   description: defaultDescription,
-  siteUrl: defaultSiteUrl,
   lang: defaultLang,
   image: defaultImage,
   icon,
@@ -27,33 +28,25 @@ const {
   facebookAppId,
 } = siteMetadata;
 
+// absoluteUrl() is the resolver the JSON-LD builders use, so canonical, og:url
+// and a node's `url` stay the same string as `base` / `trailingSlash` change.
 const seo = {
   title: defaultTitle ? (title ? `${title} | ${defaultTitle}` : defaultTitle) : "",
   description: description ?? defaultDescription ?? "",
-  url: defaultSiteUrl ? (path ? `${defaultSiteUrl}${path}` : defaultSiteUrl) : "",
+  url: absoluteUrl(path),
   lang: defaultLang ?? "ja_JP",
-  image: image ? `${defaultSiteUrl}${image}` : `${defaultSiteUrl}${defaultImage}`,
-  icon: icon ?? "",
+  image: absoluteUrl(image ?? defaultImage),
+  icon: absoluteUrl(icon),
   twitterUsername: twitterUsername ?? "",
   facebookAppId: facebookAppId ?? "",
 };
 
-// The WebSite node is identical on every page, so the integration supplies it
-// here rather than each page restating it in its own `jsonLD` array.
-const jsonLDNodes = [...globalJSONLD(), ...jsonLD];
-
 // gatsby-plugin-manifest icon set
 const manifestIconSizes = [48, 72, 96, 144, 192, 256, 384, 512];
 
-// Origins the page actually requests during load. `crossorigin` is intentionally
-// omitted: it buckets the socket into the anonymous (CORS) connection pool, and
-// every cross-origin subresource here (scripts, stylesheets, images) is fetched
-// in no-cors mode, so a crossorigin preconnect would sit unused. The only
-// CORS-fetched resources are the fonts, and those are same-origin.
-// www.googletagmanager.com is deliberately absent: gtag.js is requested from an
-// idle callback after load (see integrations/inline-scripts), long after the
-// preconnected socket would have been reclaimed, so warming it here would only
-// take a connection slot away from the resources that do load with the page.
+// Origins the page requests during load, warmed on the no-cors connection pool
+// these subresources are fetched on. gtag.js loads from an idle callback long
+// after this socket would be reclaimed (see integrations/inline-scripts).
 const preconnectDomains = [
   // Buy Me a Coffee widget loader, then the widget's own assets
   "https://cdnjs.buymeacoffee.com",
@@ -80,15 +73,15 @@ const preconnectDomains = [
 <meta name="twitter:image" content={seo.image} />
 <meta name="twitter:url" content={seo.url} />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="icon" href={`${defaultSiteUrl}${icon}`} />
+<link rel="icon" href={seo.icon} />
 {
   /* The search panel writes its state onto the current URL (`?q=`), so a shared
      result link is a crawlable variant of the page it was opened from. Point
-     those back at the clean path. Omitted where the page has no canonical path
-     of its own (404), rather than pointing them all at the site root. */
+     those back at the clean path, on the pages that have one. */
   path && <link rel="canonical" href={seo.url} />
 }
-{jsonLDNodes.map((obj) => <script type="application/ld+json" set:html={serializeJSONLD(obj)} />)}
+{/* <JsonLd /> prepends the site-level nodes, so a page passes only its own */}
+<JsonLd nodes={jsonLD} />
 {scrollDriven && <style type="text/css" set:html={scrollDrivenCss} />}
 
 {/* font preloads (gatsby-ssr.tsx onRenderBody) */}

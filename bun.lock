@@ -18,6 +18,7 @@
         "@graphql-codegen/typescript-graphql-request": "^6.4.0",
         "@miyamo2/astro-algolia-index": "https://registry.npmjs.org/@miyamo2/astro-algolia-index/-/astro-algolia-index-0.1.0.tgz",
         "@miyamo2/astro-image-placeholder": "https://registry.npmjs.org/@miyamo2/astro-image-placeholder/-/astro-image-placeholder-0.1.0.tgz",
+        "@miyamo2/astro-jsonld": "https://registry.npmjs.org/@miyamo2/astro-jsonld/-/astro-jsonld-0.1.0.tgz",
         "@miyamo2/astro-loader-blogapi-miyamo-today": "^0.3.0",
         "@miyamo2/astro-recommend-article": "https://registry.npmjs.org/@miyamo2/astro-recommend-article/-/astro-recommend-article-0.1.0.tgz",
         "@starwind-ui/core": "2.0.1",
@@ -477,6 +478,7 @@
 
     "@miyamo2/astro-image-placeholder": ["@miyamo2/astro-image-placeholder@https://registry.npmjs.org/@miyamo2/astro-image-placeholder/-/astro-image-placeholder-0.1.0.tgz", { "dependencies": { "p-limit": "^6.2.0", "unist-util-visit": "^5.0.0" }, "peerDependencies": { "astro": "^5.0.0 || ^6.0.0 || ^7.0.0", "sharp": "^0.33.0 || ^0.34.0" } }, "sha512-mN3rRnYUpaAzlCnl5MGYKsMPalpgyaWjh9qbHMYXS8Tl/mJAMaqOciwZ+Z7o4Zzq4XYcEUYznkO03HrmCMq5IA=="],
 
+    "@miyamo2/astro-jsonld": ["@miyamo2/astro-jsonld@https://registry.npmjs.org/@miyamo2/astro-jsonld/-/astro-jsonld-0.1.0.tgz", { "dependencies": { "schema-dts": "^1.1.0 || ^2.0.0" }, "peerDependencies": { "astro": "^5.0.0 || ^6.0.0 || ^7.0.0" } }, "sha512-3uN6oHlj8MCatLqUSOHYXdyKYKvE6SU+1i5jrTvYoU6nM3I0hgMVUVsdFoPYQa5bmhzb+Xm9nrhpsGBMsEHMSw=="],
     "@miyamo2/astro-loader-blogapi-miyamo-today": ["@miyamo2/astro-loader-blogapi-miyamo-today@0.3.1", "https://npm.pkg.github.com/download/@miyamo2/astro-loader-blogapi-miyamo-today/0.3.1/7e06cc605374abf82fe1085ea9f1d6bb3062fc46", { "dependencies": { "@formkit/tempo": "^0.1.2", "@graphql-codegen/cli": "^5.0.3", "@graphql-codegen/typescript-graphql-request": "^6.2.0", "graphql": "16.9.0", "graphql-request": "^6.1.0", "graphql-tag": "^2.12.6", "yaml": "^2.7.0" }, "peerDependencies": { "astro": "^7.0.0" } }, "sha512-BO2CwtvnmNBSn8FzZumtBPE5J0agKLmIHJ6P0syRpU7rirqHYGU2m/cHtozoXaWQQx+oryiI0WIsubmQmnfn/g=="],
 
     "@miyamo2/astro-recommend-article": ["@miyamo2/astro-recommend-article@https://registry.npmjs.org/@miyamo2/astro-recommend-article/-/astro-recommend-article-0.1.0.tgz", { "dependencies": { "@qdrant/js-client-rest": "^1.13.0", "uuid": "^11.1.0" }, "peerDependencies": { "astro": ">=5.0.0" } }, "sha512-kPcQvwU4QIiXT3GO+pf9uuEL1J6QNMDTzgvB+910+pNUvbvzuKO7L08aWqb+uw+FAGjwBYGprj67S7sQmSeuQg=="],

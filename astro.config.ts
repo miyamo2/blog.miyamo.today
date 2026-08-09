@@ -8,9 +8,9 @@ import { satteriLinkCard } from "satteri-link-card";
 import { blogApiMiyamoToday } from "@miyamo2/astro-loader-blogapi-miyamo-today";
 import algoliaIndex from "@miyamo2/astro-algolia-index";
 import { imagePlaceholderService } from "@miyamo2/astro-image-placeholder";
+import jsonld from "@miyamo2/astro-jsonld";
 import { remoteImageStaging } from "./integrations/remote-image-staging";
 import { inlineScripts } from "./integrations/inline-scripts";
-import { jsonld } from "./integrations/jsonld";
 import { lastmodSerializer } from "./integrations/sitemap-lastmod";
 import {
   headingAnchorPlugin,
@@ -48,9 +48,16 @@ const serializeRenders = (processor: ReturnType<typeof satteri>): typeof process
   };
 };
 
+// astro's `site` and the JSON-LD `@id`s are built from the same pieces, so a
+// reference to the author resolves to the node the integration emits.
+const SITE_URL = "https://blog.miyamo.today";
+const AUTHOR_PATH = "/about";
+const AUTHOR_FRAGMENT = "#person";
+const AUTHOR_ID = `${SITE_URL}${AUTHOR_PATH}${AUTHOR_FRAGMENT}`;
+
 // https://astro.build/config
 export default defineConfig({
-  site: "https://blog.miyamo.today",
+  site: SITE_URL,
   env: {
     schema: {
       PUBLIC_ALGOLIA_APP_ID: envField.string({
@@ -97,17 +104,23 @@ export default defineConfig({
   integrations: [
     remoteImageStaging(),
     inlineScripts(),
-    // The site's JSON-LD identity. `siteUrl` is left to astro's own `site`
-    // above; everything else used to be hard-coded in src/lib/jsonld.ts.
+    // The site's JSON-LD identity, and the single source for the site's name,
+    // description and url -- src/lib/site.ts reads them back off the resolved
+    // config. `siteUrl`, `base` and `trailingSlash` are left to astro's own
+    // settings above.
     jsonld({
       name: "blog.miyamo.today",
       alternateName: "blog miyamo today",
+      description:
+        "miyamo2のブログ。体験したこと、考えていること、それとコードの断片をゆるく発信していきます。",
+      inLanguage: "ja",
       author: {
         name: "miyamo2",
-        path: "/about",
+        url: AUTHOR_PATH,
+        id: AUTHOR_FRAGMENT,
         jobTitle: "Software Engineer",
-        // only reaches the ProfilePage's mainEntity, so it costs nothing on
-        // the article pages. Positive by design -- see JsonLdAuthor.
+        // the fields below `sameAs` reach a node where miyamo2 is the subject:
+        // the ProfilePage's mainEntity, and the top-level Person from `siteNodes`
         disambiguatingDescription: "Goが好きなソフトウェアエンジニア。GitHub: @miyamo2",
         sameAs: [
           "https://github.com/miyamo2",
@@ -123,11 +136,23 @@ export default defineConfig({
           "https://pypi.org/user/miyamo2theppl/",
         ],
       },
-      publisher: {
-        name: "blog.miyamo.today",
-        path: "/",
-        logo: { path: "/logo.png", width: 65, height: 65 },
+      // one person writes this blog and one person publishes it, so the two
+      // credits are one entity under one `@id`
+      publisher: "author",
+      // the search panel writes its query onto the current url, so the site
+      // root doubles as the search endpoint (see components/search/search.ts)
+      searchAction: { target: "/?q={search_term_string}" },
+      website: {
+        copyrightYear: 2024,
+        // a reference, so the Person `siteNodes` emits is the one definition
+        // in the document
+        publisher: { "@id": AUTHOR_ID },
       },
+      // the full Person as a node in its own right, which is what a
+      // knowledge-panel entity is read from
+      siteNodes: { website: true, author: true },
+      // one <script> per page, holding one @graph
+      graph: true,
     }),
     blogApiMiyamoToday({
       url: env.BLOG_API_MIYAMO_TODAY_URL ?? "",
