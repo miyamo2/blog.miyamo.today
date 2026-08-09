@@ -52,6 +52,12 @@ export const serializeJSONLD = (node: unknown): string =>
  */
 const authorId = (): string => `${absoluteUrl(jsonLdConfig.author?.path)}#person`;
 const publisherId = (): string => `${absoluteUrl(jsonLdConfig.publisher?.path)}#organization`;
+/**
+ * The site as an entity, which is not the same thing as its home page -- that
+ * page has its own node and its own `@id` (the site root, unfragmented). Two
+ * different things must not claim one IRI, hence the fragment.
+ */
+const websiteId = (): string => `${absoluteUrl()}#website`;
 
 /**
  * @param subject whether the person *is* what the node is about (a
@@ -129,6 +135,12 @@ interface BuildJSONLDParams {
   withAuthor?: boolean;
   withPublisher?: boolean;
   withID?: boolean;
+  /**
+   * Link the node to the WebSite it belongs to. A bare `@id` reference is
+   * enough because BaseHead puts the WebSite node on every page, so the
+   * target is always in the same document as the reference.
+   */
+  withIsPartOf?: boolean;
 }
 
 // port of src/hooks/useJSONLD.tsx (no React hooks needed anymore)
@@ -147,6 +159,7 @@ export const buildJSONLD = ({
   withAuthor,
   withPublisher,
   withID,
+  withIsPartOf,
 }: BuildJSONLDParams): JSONLD => {
   const jsonLD: JSONLD = {
     "@type": type ?? "WebSite",
@@ -180,6 +193,9 @@ export const buildJSONLD = ({
   if (withUrl) {
     jsonLD["url"] = absoluteUrl(path);
   }
+  if (withIsPartOf) {
+    jsonLD["isPartOf"] = { "@id": websiteId() };
+  }
   if (image) {
     jsonLD["image"] = {
       "@type": "ImageObject",
@@ -208,9 +224,10 @@ export const buildWebSiteJSONLD = (): WithContext<WebSite> => {
     withUrl: true,
     withSiteName: true,
     withPublisher: true,
-    attributes: jsonLdConfig.alternateName
-      ? { alternateName: jsonLdConfig.alternateName }
-      : undefined,
+    attributes: {
+      "@id": websiteId(),
+      ...(jsonLdConfig.alternateName ? { alternateName: jsonLdConfig.alternateName } : {}),
+    },
   }) as unknown as WithContext<WebSite>;
 };
 
