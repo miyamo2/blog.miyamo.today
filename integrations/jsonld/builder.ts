@@ -1,4 +1,4 @@
-import type { BreadcrumbList, ItemList, Thing, WebSite, WithContext } from "schema-dts";
+import type { BreadcrumbList, ItemList, Person, Thing, WebSite, WithContext } from "schema-dts";
 import { jsonLdConfig } from "virtual:jsonld/config";
 
 /** every schema.org type name known to schema-dts (e.g. "WebSite", "ItemList") */
@@ -44,18 +44,50 @@ export const serializeJSONLD = (node: unknown): string =>
     (char) => `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}`
   );
 
-const authorNode = (): Record<string, unknown> | undefined => {
+/**
+ * The author and publisher nodes repeat on every page that credits them, and
+ * a consumer has no way to tell those copies are one entity unless they share
+ * an `@id`. These fragments are derived rather than configured so they stay
+ * put when the display name changes -- an `@id` that moves is a new entity.
+ */
+const authorId = (): string => `${absoluteUrl(jsonLdConfig.author?.path)}#person`;
+const publisherId = (): string => `${absoluteUrl(jsonLdConfig.publisher?.path)}#organization`;
+
+/**
+ * @param subject whether the person *is* what the node is about (a
+ * ProfilePage's `mainEntity`) rather than a credit on someone else's node.
+ * Only then do the describing fields belong here; repeating them on every
+ * article would say the same thing once per page.
+ */
+const authorNode = (subject = false): Record<string, unknown> | undefined => {
   const author = jsonLdConfig.author;
   if (!author) {
     return undefined;
   }
   return {
     "@type": "Person",
+    "@id": authorId(),
     name: author.name,
     ...(author.path ? { url: absoluteUrl(author.path) } : {}),
     ...(author.sameAs?.length ? { sameAs: author.sameAs } : {}),
+    ...(subject
+      ? {
+          ...(author.alternateName?.length ? { alternateName: author.alternateName } : {}),
+          ...(author.disambiguatingDescription
+            ? { disambiguatingDescription: author.disambiguatingDescription }
+            : {}),
+          ...(author.jobTitle ? { jobTitle: author.jobTitle } : {}),
+        }
+      : {}),
   };
 };
+
+/**
+ * The full Person, for the `mainEntity` of the page that is about them. This
+ * is the one place the entity is defined rather than merely referenced.
+ */
+export const buildPersonJSONLD = (): Person | undefined =>
+  authorNode(true) as unknown as Person | undefined;
 
 const publisherNode = (): Record<string, unknown> | undefined => {
   const publisher = jsonLdConfig.publisher;
@@ -65,6 +97,7 @@ const publisherNode = (): Record<string, unknown> | undefined => {
   const logo = publisher.logo;
   return {
     "@type": "Organization",
+    "@id": publisherId(),
     name: publisher.name,
     ...(publisher.path ? { url: absoluteUrl(publisher.path) } : {}),
     ...(logo

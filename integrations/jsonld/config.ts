@@ -17,13 +17,31 @@ export interface JsonLdImage {
   height?: number;
 }
 
-/** the person credited as `author` on every node that asks for one */
+/**
+ * The person credited as `author` on every node that asks for one.
+ *
+ * The fields below `sameAs` describe the person rather than credit them, so
+ * they are only emitted where the person *is* the subject -- the ProfilePage's
+ * `mainEntity`. Everywhere else the node carries `@id` / `name` / `url` /
+ * `sameAs`, and the shared `@id` is what tells a consumer the two are one
+ * entity.
+ */
 export interface JsonLdAuthor {
   name: string;
   /** site-relative path of the author's own page */
   path?: string;
   /** profiles that are the same entity as the author (schema.org `sameAs`) */
   sameAs?: string[];
+  /** real alternate handles only; repeating `name` here says nothing */
+  alternateName?: string[];
+  /**
+   * What tells this person apart from a similarly named one. Write it as a
+   * positive description: "is not <other person>" reads as a distinction to a
+   * human, but no consumer models negation, and naming the other party only
+   * puts the two handles in the same sentence.
+   */
+  disambiguatingDescription?: string;
+  jobTitle?: string;
 }
 
 /**

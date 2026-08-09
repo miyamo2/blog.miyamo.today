@@ -104,6 +104,10 @@ export default defineConfig({
       author: {
         name: "miyamo2",
         path: "/about",
+        jobTitle: "Software Engineer",
+        // only reaches the ProfilePage's mainEntity, so it costs nothing on
+        // the article pages. Positive by design -- see JsonLdAuthor.
+        disambiguatingDescription: "GitHub ID miyamo2 のソフトウェアエンジニア。",
         sameAs: [
           "https://github.com/miyamo2",
           "https://zenn.dev/miyamo2",
