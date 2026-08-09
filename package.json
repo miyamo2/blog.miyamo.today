@@ -58,7 +58,7 @@
     "satteri": "^0.9.5",
     "satteri-link-card": "^0.2.0",
     "schema-dts": "^2.0.0",
-    "sharp": "^0.33.5",
+    "sharp": "^0.35.3",
     "subset-font": "^2.5.0",
     "tailwind-merge": "^3.6.0",
     "tailwind-variants": "^3.3.1",
