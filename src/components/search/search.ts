@@ -342,6 +342,8 @@ class SearchPanel {
    */
   public adoptCurrentState(): void {
     if (!this.dialog.open) return;
+    // this *is* the open the observer missed, so it owes the same work
+    warmFallbackFont();
     this.clearButton.hidden = this.input.value.length === 0;
     requestAnimationFrame(() => this.input.focus({ preventScroll: true }));
     if (this.input.value.trim() !== "") void this.search(true);
