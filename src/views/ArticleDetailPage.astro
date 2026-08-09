@@ -61,7 +61,7 @@ const createdAt = format(new Date(data.createdAt ?? ""), "YYYY/MM/DD");
     </div>
     <div style="grid-area: lnav" class="hidden h-full self-end lg:block">
       <div class="h-full w-full overflow-visible">
-        <div style="position: sticky; top: 71px;">
+        <div class="article-share-rail">
           <ShareButtons title={data.title ?? ""} url={url} stackType="v" buttonSize={32} />
         </div>
       </div>
