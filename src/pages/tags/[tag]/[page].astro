@@ -31,7 +31,7 @@ const jsonLDWebSite = buildWebSiteJSONLD();
 const jsonLDArticles = data.cards.map((card, i) =>
   buildJSONLD({
     type: "ListItem",
-    path: `articles/${card.id}`,
+    path: `/articles/${card.id}`,
     withUrl: true,
     attributes: {
       position: i + 1,
