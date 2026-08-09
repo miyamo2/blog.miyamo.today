@@ -1,39 +1,8 @@
-@font-face {
-  font-family: "UDEVGothicHS";
-  font-display: swap;
-  font-style: normal;
-  font-weight: normal;
-  font-named-instance: "UDEVGothicHS";
-  src: url(/fonts/UDEVGothic35HS-Regular-Subset.woff2) format("woff2");
-}
-
-@font-face {
-  font-family: "UDEVGothicHS";
-  font-display: swap;
-  font-style: normal;
-  font-weight: bold;
-  font-named-instance: "UDEVGothicHS";
-  src: url(/fonts/UDEVGothic35HS-Bold-Subset.woff2) format("woff2");
-}
-
-@font-face {
-  font-family: "UDEVGothicHS";
-  font-display: swap;
-  font-style: italic;
-  font-weight: normal;
-  font-named-instance: "UDEVGothicHS";
-  src: url(/fonts/UDEVGothic35HS-Italic-Subset.woff2) format("woff2");
-}
-
-@font-face {
-  font-family: "UDEVGothicHS";
-  font-display: swap;
-  font-style: italic;
-  font-weight: bold;
-  font-named-instance: "UDEVGothicHS";
-  src: url(/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2) format("woff2");
-}
-
+/* The @font-face rules are not here but in BaseHead: the subset each one
+   points at is named after the characters that went into it (see
+   integrations/font-subset), and a stylesheet bundled before the build knows
+   that name cannot carry it. What stays here is the stack -- the subset family
+   first, the complete faces behind it for any character the subset lacks. */
 :root {
   overflow-y: auto !important;
   scroll-behavior: auto !important;
@@ -66,7 +35,8 @@ body,
 }
 
 #app-root #app-focus-wrapper * {
-  font-family: "UDEVGothicHS", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
+  font-family: "UDEVGothicHS", "UDEVGothicHSFull", "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol" !important;
 }
 
 .contain-paint {

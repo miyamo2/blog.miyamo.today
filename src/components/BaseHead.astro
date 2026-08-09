@@ -9,6 +9,7 @@ import type { RemoteImageData } from "../lib/images";
 // through Vite's CSS pipeline, so a build inlines it minified (`?raw` shipped
 // the comments and indentation to every page).
 import scrollDrivenCss from "../styles/scroll-driven.css?inline";
+import { FACES, fullHref, subsetHref } from "../../integrations/font-subset/corpus";
 
 // port of src/components/SEO.tsx + gatsby-ssr.tsx / gatsby-config.ts head additions
 export interface Props {
@@ -77,6 +78,31 @@ const preconnectDomains = [
   "https://cdnjs.buymeacoffee.com",
   "https://cdn.buymeacoffee.com",
 ];
+
+/**
+ * The webfont declarations, inline rather than in styles/global.css.
+ *
+ * Each subset is named after the characters that went into it, so its filename
+ * is only known once the build has read the sources -- too late for a bundled
+ * stylesheet, but not for a page. It also means the name changes exactly when
+ * the bytes do, which is what lets the deploy keep serving /fonts as immutable
+ * (see integrations/font-subset/corpus.ts).
+ *
+ * Every face is declared twice: once as "UDEVGothicHS" from the subset, once as
+ * "UDEVGothicHSFull" from the complete file. global.css puts them in that order
+ * in the stack, so a character the subset lacks -- something typed into the
+ * search box, say -- reaches the full face by ordinary font fallback, which
+ * fetches it then and not during the load.
+ */
+const fontFace = (family: string, src: string, style: string, weight: string): string =>
+  `@font-face{font-family:"${family}";font-display:swap;font-style:${style};font-weight:${weight};` +
+  `font-named-instance:"UDEVGothicHS";src:url(${src}) format("woff2")}`;
+
+const fontFaceCss = FACES.map(
+  (face) =>
+    fontFace("UDEVGothicHS", subsetHref(face), face.style, face.weight) +
+    fontFace("UDEVGothicHSFull", fullHref(face), face.style, face.weight)
+).join("");
 ---
 
 <meta charset="utf-8" />
@@ -96,6 +122,7 @@ const preconnectDomains = [
     />
   )
 }
+<style type="text/css" set:html={fontFaceCss} />
 <title>{seo.title}</title>
 <meta name="description" content={seo.description} />
 <meta name="author" content="miyamo2" />

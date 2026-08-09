@@ -150,9 +150,12 @@ jobs:
           # immutable hashed assets first so pages never reference missing files
           aws s3 sync ./dist/_astro "s3://${BUCKET_NAME}/_astro" --delete \
             --cache-control "$IMMUTABLE"
-          # the subset filenames are not hashed, so a year of immutable is a
-          # promise these bytes never change -- regenerating a subset means
-          # giving it a new filename, not overwriting the existing one
+          # Two kinds of file live here, both safe to freeze for a year. The
+          # complete faces are checked into public/fonts and only ever replaced
+          # deliberately; the subsets integrations/font-subset writes carry a
+          # digest of the characters that went into them, so new bytes always
+          # arrive under a new name. `--delete` retires the previous build's
+          # subsets, which nothing references once its html has been revalidated.
           aws s3 sync ./dist/fonts "s3://${BUCKET_NAME}/fonts" --delete --exclude "*" --include "*.woff2" \
             --content-type "font/woff2" --cache-control "$IMMUTABLE"
           aws s3 sync ./dist/fonts "s3://${BUCKET_NAME}/fonts" --exclude "*.woff2" \
