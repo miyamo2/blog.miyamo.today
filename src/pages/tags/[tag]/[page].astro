@@ -2,6 +2,7 @@
 import Layout from "../../../layouts/Layout.astro";
 import TaggedArticlesPage from "../../../views/TaggedArticlesPage.astro";
 import { getContent, type TaggedArticlesPageVM } from "../../../lib/content";
+import { lcpThumbnail } from "../../../features/ArticleList/lcp";
 import { buildBreadcrumbList, buildCollectionPage } from "virtual:jsonld";
 import { credits } from "../../../lib/jsonld";
 
@@ -46,6 +47,13 @@ const jsonLDBreadcrumb = buildBreadcrumbList([
 ]);
 ---
 
-<Layout head={{ path, title, jsonLD: [jsonLDTaggedArticlesPage, jsonLDBreadcrumb] }}>
+<Layout
+  head={{
+    path,
+    title,
+    jsonLD: [jsonLDTaggedArticlesPage, jsonLDBreadcrumb],
+    preloadImage: lcpThumbnail(data.cards),
+  }}
+>
   <TaggedArticlesPage data={data} />
 </Layout>

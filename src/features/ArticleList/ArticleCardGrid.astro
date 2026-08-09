@@ -1,5 +1,6 @@
 ---
 import ArticleCard from "./ArticleCard.astro";
+import { ABOVE_THE_FOLD, lcpThumbnailIndex } from "./lcp";
 import type { ArticleCardVM } from "../../lib/content";
 
 interface Props {
@@ -8,27 +9,8 @@ interface Props {
 
 const { cards } = Astro.props;
 
-/**
- * How many thumbnails can share the first screenful.
- *
- * The layout caps the content at 1400px (layouts/Layout.astro) and the track
- * is `minmax(280px, 1fr)` with a 0.5rem gap, so the grid never gets wider than
- * four columns -- on a desktop viewport all four are above the fold. In the
- * single-column mobile layout the first two cards' thumbnails still reach into
- * the viewport, so the same four cover that case with room to spare.
- */
-const ABOVE_THE_FOLD = 4;
-
-/**
- * The card the LCP is measured on, i.e. the one that gets `fetchpriority=high`.
- *
- * It is the first card *with a thumbnail* rather than simply the first card: a
- * card whose article has no image renders no `<img>` at all, so pinning the
- * hint to index 0 can spend it on nothing and leave the image that actually
- * becomes the LCP element loading lazily -- which is how PageSpeed Insights
- * came to report a `loading=lazy` LCP resource on this grid.
- */
-const primaryIndex = cards.findIndex((card) => card.imageData);
+// the page's <head> preloads this same image -- see lcpThumbnail's callers
+const primaryIndex = lcpThumbnailIndex(cards);
 ---
 
 <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-2">

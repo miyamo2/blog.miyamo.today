@@ -50,6 +50,25 @@ test.describe("article list page (/)", () => {
     }
   });
 
+  test("the head preloads that same thumbnail", async ({ page }) => {
+    // the <img> sits behind the whole head, so the preload scanner only reaches
+    // it round trips into the document -- this <link> is what makes the request
+    // go out immediately, and it has to name the candidate the <img> will use
+    const thumbnail = page.locator(".article-card-thumbnail img[data-remote-image]").first();
+    const preload = page.locator('head link[rel="preload"][as="image"]');
+
+    await expect(preload).toHaveCount(1);
+    await expect(preload).toHaveAttribute("fetchpriority", "high");
+    await expect(preload).toHaveAttribute(
+      "imagesrcset",
+      (await thumbnail.getAttribute("srcset")) ?? ""
+    );
+    await expect(preload).toHaveAttribute(
+      "imagesizes",
+      (await thumbnail.getAttribute("sizes")) ?? ""
+    );
+  });
+
   test("thumbnails actually decode", async ({ page }) => {
     const thumbnail = page.locator(".article-card-thumbnail img[data-remote-image]").first();
     await expect(thumbnail).toBeVisible();
