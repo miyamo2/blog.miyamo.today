@@ -212,6 +212,20 @@ class SearchPanel {
     observer.observe(this.dialog, { attributes: true, attributeFilter: ["open"] });
   }
 
+  /**
+   * The module is fetched on the first sign of search intent (see Search.astro),
+   * so the dialog can already be open -- and can already hold typed text -- by the
+   * time the panel wires itself up. The observer above only reports later
+   * transitions of the `open` attribute, so catch up with the state the markup is
+   * already in instead of waiting for the next open.
+   */
+  public adoptCurrentState(): void {
+    if (!this.dialog.open) return;
+    this.clearButton.hidden = this.input.value.length === 0;
+    requestAnimationFrame(() => this.input.focus({ preventScroll: true }));
+    if (this.input.value.trim() !== "") void this.search(true);
+  }
+
   private cancelPending(): void {
     if (this.debounceId !== null) {
       clearTimeout(this.debounceId);
@@ -412,7 +426,7 @@ const setupSearchPanels = (): void => {
     if (initialized.has(root)) return;
     initialized.add(root);
     try {
-      new SearchPanel(root);
+      new SearchPanel(root).adoptCurrentState();
     } catch (error) {
       console.error(error);
     }
