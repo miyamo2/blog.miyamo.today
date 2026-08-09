@@ -124,28 +124,14 @@ const preconnectDomains = [
 <JsonLd nodes={jsonLD} />
 {scrollDriven && <style type="text/css" set:html={scrollDrivenCss} />}
 
-{/* Font preloads (gatsby-ssr.tsx onRenderBody), for the two faces that paint
-    on first render. The italic pair is another 655KB of subset woff2 competing
-    with the LCP image on the same connection, and nothing above the fold is
-    italic -- markdown emphasis inside an article is the only thing that ever
-    is, so let the stylesheet fetch those when a node actually uses them.
-    Every face is `font-display: swap` (styles/global.css), so this only moves
-    when they arrive, never whether the text shows. */}
-<link
-  rel="preload"
-  href="/fonts/UDEVGothic35HS-Regular-Subset.woff2"
-  as="font"
-  type="font/woff2"
-  crossorigin="anonymous"
-/>
-<link
-  rel="preload"
-  href="/fonts/UDEVGothic35HS-Bold-Subset.woff2"
-  as="font"
-  type="font/woff2"
-  crossorigin="anonymous"
-/>
-
+{/* The four faces (gatsby-ssr.tsx onRenderBody preloaded all of them) are
+    1.26MB of subset woff2 -- more than the rest of the page put together, and
+    on the 1.6Mb/s link PageSpeed Insights emulates that is seconds of the same
+    connection the LCP image needs. Preloading them put every byte of that in
+    front of it. Nothing here is render-blocking: every face is
+    `font-display: swap` (styles/global.css), so the text paints in the
+    fallback either way and the stylesheet fetches each face when a node
+    actually uses it. */}
 {preconnectDomains.map((domain) => <link rel="preconnect" href={domain} />)}
 
 {/* gatsby-plugin-manifest */}
