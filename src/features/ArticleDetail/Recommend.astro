@@ -12,7 +12,6 @@ interface Props {
   recommends?: ReadonlyArray<{
     readonly id: string;
     readonly title: string;
-    readonly excerpt: string;
     readonly createdAt: string;
     readonly tags: ReadonlyArray<{ readonly id: string; readonly name: string }>;
     readonly imageData: RemoteImageData | null;
@@ -32,8 +31,8 @@ const { recommends } = Astro.props;
   {
     recommends?.map((recommend) => (
       <a href={`/articles/${recommend?.id ?? ""}`}>
-        <div class="recommend-card grid">
-          <div style="grid-area: image" class="recommend-card_thumbnail">
+        <div class="recommend-card">
+          <div class="recommend-card_thumbnail">
             <RemoteImage
               image={recommend?.imageData}
               alt={`ArticleImage:${recommend?.id ?? ""}`}
@@ -42,22 +41,19 @@ const { recommends } = Astro.props;
               class="transform-scaleup-then-hover-img-container h-full"
             />
           </div>
-          <div style="grid-area: title" class="recommend-card_title">
-            <h3 class="text-lg font-bold">{recommend?.title ?? ""}</h3>
-          </div>
-          <div style="grid-area: desc" class="recommend-card_description">
-            <p class="text-xs">{recommend?.excerpt ?? ""}</p>
-          </div>
-          <div style="grid-area: date" class="recommend-card_created flex">
-            <p class="recommend-card_created_inner">
-              <FaIcon icon={faCalendarDay} class="mr-2" />
-              {format(new Date(recommend?.createdAt ?? "1970-01-01"), "YYYY/MM/DD")}
-            </p>
-            {recommend?.tags
-              ?.filter((tag) => tag)
-              .map((tag) => (
-                <span class="recommend-card_tag bg-tag">#{tag.name}</span>
-              ))}
+          <div class="recommend-card_body">
+            <h3 class="recommend-card_title">{recommend?.title ?? ""}</h3>
+            <div class="recommend-card_created">
+              <p class="recommend-card_created_inner">
+                <FaIcon icon={faCalendarDay} class="mr-2" />
+                {format(new Date(recommend?.createdAt ?? "1970-01-01"), "YYYY/MM/DD")}
+              </p>
+              {recommend?.tags
+                ?.filter((tag) => tag)
+                .map((tag) => (
+                  <span class="recommend-card_tag bg-tag">#{tag.name}</span>
+                ))}
+            </div>
           </div>
         </div>
       </a>
