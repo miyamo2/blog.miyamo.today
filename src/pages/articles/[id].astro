@@ -2,7 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import ArticleDetailPage from "../../views/ArticleDetailPage.astro";
 import { getContent, type ArticleDetailVM } from "../../lib/content";
-import { buildJSONLD, buildWebSiteJSONLD } from "../../lib/jsonld";
+import { buildBreadcrumbJSONLD, buildJSONLD } from "../../../integrations/jsonld/builder";
 import { siteMetadata } from "../../lib/site";
 
 export async function getStaticPaths() {
@@ -22,7 +22,6 @@ const { data } = Astro.props;
 const path = `/articles/${data.id}`;
 const url = `${siteMetadata.siteUrl}${path}`;
 
-const jsonLDWebSite = buildWebSiteJSONLD();
 const jsonLDArticleDetailPage = buildJSONLD({
   type: "BlogPosting",
   headline: data.title ?? "",
@@ -31,7 +30,7 @@ const jsonLDArticleDetailPage = buildJSONLD({
   image: data.imageSrc,
   withMainEntityOfPage: true,
   withAuthor: true,
-  withLogo: true,
+  withPublisher: true,
   withContext: true,
   withID: true,
   attributes: {
@@ -41,6 +40,8 @@ const jsonLDArticleDetailPage = buildJSONLD({
     keywords: data.tags.map((tag) => tag.name).join(" "),
   },
 });
+// articles hang straight off the root: the article list is "/" itself
+const jsonLDBreadcrumb = buildBreadcrumbJSONLD([{ name: data.title, path }]);
 ---
 
 <Layout
@@ -49,7 +50,7 @@ const jsonLDArticleDetailPage = buildJSONLD({
     title: data.title,
     description: data.excerpt,
     image: data.imageSrc,
-    jsonLD: [jsonLDWebSite, jsonLDArticleDetailPage],
+    jsonLD: [jsonLDArticleDetailPage, jsonLDBreadcrumb],
   }}
 >
   <ArticleDetailPage data={data} url={url} />

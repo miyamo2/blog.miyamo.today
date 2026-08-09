@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import ArticleListPage from "../views/ArticleListPage.astro";
 import { getContent } from "../lib/content";
-import { buildJSONLD, buildWebSiteJSONLD } from "../lib/jsonld";
+import { buildItemList, buildJSONLD } from "../../integrations/jsonld/builder";
 import { PER_PAGE } from "../lib/site";
 
 const { listPages } = await getContent();
@@ -16,33 +16,26 @@ const data = listPages.at(0) ?? {
 const path = "/";
 const page = path.split("/").at(-1);
 
-const jsonLDWebSite = buildWebSiteJSONLD();
-const jsonLDArticles = data.cards.map((card, i) =>
-  buildJSONLD({
-    type: "ListItem",
-    path: `/articles/${card.id}`,
-    withUrl: true,
-    attributes: {
-      position: i + 1,
-    },
-  })
-);
+// CollectionPage over an ItemList rather than a bare ItemList: the page is a
+// page, and `name` / `description` / `author` are only defined on the former.
 const jsonLDArticleListPage = buildJSONLD({
-  type: "ItemList",
-  headline: "Articles",
+  type: "CollectionPage",
+  name: "Articles",
   path: path,
   description: page ? `記事一覧(page ${page})` : "記事一覧",
   withUrl: true,
   withAuthor: true,
-  withLogo: true,
+  withPublisher: true,
   withContext: true,
   withID: true,
   attributes: {
-    itemListElement: jsonLDArticles,
+    mainEntity: buildItemList(
+      data.cards.map((card) => ({ name: card.title, path: `/articles/${card.id}` }))
+    ),
   },
 });
 ---
 
-<Layout head={{ path, title: "Articles", jsonLD: [jsonLDWebSite, jsonLDArticleListPage] }}>
+<Layout head={{ path, title: "Articles", jsonLD: [jsonLDArticleListPage] }}>
   <ArticleListPage data={data} />
 </Layout>

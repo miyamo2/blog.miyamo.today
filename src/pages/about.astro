@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import AboutPage, { type AboutVM } from "../views/AboutPage.astro";
 import { fetchGitHubProfile } from "../lib/api";
 import { buildRemoteImage } from "../lib/images";
-import { buildJSONLD, buildWebSiteJSONLD } from "../lib/jsonld";
+import { buildBreadcrumbJSONLD, buildJSONLD } from "../../integrations/jsonld/builder";
 
 const profile = await fetchGitHubProfile();
 const avatarImage = await buildRemoteImage(profile.avatarUrl, { width: 350, height: 350 });
@@ -17,20 +17,22 @@ const data: AboutVM = {
 };
 
 const path = "/about";
-const jsonLDWebSite = buildWebSiteJSONLD();
 const jsonLDAboutPage = buildJSONLD({
   type: "ProfilePage",
-  headline: "About",
+  name: "About",
   path: path,
   description: "miyamo2について",
-  withMainEntityOfPage: true,
+  // a ProfilePage is already a WebPage, so mainEntityOfPage would only point
+  // the node back at itself; `@id` + `url` say the same thing without it
+  withUrl: true,
   withAuthor: true,
-  withLogo: true,
+  withPublisher: true,
   withContext: true,
   withID: true,
 });
+const jsonLDBreadcrumb = buildBreadcrumbJSONLD([{ name: "About", path }]);
 ---
 
-<Layout head={{ path, title: "About", jsonLD: [jsonLDWebSite, jsonLDAboutPage] }}>
+<Layout head={{ path, title: "About", jsonLD: [jsonLDAboutPage, jsonLDBreadcrumb] }}>
   <AboutPage data={data} />
 </Layout>

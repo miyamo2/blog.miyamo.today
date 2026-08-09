@@ -2,7 +2,7 @@
 import Layout from "../../../layouts/Layout.astro";
 import TaggedArticlesPage from "../../../views/TaggedArticlesPage.astro";
 import { getContent, type TaggedArticlesPageVM } from "../../../lib/content";
-import { buildJSONLD, buildWebSiteJSONLD } from "../../../lib/jsonld";
+import { buildBreadcrumbJSONLD, buildItemList, buildJSONLD } from "../../../../integrations/jsonld/builder";
 
 export async function getStaticPaths() {
   const { taggedPages } = await getContent();
@@ -23,33 +23,28 @@ const { data } = Astro.props;
 const title = `#${data.tagName}`;
 const path = `/tags/${data.tagId}`;
 
-const jsonLDWebSite = buildWebSiteJSONLD();
-const jsonLDArticles = data.cards.map((card, i) =>
-  buildJSONLD({
-    type: "ListItem",
-    path: `/articles/${card.id}`,
-    withUrl: true,
-    attributes: {
-      position: i + 1,
-    },
-  })
-);
 const jsonLDTaggedArticlesPage = buildJSONLD({
-  type: "ItemList",
-  headline: "Articles",
+  type: "CollectionPage",
+  name: title,
   path: path,
   description: `#${data.tagName}の記事一覧`,
   withUrl: true,
   withAuthor: true,
-  withLogo: true,
+  withPublisher: true,
   withContext: true,
   withID: true,
   attributes: {
-    itemListElement: jsonLDArticles,
+    mainEntity: buildItemList(
+      data.cards.map((card) => ({ name: card.title, path: `/articles/${card.id}` }))
+    ),
   },
 });
+const jsonLDBreadcrumb = buildBreadcrumbJSONLD([
+  { name: "Tags", path: "/tags" },
+  { name: title, path },
+]);
 ---
 
-<Layout head={{ path, title, jsonLD: [jsonLDWebSite, jsonLDTaggedArticlesPage] }}>
+<Layout head={{ path, title, jsonLD: [jsonLDTaggedArticlesPage, jsonLDBreadcrumb] }}>
   <TaggedArticlesPage data={data} />
 </Layout>
