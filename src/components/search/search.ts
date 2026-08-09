@@ -11,6 +11,18 @@ const HITS_PER_PAGE = 5;
 const DEBOUNCE_MS = 200;
 const SVG_NS = "http://www.w3.org/2000/svg";
 
+/**
+ * The query parameters the panel is routed by, mirroring instantsearch's simple
+ * state mapping (`?q=&page=`). `page` is 1-based in the URL and 0-based here,
+ * matching what Algolia's `page` means.
+ * The bootstrap in Search.astro repeats the `q` literal so it can stay a
+ * standalone chunk -- keep the two in sync.
+ */
+const QUERY_PARAM = "q";
+const PAGE_PARAM = "page";
+/** how long a URL-driven open keeps waiting for the starwind dialog handler */
+const OPEN_RETRY_FRAMES = 20;
+
 interface HitDoc {
   objectID: string;
   title: string;
@@ -32,6 +44,57 @@ interface SearchPage {
   nbPages: number;
   page: number;
 }
+
+/** the panel state a URL can carry; `page` is 0-based, as in the Algolia response */
+interface RouteState {
+  query: string;
+  page: number;
+}
+
+/** null when the URL carries no search state at all */
+const readRoute = (): RouteState | null => {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has(QUERY_PARAM)) return null;
+  const page = Number.parseInt(params.get(PAGE_PARAM) ?? "", 10);
+  return {
+    query: params.get(QUERY_PARAM) ?? "",
+    page: Number.isInteger(page) && page > 1 ? page - 1 : 0,
+  };
+};
+
+/**
+ * Writes the panel state onto the current URL, or strips it again when the state
+ * is null.
+ *
+ * replaceState throughout, never pushState: the panel is a modal on top of the
+ * page it was opened from, not a page of its own. Pushing an entry per query
+ * would bury the previous page under a pile of half-typed searches, and it would
+ * fight the browsers that already route the back gesture to an open <dialog>
+ * (CloseWatcher) -- back would then pop our entry instead of closing the panel.
+ * The trade-off is that back does not undo a search; every other exit does.
+ *
+ * The existing history state is carried over so the client router keeps the
+ * scroll position it stored for this entry.
+ */
+const writeRoute = (state: RouteState | null): void => {
+  const url = new URL(window.location.href);
+  const params = url.searchParams;
+  if (state === null) {
+    params.delete(QUERY_PARAM);
+    params.delete(PAGE_PARAM);
+  } else {
+    params.set(QUERY_PARAM, state.query);
+    if (state.page > 0) {
+      params.set(PAGE_PARAM, String(state.page + 1));
+    } else {
+      params.delete(PAGE_PARAM);
+    }
+  }
+  const next = `${url.pathname}${url.search}${url.hash}`;
+  const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  if (next === current) return;
+  window.history.replaceState(window.history.state, "", next);
+};
 
 /**
  * The credentials are optional in the env schema (see astro.config.ts), so a build
@@ -130,6 +193,11 @@ class SearchPanel {
   /** monotonic id so a slow response can never overwrite a newer one */
   private requestId = 0;
   private page = 0;
+  /**
+   * set while a click on a hit is taking the visitor off this page: the closing
+   * dialog must not rewrite a URL the router is about to replace anyway
+   */
+  private navigatingAway = false;
 
   constructor(root: HTMLElement) {
     const dialog = root.querySelector("dialog");
@@ -197,6 +265,7 @@ class SearchPanel {
     this.hits.addEventListener("click", (event) => {
       const target = event.target as HTMLElement | null;
       if (target?.closest("a")) {
+        this.navigatingAway = true;
         this.root.dispatchEvent(new CustomEvent("dialog:close"));
       }
     });
@@ -204,9 +273,13 @@ class SearchPanel {
     // the starwind dialog exposes no open event, so follow the `open` attribute it toggles
     const observer = new MutationObserver(() => {
       if (this.dialog.open) {
+        activePanel = this;
         requestAnimationFrame(() => this.input.focus({ preventScroll: true }));
       } else {
+        // reset() drops the search state from the URL, so it still needs to be
+        // the active panel while it runs
         this.reset();
+        if (activePanel === this) activePanel = null;
       }
     });
     observer.observe(this.dialog, { attributes: true, attributeFilter: ["open"] });
@@ -221,9 +294,78 @@ class SearchPanel {
    */
   public adoptCurrentState(): void {
     if (!this.dialog.open) return;
+    activePanel = this;
     this.clearButton.hidden = this.input.value.length === 0;
     requestAnimationFrame(() => this.input.focus({ preventScroll: true }));
     if (this.input.value.trim() !== "") void this.search(true);
+  }
+
+  /** Header.astro renders a mobile and a desktop copy; only one of them is on screen */
+  public isVisible(): boolean {
+    return this.root.getClientRects().length > 0;
+  }
+
+  public isConnected(): boolean {
+    return this.root.isConnected;
+  }
+
+  /**
+   * Brings the panel in line with the state a URL describes: opens it and runs
+   * the query, or closes it when the URL no longer carries a search.
+   *
+   * `force` is set for history navigations, where the URL is the user's latest
+   * instruction. It is left off on init, so that a query typed into an
+   * already-open panel -- possible before this module finishes loading -- is not
+   * overwritten by the `?q=` the visitor arrived with.
+   */
+  public applyRoute(route: RouteState | null, force: boolean): void {
+    if (!force && this.dialog.open && this.input.value.trim() !== "") return;
+    this.cancelPending();
+
+    if (route === null) {
+      // only a history navigation means "this panel should not be open". On init
+      // a missing `?q=` just means there is nothing to restore, and the panel may
+      // well have been opened by hand while this module was still loading.
+      if (force && this.dialog.open) this.root.dispatchEvent(new CustomEvent("dialog:close"));
+      return;
+    }
+
+    this.input.value = route.query;
+    this.clearButton.hidden = route.query.length === 0;
+    this.page = route.page;
+
+    if (!this.dialog.open) {
+      // the mutation observer only sees the attribute change a tick later, and
+      // the search below already wants to own the URL
+      activePanel = this;
+      this.requestOpen(0);
+    }
+
+    if (route.query.trim() === "") {
+      this.clearResults();
+      return;
+    }
+    void this.search(false);
+  }
+
+  /**
+   * `dialog:open` is starwind's programmatic entry point, and it is a no-op until
+   * Dialog.astro's script has wired its handler up. A `?q=` load asks for the
+   * panel before any interaction, early enough to lose that race, so keep asking
+   * for a few frames. Once the dialog is open the next attempt returns straight
+   * away, which also keeps this from re-opening a panel the visitor just closed.
+   */
+  private requestOpen(attempt: number): void {
+    if (this.dialog.open) return;
+    this.root.dispatchEvent(new CustomEvent("dialog:open"));
+    if (attempt >= OPEN_RETRY_FRAMES) return;
+    requestAnimationFrame(() => this.requestOpen(attempt + 1));
+  }
+
+  /** the URL only ever follows the panel that is actually open */
+  private syncRoute(state: RouteState | null): void {
+    if (activePanel !== this || this.navigatingAway) return;
+    writeRoute(state);
   }
 
   private cancelPending(): void {
@@ -251,6 +393,10 @@ class SearchPanel {
       return;
     }
 
+    // written before the request so a shared URL matches what was asked for even
+    // if the response never arrives
+    this.syncRoute({ query, page: this.page });
+
     if (!searchClient) {
       this.showStatus("Search is unavailable right now.");
       return;
@@ -270,6 +416,14 @@ class SearchPanel {
   private render(result: SearchPage): void {
     this.page = result.page;
     this.results.hidden = false;
+
+    // a hand-written ?page= can point past the end, which Algolia answers with an
+    // empty hit list rather than by clamping; retry on the last page that exists
+    if (result.hits.length === 0 && result.nbPages > 0 && result.page >= result.nbPages) {
+      this.page = result.nbPages - 1;
+      void this.search(false);
+      return;
+    }
 
     if (result.nbHits === 0) {
       this.showStatus("No articles matched your search.");
@@ -397,6 +551,7 @@ class SearchPanel {
     // any response still in flight belongs to a query that no longer exists
     this.requestId++;
     this.page = 0;
+    this.syncRoute(null);
     this.results.hidden = true;
     this.count.hidden = true;
     this.count.textContent = "";
@@ -414,24 +569,49 @@ class SearchPanel {
     this.input.value = "";
     this.clearButton.hidden = true;
     this.clearResults();
+    this.navigatingAway = false;
   }
 }
 
 const initialized = new WeakSet<HTMLElement>();
+const panels: SearchPanel[] = [];
+/** the panel whose dialog is open, and therefore the one the URL belongs to */
+let activePanel: SearchPanel | null = null;
+
+/** the on-screen copy, falling back to the first one before any layout exists */
+const routedPanel = (): SearchPanel | null =>
+  activePanel ?? panels.find((panel) => panel.isVisible()) ?? panels[0] ?? null;
+
+const applyRoute = (force: boolean): void => {
+  routedPanel()?.applyRoute(readRoute(), force);
+};
 
 const setupSearchPanels = (): void => {
+  // the header is transition:persist'ed, so these normally survive a swap; drop
+  // the ones that did not rather than routing a detached panel
+  for (let i = panels.length - 1; i >= 0; i--) {
+    if (!panels[i].isConnected()) panels.splice(i, 1);
+  }
+  if (activePanel && !activePanel.isConnected()) activePanel = null;
+
   // Header.astro renders the component twice (mobile / desktop); one broken
   // instance must not take the other one down with it
   document.querySelectorAll<HTMLElement>(".algolia-search").forEach((root) => {
     if (initialized.has(root)) return;
     initialized.add(root);
     try {
-      new SearchPanel(root).adoptCurrentState();
+      const panel = new SearchPanel(root);
+      panels.push(panel);
+      panel.adoptCurrentState();
     } catch (error) {
       console.error(error);
     }
   });
+
+  applyRoute(false);
 };
 
 setupSearchPanels();
 document.addEventListener("astro:after-swap", setupSearchPanels);
+// back / forward between a search URL and the page it was opened from
+window.addEventListener("popstate", () => applyRoute(true));
