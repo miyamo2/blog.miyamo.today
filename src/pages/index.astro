@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import ArticleListPage from "../views/ArticleListPage.astro";
 import { getContent } from "../lib/content";
 import { buildCollectionPage } from "virtual:jsonld";
+import { credits } from "../lib/jsonld";
 import { PER_PAGE } from "../lib/site";
 
 const { listPages } = await getContent();
@@ -16,15 +17,18 @@ const data = listPages.at(0) ?? {
 const path = "/";
 const page = path.split("/").at(-1);
 
-// CollectionPage over an ItemList rather than a bare ItemList: the page is a
-// page, and `name` / `description` / `author` are only defined on the former.
+// A CollectionPage carrying an ItemList: the page is a page, and `name` /
+// `description` / `author` are defined there. It is also the Blog itself --
+// /pages/2 and the tag pages are slices of the same list.
 const jsonLDArticleListPage = buildCollectionPage({
+  ...credits,
+  type: ["CollectionPage", "Blog"],
   name: "Articles",
   path: path,
   description: page ? `記事一覧(page ${page})` : "記事一覧",
-  author: true,
-  publisher: true,
   items: data.cards.map((card) => ({ name: card.title, path: `/articles/${card.id}` })),
+  // the list runs past this page, so `numberOfItems` counts every article
+  itemList: { numberOfItems: data.totalItems },
 });
 ---
 

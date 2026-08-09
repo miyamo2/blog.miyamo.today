@@ -1,9 +1,14 @@
-// Site metadata previously defined in gatsby-config.ts (siteMetadata)
+import { config } from "virtual:jsonld";
+
+// Site metadata previously defined in gatsby-config.ts (siteMetadata).
+//
+// The name, the description and the url come from the jsonld integration, which
+// resolves them from its own options and astro's `site`, so the meta tags and
+// the structured data describe the same site.
 export const siteMetadata = {
-  title: "blog.miyamo.today",
-  siteUrl: "https://blog.miyamo.today",
-  description:
-    "miyamo2のブログ。体験したこと、考えていること、それとコードの断片をゆるく発信していきます。",
+  title: config.name,
+  siteUrl: config.siteUrl,
+  description: config.description ?? "",
   twitterUsername: "@miyamo2_jp",
   image: "/ogp.png",
   icon: "/logo.png",

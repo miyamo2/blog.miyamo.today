@@ -3,6 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 import ArticleDetailPage from "../../views/ArticleDetailPage.astro";
 import { getContent, type ArticleDetailVM } from "../../lib/content";
 import { buildArticle, buildBreadcrumbList } from "virtual:jsonld";
+import { credits } from "../../lib/jsonld";
 import { siteMetadata } from "../../lib/site";
 
 export async function getStaticPaths() {
@@ -22,25 +23,22 @@ const { data } = Astro.props;
 const path = `/articles/${data.id}`;
 const url = `${siteMetadata.siteUrl}${path}`;
 
-// buildArticle fills in the author, the publisher, the `isPartOf` link to the
-// WebSite and the `mainEntityOfPage` from the integration's config. Its `@id`
-// ends in #article: the article and the page it sits on are different things,
-// and mainEntityOfPage already claims the page's own url.
+// buildArticle fills in the `isPartOf` link to the WebSite and the
+// `mainEntityOfPage` from the integration's config. Its `@id` ends in #article:
+// the article and the page it sits on are two things, and `mainEntityOfPage`
+// already claims the page's own url.
 const jsonLDArticleDetailPage = buildArticle({
+  ...credits,
   headline: data.title ?? "",
   path: path,
   description: data.excerpt ?? "",
   image: data.imageSrc,
   datePublished: data.createdAt,
   dateModified: data.updatedAt,
-  // no `articleBody`: it held the same 140-character excerpt as `description`,
-  // which claims the article body *is* those 140 characters to anything that
-  // reads the property at face value. Dropping it says nothing rather than
-  // something false; google ignores it either way.
   keywords: data.tags.map((tag) => tag.name),
 });
 // articles hang straight off the root: the article list is "/" itself
-const jsonLDBreadcrumb = buildBreadcrumbList([{ name: data.title, path }]);
+const jsonLDBreadcrumb = buildBreadcrumbList([{ name: data.title }]);
 ---
 
 <Layout

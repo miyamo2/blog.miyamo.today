@@ -3,20 +3,21 @@ import Layout from "../../layouts/Layout.astro";
 import TagsPage from "../../views/TagsPage.astro";
 import { getContent } from "../../lib/content";
 import { buildBreadcrumbList, buildCollectionPage } from "virtual:jsonld";
+import { credits } from "../../lib/jsonld";
 
 const { tagSummaries } = await getContent();
 
 const path = "/tags";
 
+// one page holds every tag, so the ItemList's own count is the whole of it
 const jsonLDTagsPage = buildCollectionPage({
+  ...credits,
   name: "Tags",
   path: path,
   description: "タグ一覧",
-  author: true,
-  publisher: true,
   items: tagSummaries.map((tag) => ({ name: `#${tag.name}`, path: `/tags/${tag.cursor}` })),
 });
-const jsonLDBreadcrumb = buildBreadcrumbList([{ name: "Tags", path }]);
+const jsonLDBreadcrumb = buildBreadcrumbList([{ name: "Tags" }]);
 ---
 
 <Layout head={{ path, title: "Tags", jsonLD: [jsonLDTagsPage, jsonLDBreadcrumb] }}>

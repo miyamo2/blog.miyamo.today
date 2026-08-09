@@ -3,6 +3,7 @@ import Layout from "../../../layouts/Layout.astro";
 import TaggedArticlesPage from "../../../views/TaggedArticlesPage.astro";
 import { getContent, type TaggedArticlesPageVM } from "../../../lib/content";
 import { buildBreadcrumbList, buildCollectionPage } from "virtual:jsonld";
+import { credits } from "../../../lib/jsonld";
 
 export async function getStaticPaths() {
   const { taggedPages } = await getContent();
@@ -28,17 +29,20 @@ const path = `/tags/${data.tagId}/${data.currentPage}`;
 const page = path.split("/").at(-1);
 
 const jsonLDTaggedArticlesPage = buildCollectionPage({
+  ...credits,
   name: title,
   path: path,
   description: page ? `#${data.tagName}の記事一覧(page ${page})` : `#${data.tagName}の記事一覧`,
-  author: true,
-  publisher: true,
   items: data.cards.map((card) => ({ name: card.title, path: `/articles/${card.id}` })),
+  itemList: {
+    startPosition: (data.currentPage - 1) * data.perPage + 1,
+    numberOfItems: data.totalItems,
+  },
 });
 const jsonLDBreadcrumb = buildBreadcrumbList([
   { name: "Tags", path: "/tags" },
   { name: title, path: `/tags/${data.tagId}` },
-  { name: `page ${data.currentPage}`, path },
+  { name: `page ${data.currentPage}` },
 ]);
 ---
 
