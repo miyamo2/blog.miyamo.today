@@ -26,6 +26,14 @@ interface Props {
    * bandwidth from the real LCP candidate.
    */
   priority?: boolean;
+  /**
+   * this image can be above the fold, but is not the image `priority` is on:
+   * load it eagerly so the preload scanner can find it, at the browser's own
+   * priority so it queues behind the LCP candidate rather than beside it.
+   * For a grid whose LCP element depends on the viewport, this is what keeps
+   * the runner-up candidates out of the post-layout lazy queue.
+   */
+  eager?: boolean;
 }
 
 const {
@@ -37,6 +45,7 @@ const {
   style,
   fill,
   priority = false,
+  eager = false,
 } = Astro.props;
 
 // transparent svg spacer keeps the intrinsic size, like gatsby-plugin-image's
@@ -83,7 +92,7 @@ const wrapperStyle = image
         srcset={image.srcSet}
         sizes={image.srcSet ? image.sizes : undefined}
         alt={alt ?? ""}
-        loading={priority ? "eager" : "lazy"}
+        loading={priority || eager ? "eager" : "lazy"}
         fetchpriority={priority ? "high" : undefined}
         decoding={priority ? undefined : "async"}
         style={`position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: ${objectFit ?? "cover"}; object-position: ${objectPosition ?? "center"};`}

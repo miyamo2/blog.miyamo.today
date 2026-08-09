@@ -1,6 +1,6 @@
 ---
 import Pager from "../components/Pager.astro";
-import ArticleCard from "../features/ArticleList/ArticleCard.astro";
+import ArticleCardGrid from "../features/ArticleList/ArticleCardGrid.astro";
 import type { ArticleListPageVM } from "../lib/content";
 
 interface Props {
@@ -12,13 +12,7 @@ const { data } = Astro.props;
 
 <main>
   <h1 class="pb-4 text-3xl font-bold">Articles</h1>
-  <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-2">
-    {
-      /* the grid is single-column on mobile, so the first card's thumbnail is
-         the LCP element -- it must not be lazily loaded */
-      data.cards.map((card, i) => <ArticleCard {...card} priority={i === 0} />)
-    }
-  </div>
+  <ArticleCardGrid cards={data.cards} />
   <div class="pt-6 pb-2">
     <Pager
       currentPage={data.currentPage}

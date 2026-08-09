@@ -48,6 +48,7 @@ const jsonLDBreadcrumb = buildBreadcrumbList([{ name: data.title }]);
     description: data.excerpt,
     image: data.imageSrc,
     jsonLD: [jsonLDArticleDetailPage, jsonLDBreadcrumb],
+    preloadImage: data.imageData,
   }}
 >
   <ArticleDetailPage data={data} url={url} />

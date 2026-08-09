@@ -22,6 +22,12 @@ test.describe("article detail page (/articles/[id])", () => {
     await expect(hero).toBeVisible();
     await expect(hero).toHaveAttribute("loading", "eager");
     expect(await hero.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+
+    // the head preloads the hero, so its request does not wait for the parser
+    // to walk past the rest of the head (see BaseHead's preloadImage)
+    const preload = page.locator('head link[rel="preload"][as="image"]');
+    await expect(preload).toHaveCount(1);
+    await expect(preload).toHaveAttribute("imagesrcset", (await hero.getAttribute("srcset")) ?? "");
   });
 
   test("renders the whole markdown body", async ({ page }) => {

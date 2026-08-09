@@ -31,13 +31,42 @@ test.describe("article list page (/)", () => {
     await expect(card.locator("p.text-muted-foreground")).not.toBeEmpty();
   });
 
-  test("the first thumbnail is eager (it is the LCP candidate) and the rest are lazy", async ({
+  test("every thumbnail that can sit above the fold is eager, and only the LCP candidate is high priority", async ({
     page,
   }) => {
+    // the grid is at most four columns wide, so the first four cards can share
+    // the first screenful -- lazily loading any of them would hide whichever
+    // one is the LCP element from the preload scanner
     const thumbnails = page.locator(".article-card-thumbnail img[data-remote-image]");
+    const count = await thumbnails.count();
+    expect(count).toBeGreaterThan(1);
+
     await expect(thumbnails.first()).toHaveAttribute("loading", "eager");
     await expect(thumbnails.first()).toHaveAttribute("fetchpriority", "high");
-    await expect(thumbnails.nth(1)).toHaveAttribute("loading", "lazy");
+
+    for (let i = 1; i < Math.min(count, 4); i++) {
+      await expect(thumbnails.nth(i)).toHaveAttribute("loading", "eager");
+      await expect(thumbnails.nth(i)).not.toHaveAttribute("fetchpriority", "high");
+    }
+  });
+
+  test("the head preloads that same thumbnail", async ({ page }) => {
+    // the <img> sits behind the whole head, so the preload scanner only reaches
+    // it round trips into the document -- this <link> is what makes the request
+    // go out immediately, and it has to name the candidate the <img> will use
+    const thumbnail = page.locator(".article-card-thumbnail img[data-remote-image]").first();
+    const preload = page.locator('head link[rel="preload"][as="image"]');
+
+    await expect(preload).toHaveCount(1);
+    await expect(preload).toHaveAttribute("fetchpriority", "high");
+    await expect(preload).toHaveAttribute(
+      "imagesrcset",
+      (await thumbnail.getAttribute("srcset")) ?? ""
+    );
+    await expect(preload).toHaveAttribute(
+      "imagesizes",
+      (await thumbnail.getAttribute("sizes")) ?? ""
+    );
   });
 
   test("thumbnails actually decode", async ({ page }) => {

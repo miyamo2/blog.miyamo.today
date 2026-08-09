@@ -38,6 +38,13 @@ const jsonLDAboutPage = buildProfilePage({
 const jsonLDBreadcrumb = buildBreadcrumbList([{ name: "About" }]);
 ---
 
-<Layout head={{ path, title: "About", jsonLD: [jsonLDAboutPage, jsonLDBreadcrumb] }}>
+<Layout
+  head={{
+    path,
+    title: "About",
+    jsonLD: [jsonLDAboutPage, jsonLDBreadcrumb],
+    preloadImage: avatarImage,
+  }}
+>
   <AboutPage data={data} />
 </Layout>
