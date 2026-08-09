@@ -80,7 +80,10 @@ export default defineConfig({
       }),
     },
   },
-  // keep the same cache directory as the previous Gatsby setup so the CI cache step keeps working
+  // a build keeps its content layer store, its generated images and the remote
+  // originals staged-remote-image.ts downloads under `cacheDir`. Astro defaults
+  // it to node_modules/.astro, which `bun install` is free to wipe -- moving it
+  // out gives CI one directory to restore that survives the install step.
   cacheDir: "./.cache",
   markdown: {
     // same look as the previous prism-dracula theme; satteri()'s own options
