@@ -8,6 +8,11 @@
 }
 
 .article-detail {
+  /* where the sticky rails come to rest: clear of the 70px fixed site header,
+     plus enough of a gap that they do not read as glued to it. Both rails
+     share it so they always line up */
+  --article-sticky-top: 5.5rem;
+
   grid-template-areas:
     "title title title"
     "tag tag tag"
@@ -68,12 +73,17 @@
    without it those cards would be stranded below the fold. */
 .article-sidebar {
   position: sticky;
-  top: 71px;
-  max-height: calc(100vh - 71px - 1rem);
+  top: var(--article-sticky-top);
+  max-height: calc(100vh - var(--article-sticky-top) - 1rem);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   scrollbar-width: thin;
+}
+
+.article-share-rail {
+  position: sticky;
+  top: var(--article-sticky-top);
 }
 
 .side-toc-block {
