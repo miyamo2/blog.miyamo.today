@@ -1,8 +1,6 @@
 
 .side-toc {
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 :root {
@@ -22,17 +20,24 @@
     "recommend recommend recommend";
   grid-template-columns: 1fr 1fr 1fr;
   @media (min-width: 1200px) {
+    /* the header (title/tags/date/hero) shares the content column so the whole
+       article reads as one measured column, with the share rail in the left
+       margin and the side nav to its right -- the header used to span all three
+       tracks, which left it hanging ~140px to the left of the body text */
     grid-template-areas:
-      "title title title"
-      "tag tag tag"
-      "date date date"
-      ". image ."
+      "lnav title rnav"
+      "lnav tag rnav"
+      "lnav date rnav"
+      "lnav image rnav"
       "lnav content rnav"
       "lnav comment rnav";
     justify-content: start;
     align-items: start;
     contain: paint;
-    grid-template-columns: 10% 65% 25%;
+    /* the share rail only ever holds one column of 32px buttons; the width it
+       used to take (10%) is given to the side nav and to real gutters instead */
+    grid-template-columns: 3rem minmax(0, 1fr) clamp(19rem, 27%, 24rem);
+    column-gap: 2.5rem;
   }
 }
 
@@ -47,9 +52,31 @@
   margin-top: 2rem;
   margin-bottom: 1rem;
   @media (min-width: 1200px) {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+    margin-top: 1.75rem;
+    margin-bottom: 1.75rem;
   }
+}
+
+/* the sticky side nav scrolls inside itself once the table of contents and the
+   recommendations together outgrow the viewport, so its tail stays reachable */
+.article-sidebar {
+  position: sticky;
+  top: 71px;
+  max-height: calc(100vh - 71px - 1rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.side-toc a {
+  display: block;
+}
+
+/* headings wrap onto as many lines as they need instead of being cut off at the
+   column edge; the depth indent is padding so continuation lines line up too */
+.side-toc span {
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .markdown-body {
@@ -1088,4 +1115,46 @@
 
 .markdown-body > *:first-child > .heading-element:first-child {
   margin-top: 0 !important;
+}
+
+/* ---------- reading rhythm ----------
+ * Everything above is github-markdown-css, whose vertical rhythm is tuned for
+ * dense code review (line-height 1.5, 16px between blocks). Long-form Japanese
+ * prose needs more air, so loosen it here; the selectors are scoped to direct
+ * children so nested lists and table cells keep the tight defaults.
+ */
+.markdown-body {
+  line-height: 1.9;
+}
+
+.markdown-body > p,
+.markdown-body > blockquote,
+.markdown-body > ul,
+.markdown-body > ol,
+.markdown-body > dl,
+.markdown-body > table,
+.markdown-body > details {
+  margin-bottom: 1.5em;
+}
+
+.markdown-body > h1,
+.markdown-body > h2,
+.markdown-body > h3,
+.markdown-body > h4,
+.markdown-body > h5,
+.markdown-body > h6 {
+  margin-top: 2.3em;
+  margin-bottom: 0.8em;
+  line-height: 1.5;
+}
+
+.markdown-body > ul > li + li,
+.markdown-body > ol > li + li {
+  margin-top: 0.4em;
+}
+
+/* shiki emits its <pre> without a line-height of its own, so keep code listings
+   on the tight rhythm they had instead of inheriting the prose one */
+.markdown-body pre {
+  line-height: 1.5;
 }

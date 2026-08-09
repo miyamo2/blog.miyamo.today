@@ -68,13 +68,15 @@ const createdAt = format(new Date(data.createdAt ?? ""), "YYYY/MM/DD");
     </div>
     <div style="grid-area: rnav" class="contain-paint hidden h-full w-full self-start lg:block">
       <div class="h-full overflow-visible">
-        <div style="position: sticky; top: 71px;">
+        <div class="article-sidebar">
           <TOC headings={data.headings} />
-          <Recommend recommends={data.recommends} />
+          <div class="pt-8">
+            <Recommend recommends={data.recommends} />
+          </div>
         </div>
       </div>
     </div>
-    <div style="grid-area: content" class="scroll-offset w-full">
+    <div style="grid-area: content" class="scroll-offset w-full pt-6">
       <article>
         <div class="markdown-body w-full" set:html={data.html ?? ""} />
       </article>

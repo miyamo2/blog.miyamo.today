@@ -53,3 +53,33 @@
 .recommend-card_created_inner {
   font-size: 0.8rem !important;
 }
+
+/* In the side nav the card is the only thing filling a ~330-380px column, so it
+ * can afford to breathe: the title wraps onto a second line instead of being
+ * clipped after one, and the text side gets real padding on every edge. */
+@media (min-width: 1200px) {
+  .recommend-card {
+    height: 170px !important;
+    grid-template-columns: 1fr 38%;
+  }
+
+  .recommend-card_title {
+    height: auto !important;
+    padding: 0.75rem 0.75rem 0 !important;
+    line-height: 1.4 !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+  }
+
+  .recommend-card_description {
+    height: auto !important;
+    padding: 0.5rem 0.75rem 0 !important;
+    line-height: 1.5 !important;
+  }
+
+  .recommend-card_created {
+    height: auto !important;
+    padding: 0 0.75rem 0.75rem !important;
+    align-items: flex-end !important;
+  }
+}

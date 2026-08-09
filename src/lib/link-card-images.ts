@@ -19,7 +19,9 @@ const THUMBNAIL_HEIGHT = 140;
 // slot, DPR 1.75); 560w covers the widest desktop box (273px) at DPR 2
 const THUMBNAIL_WIDTHS = [160, 280, 448, 560];
 // the media box is 40% of the card below 768px and 30% above it; the card is
-// the content column, which stops growing at 1400px * 65% (article-detail.css)
+// the content column, which stops growing at ~894px -- the 1fr track left over
+// once the share rail, the side nav and the gutters are taken out of the 1400px
+// wrapper (article-detail.css)
 const THUMBNAIL_SIZES = `(min-width: 1200px) ${THUMBNAIL_WIDTH}px, (min-width: 768px) 30vw, 40vw`;
 const FAVICON_WIDTH = 14;
 const FAVICON_WIDTHS = [14, 28];
