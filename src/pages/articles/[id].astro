@@ -36,7 +36,10 @@ const jsonLDArticleDetailPage = buildJSONLD({
   attributes: {
     datePublished: data.createdAt,
     dateModified: data.updatedAt,
-    articleBody: data.excerpt,
+    // no `articleBody`: it held the same 140-character excerpt as
+    // `description`, which claims the article body *is* those 140 characters
+    // to anything that reads the property at face value. Dropping it says
+    // nothing rather than something false; google ignores it either way.
     keywords: data.tags.map((tag) => tag.name).join(" "),
   },
 });

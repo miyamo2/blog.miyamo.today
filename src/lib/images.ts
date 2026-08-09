@@ -24,14 +24,27 @@ export interface BuildRemoteImageOptions {
   width?: number;
   /** target height. requires width; crops with fit: cover like gatsbyImageData(width, height) */
   height?: number;
+  /**
+   * Whether to offer the 2x candidate below. `false` for images no `<img>`
+   * ever renders -- og:image and JSON-LD carry a single url, so a second
+   * variant would be generated and shipped for nothing.
+   */
+  srcSet?: boolean;
 }
 
 // like gatsby's CONSTRAINED layout: offer up to 2x of the target width (capped
 // at the source width) so hidpi screens get a sharp candidate instead of
 // upscaling the 1x image
-const srcsetWidths = (targetWidth: number, sourceWidth: number): number[] => {
-  const cap = Math.min(sourceWidth, targetWidth * 2);
+const srcsetWidths = (
+  targetWidth: number,
+  sourceWidth: number,
+  options: BuildRemoteImageOptions = {}
+): number[] => {
   const widths = [targetWidth];
+  if (options.srcSet === false) {
+    return widths;
+  }
+  const cap = Math.min(sourceWidth, targetWidth * 2);
   if (cap > targetWidth) {
     widths.push(cap);
   }
@@ -82,7 +95,7 @@ const buildStagedImage = async (
       src: meta,
       width: targetWidth,
       height: targetHeight,
-      widths: srcsetWidths(targetWidth, staged.width),
+      widths: srcsetWidths(targetWidth, staged.width, options),
       format: "webp",
       quality: IMAGE_QUALITY,
       ...(options.width && options.height ? { fit: "cover" as const } : {}),
@@ -133,7 +146,7 @@ const buildUrlImage = async (
       src: url,
       width: targetWidth,
       height: targetHeight,
-      widths: srcsetWidths(targetWidth, size.width),
+      widths: srcsetWidths(targetWidth, size.width, options),
       format: "webp",
       quality: IMAGE_QUALITY,
       ...(options.width && options.height ? { fit: "cover" as const } : {}),
@@ -207,7 +220,7 @@ export const buildCollectionImage = async (
       src: meta,
       width: targetWidth,
       height: targetHeight,
-      widths: srcsetWidths(targetWidth, meta.width),
+      widths: srcsetWidths(targetWidth, meta.width, options),
       format: "webp",
       quality: IMAGE_QUALITY,
       ...(options.width && options.height ? { fit: "cover" as const } : {}),
@@ -230,6 +243,35 @@ export const buildCollectionImage = async (
       placeholder,
     };
   }
+};
+
+/**
+ * google's Article guidance asks the image it may show for at least 1200px of
+ * width and ~800k pixels; 1200x675 clears both (810k) at 16:9.
+ */
+const SEO_IMAGE_WIDTH = 1200;
+
+/**
+ * The thumbnail as og:image and JSON-LD `image` see it.
+ *
+ * It is built separately from the one the article page renders, which is
+ * deliberately no larger than its CSS box (see #70) and so does not reach
+ * either threshold. Enlarging the rendered image instead would put the whole
+ * difference on every reader to satisfy a crawler.
+ *
+ * Never upscales: a source narrower than 1200px cannot be made to meet the
+ * guidance, and a stretched copy would only look worse in link previews. No
+ * srcset either -- both consumers take a single url.
+ */
+export const buildSeoImage = (
+  meta: ImageMetadata | undefined | null
+): Promise<RemoteImageData | null> => {
+  const width = Math.min(SEO_IMAGE_WIDTH, meta?.width ?? SEO_IMAGE_WIDTH);
+  return buildCollectionImage(meta, {
+    width,
+    height: Math.round((width * 9) / 16),
+    srcSet: false,
+  });
 };
 
 /**
