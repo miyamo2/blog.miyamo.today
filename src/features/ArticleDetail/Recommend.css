@@ -54,32 +54,59 @@
   font-size: 0.8rem !important;
 }
 
-/* In the side nav the card is the only thing filling a ~330-380px column, so it
- * can afford to breathe: the title wraps onto a second line instead of being
- * clipped after one, and the text side gets real padding on every edge. */
+/* In the side nav these are a list, not cards: a 92px square thumbnail, a title
+ * free to run to three lines, and the date -- the shape Zenn gives its article
+ * rows. Dropping the excerpt is what buys the height back; as a card with one it
+ * stood 170px tall and three of them crowded the table of contents out of the
+ * column. Separation comes from the gap between rows instead of a card edge. */
 @media (min-width: 1200px) {
   .recommend-card {
-    height: 170px !important;
-    grid-template-columns: 1fr 38%;
+    height: auto !important;
+    grid-template-areas:
+      "image title"
+      "image date";
+    grid-template-columns: 92px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 1rem;
+    align-items: start;
+    margin-bottom: 1.5rem !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .recommend-card_thumbnail {
+    width: 92px !important;
+    height: 92px !important;
+    overflow: hidden !important;
+    border-radius: 0.5rem;
   }
 
   .recommend-card_title {
     height: auto !important;
-    padding: 0.75rem 0.75rem 0 !important;
-    line-height: 1.4 !important;
-    -webkit-line-clamp: 2 !important;
-    line-clamp: 2 !important;
+    padding: 0 !important;
+    -webkit-line-clamp: 3 !important;
+    line-clamp: 3 !important;
   }
 
+  .recommend-card_title h3 {
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  /* the excerpt is the whole reason the row was tall; the title carries it */
   .recommend-card_description {
-    height: auto !important;
-    padding: 0.5rem 0.75rem 0 !important;
-    line-height: 1.5 !important;
+    display: none !important;
   }
 
   .recommend-card_created {
     height: auto !important;
-    padding: 0 0.75rem 0.75rem !important;
-    align-items: flex-end !important;
+    padding: 0 !important;
+    margin-top: 0.4rem !important;
+    align-items: center !important;
+  }
+
+  .recommend-card_created_inner {
+    font-size: 0.72rem !important;
   }
 }
