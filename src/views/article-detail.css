@@ -58,13 +58,14 @@
 }
 
 /* the sticky side nav scrolls inside itself once the table of contents and the
-   recommendations together outgrow the viewport, so its tail stays reachable */
+   recommendations together outgrow the viewport, so its tail stays reachable.
+   Scroll chaining is deliberately left at the default: containing it would trap
+   the wheel here once the nav bottoms out, instead of carrying on down the page */
 .article-sidebar {
   position: sticky;
   top: 71px;
   max-height: calc(100vh - 71px - 1rem);
   overflow-y: auto;
-  overscroll-behavior: contain;
   scrollbar-width: thin;
 }
 
