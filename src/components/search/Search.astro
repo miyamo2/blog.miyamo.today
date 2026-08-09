@@ -121,4 +121,20 @@ import "./Search.css";
   document.addEventListener("pointerover", onSearchIntent, { passive: true });
   document.addEventListener("focusin", onSearchIntent);
   document.addEventListener("click", onSearchIntent, { capture: true });
+
+  /*
+   * A `?q=` URL is search intent that arrived with the navigation: the panel has
+   * to come up and run the query on its own, so the chunk is requested right
+   * away for those loads. The literal is repeated from search.ts (QUERY_PARAM)
+   * rather than imported, so that this stays a leaf script and does not pull a
+   * shared chunk onto the critical path of every page.
+   * astro:after-swap covers arriving at a search URL through the client router,
+   * which happens on back from an article that was opened out of the results.
+   */
+  const wantsSearch = (): boolean => new URLSearchParams(location.search).has("q");
+
+  if (wantsSearch()) void loadPanel();
+  document.addEventListener("astro:after-swap", () => {
+    if (wantsSearch()) void loadPanel();
+  });
 </script>

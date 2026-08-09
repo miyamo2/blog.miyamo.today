@@ -81,6 +81,13 @@ const preconnectDomains = [
 <meta name="twitter:url" content={seo.url} />
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" href={`${defaultSiteUrl}${icon}`} />
+{
+  /* The search panel writes its state onto the current URL (`?q=`), so a shared
+     result link is a crawlable variant of the page it was opened from. Point
+     those back at the clean path. Omitted where the page has no canonical path
+     of its own (404), rather than pointing them all at the site root. */
+  path && <link rel="canonical" href={seo.url} />
+}
 {jsonLDNodes.map((obj) => <script type="application/ld+json" set:html={serializeJSONLD(obj)} />)}
 {scrollDriven && <style type="text/css" set:html={scrollDrivenCss} />}
 
