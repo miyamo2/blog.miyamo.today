@@ -31,7 +31,8 @@ interface HitDoc {
   thumbnail: string;
   _highlightResult?: {
     title?: { value: string };
-    tags?: { value: string }[];
+    /** one entry per tag, in the order the record lists them */
+    tags?: { value: string; matchLevel?: "none" | "partial" | "full" }[];
   };
   _snippetResult?: {
     content?: { value: string };
@@ -151,6 +152,32 @@ const setHighlighted = (target: HTMLElement, highlighted?: string, fallback?: st
   } else {
     target.textContent = fallback ?? "";
   }
+};
+
+/**
+ * The tag line for a hit: every tag the article carries, but with the ones the
+ * query actually matched moved to the front.
+ *
+ * The line is a single row that never wraps and is cut off at the end of the
+ * card, so without this a tag that explains the hit is exactly as likely to fall
+ * off that end as one that has nothing to do with the query. `tags` is a
+ * searchable attribute (see the index settings in astro.config.ts), so Algolia
+ * reports a per-tag matchLevel to sort on.
+ *
+ * Both groups keep the order the record lists them in, so tags that are equally
+ * relevant do not shuffle between queries.
+ *
+ * Returns the highlighted markup when the response carries it, and plain text to
+ * assign as textContent otherwise -- the two cannot be mixed, since only the
+ * former is Algolia-escaped.
+ */
+const tagLine = (hit: HitDoc): { html: string } | { text: string } => {
+  const highlighted = hit._highlightResult?.tags;
+  if (!highlighted) return { text: (hit.tags ?? []).join(", ") };
+
+  const matched = highlighted.filter((tag) => tag.matchLevel && tag.matchLevel !== "none");
+  const rest = highlighted.filter((tag) => !tag.matchLevel || tag.matchLevel === "none");
+  return { html: [...matched, ...rest].map((tag) => tag.value).join(", ") };
 };
 
 /** Thumbnails come from the index, so only let through URLs an <img> can safely load. */
@@ -456,11 +483,12 @@ class SearchPanel {
     tags.className = "hit-tags";
     tags.appendChild(faSvg(faTags));
     const tagList = document.createElement("span");
-    setHighlighted(
-      tagList,
-      hit._highlightResult?.tags?.map((tag) => tag.value).join(", "),
-      (hit.tags ?? []).join(", "),
-    );
+    const line = tagLine(hit);
+    if ("html" in line) {
+      tagList.innerHTML = line.html;
+    } else {
+      tagList.textContent = line.text;
+    }
     tags.appendChild(tagList);
 
     card.append(imageWrapper, title, content, tags);
