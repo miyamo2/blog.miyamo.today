@@ -1,112 +1,73 @@
+/* A recommendation is a row, not a card: a 92px square thumbnail on the left, a
+ * title free to run to three lines beside it, and a meta line carrying the date
+ * and the article's tags. Rows are separated by the gap between them rather than
+ * by a card edge -- the shape Zenn gives its article lists.
+ *
+ * The same shape is used in the side nav and under the article on narrow
+ * screens. As a 150px card with a two-line excerpt, three of them took 610px of
+ * the side nav and left the table of contents 38% of the column. */
 .recommend-card {
-  overflow: hidden !important;
-  height: 150px !important;
   width: 100% !important;
-  isolation: isolate !important;
   grid-template-areas:
-    "title image"
-    "desc image"
-    ". image"
-    "date image";
-  grid-template-columns: 60% 40%;
+    "image title"
+    "image date";
+  grid-template-columns: 92px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 1rem;
+  align-items: start;
+  margin-bottom: 1.5rem;
 }
 
 .recommend-card_thumbnail {
-  height: 100% !important;
+  width: 92px !important;
+  height: 92px !important;
+  overflow: hidden !important;
+  border-radius: 0.5rem;
 }
 
 .recommend-card_title {
-  padding-top: 0.5rem !important;
-  padding-left: 0.5rem !important;
   max-width: 100% !important;
-  height: 2rem !important;
-  overflow: hidden !important;
-  -webkit-line-clamp: 1 !important;
-  line-clamp: 1 !important;
-  display: -webkit-inline-box !important;
-  -webkit-box-orient: vertical !important;
-}
-.recommend-card_description {
-  padding-left: 0.5rem !important;
-  height: 2rem !important;
-  max-width: 100% !important;
-  overflow: hidden !important;
-}
-.recommend-card_description p {
   overflow: hidden !important;
   display: -webkit-box !important;
   -webkit-box-orient: vertical !important;
-  -webkit-line-clamp: 2 !important;
-  line-clamp: 2 !important;
+  -webkit-line-clamp: 3 !important;
+  line-clamp: 3 !important;
 }
+
+.recommend-card_title h3 {
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+/* the excerpt is what made the row tall; the three-line title carries it now */
+.recommend-card_description {
+  display: none !important;
+}
+
 .recommend-card_created {
-  padding-left: 0.5rem !important;
-  height: 1.5rem !important;
   max-width: 100% !important;
-  overflow: hidden !important;
-  -webkit-line-clamp: 1 !important;
-  line-clamp: 1 !important;
-  display: -webkit-inline-box !important;
-  -webkit-box-orient: vertical !important;
+  margin-top: 0.4rem !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .recommend-card_created_inner {
-  font-size: 0.8rem !important;
+  font-size: 0.72rem !important;
+  white-space: nowrap;
 }
 
-/* In the side nav these are a list, not cards: a 92px square thumbnail, a title
- * free to run to three lines, and the date -- the shape Zenn gives its article
- * rows. Dropping the excerpt is what buys the height back; as a card with one it
- * stood 170px tall and three of them crowded the table of contents out of the
- * column. Separation comes from the gap between rows instead of a card edge. */
-@media (min-width: 1200px) {
-  .recommend-card {
-    height: auto !important;
-    grid-template-areas:
-      "image title"
-      "image date";
-    grid-template-columns: 92px minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    column-gap: 1rem;
-    align-items: start;
-    margin-bottom: 1.5rem !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-  }
-
-  .recommend-card_thumbnail {
-    width: 92px !important;
-    height: 92px !important;
-    overflow: hidden !important;
-    border-radius: 0.5rem;
-  }
-
-  .recommend-card_title {
-    height: auto !important;
-    padding: 0 !important;
-    -webkit-line-clamp: 3 !important;
-    line-clamp: 3 !important;
-  }
-
-  .recommend-card_title h3 {
-    font-size: 1.05rem;
-    line-height: 1.5;
-  }
-
-  /* the excerpt is the whole reason the row was tall; the title carries it */
-  .recommend-card_description {
-    display: none !important;
-  }
-
-  .recommend-card_created {
-    height: auto !important;
-    padding: 0 !important;
-    margin-top: 0.4rem !important;
-    align-items: center !important;
-  }
-
-  .recommend-card_created_inner {
-    font-size: 0.72rem !important;
-  }
+/* Decorative, not links -- the whole row is already an anchor, and an <a> inside
+ * an <a> is not valid HTML. A tag long enough to fill the row is ellipsised
+ * rather than allowed to push the meta line wider than the column. */
+.recommend-card_tag {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 0.375rem;
+  padding: 1px 0.4rem;
+  font-size: 0.68rem;
+  line-height: 1.5;
 }
