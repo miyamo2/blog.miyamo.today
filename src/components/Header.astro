@@ -28,23 +28,29 @@ const navItems = [
       />
     </a>
   </div>
-  <div class="hidden h-full w-full justify-self-end pt-4 lg:block">
+  {/* One cluster for every breakpoint: the parts that belong to a single layout
+      hide themselves, and everything else is rendered exactly once. There used to
+      be two clusters, which meant a second copy of the whole search dialog sitting
+      in the DOM behind display:none -- and a panel script that had to work out
+      which of the two the URL and the keyboard belonged to. */}
+  <div class="h-full w-full justify-self-end">
     <div class="flex h-full items-center justify-end gap-2">
       {
         navItems.map((item) => (
-          <Button variant="ghost" size="sm" href={item.href} class="text-md font-bold">
+          <Button
+            variant="ghost"
+            size="sm"
+            href={item.href}
+            class="text-md hidden font-bold lg:inline-flex"
+          >
             <FaIcon icon={item.icon} />
             {item.label}
           </Button>
         ))
       }
-      <ThemeToggle variant="default" size="sm" ariaLabel="toggle-dark-mode" />
-      <Search />
-    </div>
-  </div>
-  <div class="h-full w-full justify-self-end pt-3 lg:hidden">
-    <div class="flex items-center justify-end gap-2">
-      <Search />
+      {/* below lg the search button leads the cluster; from lg it trails the theme
+          toggle, at the end of the nav -- the order each layout always had */}
+      <Search class="lg:order-1" />
       <ThemeToggle variant="default" size="sm" ariaLabel="toggle-dark-mode" />
       <Menu />
     </div>

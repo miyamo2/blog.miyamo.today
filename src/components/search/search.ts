@@ -273,13 +273,9 @@ class SearchPanel {
     // the starwind dialog exposes no open event, so follow the `open` attribute it toggles
     const observer = new MutationObserver(() => {
       if (this.dialog.open) {
-        activePanel = this;
         requestAnimationFrame(() => this.input.focus({ preventScroll: true }));
       } else {
-        // reset() drops the search state from the URL, so it still needs to be
-        // the active panel while it runs
         this.reset();
-        if (activePanel === this) activePanel = null;
       }
     });
     observer.observe(this.dialog, { attributes: true, attributeFilter: ["open"] });
@@ -294,15 +290,9 @@ class SearchPanel {
    */
   public adoptCurrentState(): void {
     if (!this.dialog.open) return;
-    activePanel = this;
     this.clearButton.hidden = this.input.value.length === 0;
     requestAnimationFrame(() => this.input.focus({ preventScroll: true }));
     if (this.input.value.trim() !== "") void this.search(true);
-  }
-
-  /** Header.astro renders a mobile and a desktop copy; only one of them is on screen */
-  public isVisible(): boolean {
-    return this.root.getClientRects().length > 0;
   }
 
   public isConnected(): boolean {
@@ -338,12 +328,7 @@ class SearchPanel {
     this.clearButton.hidden = route.query.length === 0;
     this.page = route.page;
 
-    if (!this.dialog.open) {
-      // the mutation observer only sees the attribute change a tick later, and
-      // the search below already wants to own the URL
-      activePanel = this;
-      this.requestOpen(0);
-    }
+    if (!this.dialog.open) this.requestOpen(0);
 
     if (route.query.trim() === "") {
       this.clearResults();
@@ -366,9 +351,8 @@ class SearchPanel {
     requestAnimationFrame(() => this.requestOpen(attempt + 1));
   }
 
-  /** the URL only ever follows the panel that is actually open */
   private syncRoute(state: RouteState | null): void {
-    if (activePanel !== this || this.navigatingAway) return;
+    if (this.navigatingAway) return;
     writeRoute(state);
   }
 
@@ -577,40 +561,29 @@ class SearchPanel {
   }
 }
 
-const initialized = new WeakSet<HTMLElement>();
-const panels: SearchPanel[] = [];
-/** the panel whose dialog is open, and therefore the one the URL belongs to */
-let activePanel: SearchPanel | null = null;
-
-/** the on-screen copy, falling back to the first one before any layout exists */
-const routedPanel = (): SearchPanel | null =>
-  activePanel ?? panels.find((panel) => panel.isVisible()) ?? panels[0] ?? null;
+/** the header's one search dialog, once it has been wired up */
+let panel: SearchPanel | null = null;
 
 const applyRoute = (force: boolean): void => {
-  routedPanel()?.applyRoute(readRoute(), force);
+  panel?.applyRoute(readRoute(), force);
 };
 
-const setupSearchPanels = (): void => {
-  // the header is transition:persist'ed, so these normally survive a swap; drop
-  // the ones that did not rather than routing a detached panel
-  for (let i = panels.length - 1; i >= 0; i--) {
-    if (!panels[i].isConnected()) panels.splice(i, 1);
-  }
-  if (activePanel && !activePanel.isConnected()) activePanel = null;
+const setupSearchPanel = (): void => {
+  // the header is transition:persist'ed, so the panel it holds normally survives
+  // a swap along with everything wired to it
+  if (panel?.isConnected()) return;
+  panel = null;
 
-  // Header.astro renders the component twice (mobile / desktop); one broken
-  // instance must not take the other one down with it
-  document.querySelectorAll<HTMLElement>(".algolia-search").forEach((root) => {
-    if (initialized.has(root)) return;
-    initialized.add(root);
-    try {
-      const panel = new SearchPanel(root);
-      panels.push(panel);
-      panel.adoptCurrentState();
-    } catch (error) {
-      console.error(error);
-    }
-  });
+  const root = document.querySelector<HTMLElement>(".algolia-search");
+  if (!root) return;
+  try {
+    panel = new SearchPanel(root);
+    panel.adoptCurrentState();
+  } catch (error) {
+    // a panel that cannot be wired up is left inert rather than taking the rest
+    // of the page's scripts down with it
+    console.error(error);
+  }
 };
 
 /**
@@ -644,7 +617,7 @@ document.addEventListener("astro:before-swap", (event) => {
   transitionFinished = viewTransition?.finished?.catch(() => undefined) ?? Promise.resolve();
 });
 
-setupSearchPanels();
+setupSearchPanel();
 applyRoute(false);
 
 /*
@@ -654,7 +627,7 @@ applyRoute(false);
  * before the swap it triggers.
  */
 document.addEventListener("astro:after-swap", () => {
-  setupSearchPanels();
+  setupSearchPanel();
   const id = navigationId;
   void transitionFinished.then(() => {
     if (id !== navigationId) return;
