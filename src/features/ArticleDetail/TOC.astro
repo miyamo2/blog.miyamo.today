@@ -30,14 +30,11 @@ const calcDepth = (depth: number | null | undefined) => {
       Table of Contents
     </h2>
   </div>
-  <div class="side-toc w-full pt-2">
+  <div class="side-toc w-full pt-3">
     {
       headings?.map((heading) => (
         <a href={`#${heading?.id}`}>
-          <span
-            class="block w-full truncate pb-2"
-            style={`text-indent: ${calcDepth(heading?.depth)}em`}
-          >
+          <span class="block w-full pb-3" style={`padding-left: ${calcDepth(heading?.depth)}em`}>
             {heading?.value}
           </span>
         </a>
