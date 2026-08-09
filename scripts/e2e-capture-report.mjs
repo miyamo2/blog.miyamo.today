@@ -1,34 +1,53 @@
 // Publishes the e2e capture sweep to the pull request the current commit belongs to.
 //
-//   node scripts/e2e-capture-report.mjs
+//   node scripts/e2e-capture-report.mjs [--dry-run]
 //
-// Run from .github/workflows/e2e.yaml after the suite, pass or fail. It does
-// three things:
-//   1. uploads e2e/captures/**.png as assets of one long-lived prerelease
-//   2. rewrites a single sticky comment on the pull request that embeds them
-//   3. deletes the assets of pull requests that are no longer open
+// Run from .github/workflows/e2e.yaml after the suite, pass or fail. It commits
+// e2e/captures/ as an orphan commit, pushes it to a ref of its own, and rewrites
+// a single sticky comment on the pull request that embeds the screenshots from
+// raw.githubusercontent.com.
 //
-// Why a release and not a branch: a comment can only show an image from a public
-// http(s) URL -- GitHub's sanitizer drops `data:` sources, and an actions
-// artifact is a single zip that needs a login -- so the files have to live
-// somewhere fetchable. A branch would do it, but `git fetch` takes refs/heads/*
-// by default, so every clone and pull of this repository would carry every
-// screenshot ever taken. Release assets are outside the object database
-// entirely, so they cost a reader nothing.
+// Why a ref outside refs/heads/*
+// ------------------------------
+// A comment can only show an image from a public http(s) URL: GitHub's sanitizer
+// drops `data:` sources, and an actions artifact is a zip that needs a login. So
+// the files have to be fetchable, which leaves three places to put them, and this
+// is the only one that costs nothing:
+//
+//   a branch          `git fetch` takes refs/heads/* by default, so every clone
+//                     and pull of this repository would carry every screenshot
+//   Git LFS           keeps clones small, but storage and bandwidth are metered
+//                     and deleting the files does not give the quota back
+//   release assets    free and unmetered, but a repository with no releases grows
+//                     a Releases section that exists only to hold screenshots
+//
+// `refs/e2e-captures/*` is in none of those ways visible: not in the branch list,
+// not in the Releases tab, and not in the default fetch refspec
+// (`+refs/heads/*:refs/remotes/origin/*`), so nobody's clone or pull pays for it.
+// Verified: GITHUB_TOKEN with contents: write may push such a ref, and raw serves
+// a blob by commit sha without the commit being reachable from any branch.
+//
+// One ref per run, never rewritten, so a comment written months ago still resolves
+// -- the ref is what keeps the objects from being collected. To reclaim the space
+// of a pull request that no longer matters:
+//
+//   git ls-remote origin 'refs/e2e-captures/*'
+//   git push origin :refs/e2e-captures/pr-42/12345678.1
 //
 // Environment (all provided by Actions unless noted):
 //   GITHUB_TOKEN         needs contents: write and pull-requests: write
 //   GITHUB_REPOSITORY    owner/repo
 //   GITHUB_SHA           the commit the captures were taken from
-//   GITHUB_RUN_ID        makes each run's asset names unique -- see below
+//   GITHUB_RUN_ID        names the ref, with GITHUB_RUN_ATTEMPT
 //   GITHUB_RUN_NUMBER    shown in the comment
 //   E2E_RESULT           outcome of the test step: "success" | "failure"
-//   E2E_CAPTURE_RELEASE  tag holding the assets (default "e2e-captures")
 //
-// `--dry-run` uploads nothing and prints the comment it would have posted, which
-// is how the layout is checked against a local `bun run e2e` without a token.
+// `--dry-run` pushes nothing and prints the comment it would have posted, which is
+// how the layout is checked against a local `bun run e2e` without a token.
+import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { readFile, readdir } from "node:fs/promises";
+import { copyFile, mkdir, mkdtemp, readdir } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -38,15 +57,6 @@ const CAPTURE_DIR = process.env.E2E_CAPTURE_DIR ?? join(ROOT, "e2e", "captures")
 /** Identifies the comment this script owns, so a run updates it instead of adding one. */
 const MARKER = "<!-- e2e-captures -->";
 
-const TAG = process.env.E2E_CAPTURE_RELEASE ?? "e2e-captures";
-const RELEASE_NAME = "E2E captures";
-const RELEASE_BODY = [
-  "Screenshots taken by the E2E workflow and embedded in pull request comments.",
-  "",
-  "Not a version of anything -- the assets are replaced on every run and removed",
-  "once their pull request closes.",
-].join("\n");
-
 const dryRun = process.argv.slice(2).includes("--dry-run");
 
 const token = process.env.GITHUB_TOKEN;
@@ -54,13 +64,13 @@ const repository = process.env.GITHUB_REPOSITORY ?? "miyamo2/blog.miyamo.today";
 const sha = process.env.GITHUB_SHA ?? "0".repeat(40);
 const runId = process.env.GITHUB_RUN_ID ?? "local";
 const runNumber = process.env.GITHUB_RUN_NUMBER ?? runId;
-/** Re-running a workflow keeps the run id and bumps this, so both are in the name. */
+/** Re-running a workflow keeps the run id and bumps the attempt; the ref needs both. */
 const runKey = `${runId}.${process.env.GITHUB_RUN_ATTEMPT ?? "1"}`;
 const result = process.env.E2E_RESULT ?? "success";
 
 const serverUrl = process.env.GITHUB_SERVER_URL ?? "https://github.com";
 const apiUrl = process.env.GITHUB_API_URL ?? "https://api.github.com";
-const uploadUrl = process.env.GITHUB_UPLOAD_URL ?? "https://uploads.github.com";
+const rawUrl = process.env.GITHUB_RAW_URL ?? "https://raw.githubusercontent.com";
 
 /** Widest project first: the desktop shots are the ones worth opening first. */
 const PROJECT_ORDER = ["desktop-chromium", "mobile-chromium"];
@@ -68,32 +78,41 @@ const PROJECT_ORDER = ["desktop-chromium", "mobile-chromium"];
 const log = (message) => console.log(`\x1b[36m[e2e-report]\x1b[0m ${message}`);
 
 const api = async (path, options = {}) => {
-  const { body, method = "GET", headers = {}, base = apiUrl, raw } = options;
-  const url = path.startsWith("http") ? path : `${base}${path}`;
-  const response = await fetch(url, {
+  const { body, method = "GET" } = options;
+  const response = await fetch(path.startsWith("http") ? path : `${apiUrl}${path}`, {
     method,
     headers: {
       accept: "application/vnd.github+json",
       authorization: `Bearer ${token}`,
       "x-github-api-version": "2022-11-28",
-      ...(raw ? {} : body ? { "content-type": "application/json" } : {}),
-      ...headers,
+      ...(body ? { "content-type": "application/json" } : {}),
     },
-    body: raw ?? (body === undefined ? undefined : JSON.stringify(body)),
+    body: body === undefined ? undefined : JSON.stringify(body),
   });
   if (!response.ok) {
-    throw new Error(`${method} ${url} -> ${response.status} ${await response.text()}`);
+    throw new Error(`${method} ${path} -> ${response.status} ${await response.text()}`);
   }
   return response.status === 204 ? undefined : response.json();
 };
 
 /**
- * Retries the transient half of the API surface.
- *
- * Asset uploads are the only calls here that move megabytes, and they are the
- * only ones observed to drop; everything else is small enough that one attempt
- * is honest.
+ * Runs git, returning its stdout. The remote url carries the token, so nothing
+ * here echoes a command; Actions masks GITHUB_TOKEN in logs either way.
  */
+const git = (args, cwd) =>
+  new Promise((resolve, reject) => {
+    const child = spawn("git", args, { cwd, stdio: ["ignore", "pipe", "pipe"] });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (chunk) => (stdout += chunk));
+    child.stderr.on("data", (chunk) => (stderr += chunk));
+    child.on("error", reject);
+    child.on("exit", (code) =>
+      code === 0 ? resolve(stdout) : reject(new Error(`git ${args[0]} failed (${code}): ${stderr.trim()}`))
+    );
+  });
+
+/** Retries the one step that moves megabytes and can lose a connection. */
 const withRetry = async (label, attempt, attempts = 3) => {
   for (let n = 1; ; n++) {
     try {
@@ -112,90 +131,6 @@ const resolvePullRequest = async () => {
   return pulls.find((pull) => pull.state === "open") ?? pulls[0];
 };
 
-/**
- * The one release every run writes to, created on first use.
- *
- * `make_latest: false` keeps it off the repository's front page, and the
- * prerelease flag keeps it out of the "latest release" API for anyone reading
- * this repository for its actual releases.
- */
-const ensureRelease = async () => {
-  try {
-    return await api(`/repos/${repository}/releases/tags/${TAG}`);
-  } catch (error) {
-    if (!error.message.includes("-> 404")) throw error;
-  }
-  log(`creating the ${TAG} release`);
-  try {
-    return await api(`/repos/${repository}/releases`, {
-      method: "POST",
-      body: {
-        tag_name: TAG,
-        name: RELEASE_NAME,
-        body: RELEASE_BODY,
-        prerelease: true,
-        make_latest: "false",
-      },
-    });
-  } catch (error) {
-    // two pull requests can race for the first run; the loser reads what won
-    if (!error.message.includes("-> 422")) throw error;
-    return api(`/repos/${repository}/releases/tags/${TAG}`);
-  }
-};
-
-const listAssets = async (releaseId) => {
-  const assets = [];
-  for (let page = 1; ; page++) {
-    const batch = await api(
-      `/repos/${repository}/releases/${releaseId}/assets?per_page=100&page=${page}`
-    );
-    assets.push(...batch);
-    if (batch.length < 100) return assets;
-  }
-};
-
-/** `pr-12-4711-desktop-chromium-article-list-light.png` -> 12 */
-const assetPullNumber = (name) => {
-  const match = /^pr-(\d+)-/.exec(name);
-  return match ? Number(match[1]) : undefined;
-};
-
-const deleteAsset = (asset) =>
-  api(`/repos/${repository}/releases/assets/${asset.id}`, { method: "DELETE" });
-
-/**
- * Drops what the release no longer has to serve: this pull request's previous
- * run, and everything belonging to a pull request that has since closed.
- *
- * A closed pull request's comment loses its images, which is the intended
- * trade -- these are a review aid for an open change, not a record.
- */
-const pruneAssets = async (assets, currentNumber) => {
-  const states = new Map([[currentNumber, "open"]]);
-  const stale = [];
-
-  for (const asset of assets) {
-    const number = assetPullNumber(asset.name);
-    if (number === undefined) continue;
-    if (number === currentNumber) {
-      stale.push(asset);
-      continue;
-    }
-    if (!states.has(number)) {
-      const pull = await api(`/repos/${repository}/pulls/${number}`).catch(() => undefined);
-      states.set(number, pull?.state ?? "closed");
-    }
-    if (states.get(number) !== "open") stale.push(asset);
-  }
-
-  if (stale.length === 0) return;
-  log(`deleting ${stale.length} stale asset(s)`);
-  for (const asset of stale) {
-    await deleteAsset(asset).catch((error) => log(`could not delete ${asset.name}: ${error.message}`));
-  }
-};
-
 const collectCaptures = async () => {
   if (!existsSync(CAPTURE_DIR)) return [];
   const entries = await readdir(CAPTURE_DIR, { withFileTypes: true });
@@ -210,35 +145,38 @@ const collectCaptures = async () => {
     const index = PROJECT_ORDER.indexOf(name);
     return index === -1 ? PROJECT_ORDER.length : index;
   };
-  return projects.sort((a, b) => rank(a.project) - rank(b.project) || a.project.localeCompare(b.project));
+  return projects.sort(
+    (a, b) => rank(a.project) - rank(b.project) || a.project.localeCompare(b.project)
+  );
 };
 
 /**
- * Asset names are flat, so the project has to be part of the name -- and so does
- * the run: GitHub proxies comment images through camo, which caches by URL, and
- * a re-run that reused a name would keep showing the previous screenshot.
+ * Commits the captures in a scratch repository -- the checkout the workflow is
+ * standing in is never touched -- and pushes that single parentless commit to
+ * this run's own ref. Returns the commit the raw urls will point at.
  */
-const assetName = (pullNumber, project, file) => `pr-${pullNumber}-${runKey}-${project}-${file}`;
-
-const uploadCapture = async (releaseId, pullNumber, project, file) => {
-  const name = assetName(pullNumber, project, file);
-  if (dryRun) return `${serverUrl}/${repository}/releases/download/${TAG}/${name}`;
-  const body = await readFile(join(CAPTURE_DIR, project, file));
-  const asset = await withRetry(`upload ${name}`, async () => {
-    try {
-      return await api(
-        `/repos/${repository}/releases/${releaseId}/assets?name=${encodeURIComponent(name)}`,
-        { method: "POST", base: uploadUrl, headers: { "content-type": "image/png" }, raw: body }
-      );
-    } catch (error) {
-      // a retry after a response that was lost on the way back: the upload landed
-      if (!error.message.includes("-> 422")) throw error;
-      const existing = (await listAssets(releaseId)).find((candidate) => candidate.name === name);
-      if (!existing) throw error;
-      return existing;
+const publishCaptures = async (pullNumber, captures) => {
+  const work = await mkdtemp(join(tmpdir(), "e2e-captures-"));
+  for (const { project, files } of captures) {
+    await mkdir(join(work, project), { recursive: true });
+    for (const file of files) {
+      await copyFile(join(CAPTURE_DIR, project, file), join(work, project, file));
     }
-  });
-  return asset.browser_download_url;
+  }
+
+  await git(["init", "-q"], work);
+  await git(["config", "user.name", "github-actions[bot]"], work);
+  await git(["config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"], work);
+  // the runner has no signing key, and a signature would mean nothing here anyway
+  await git(["config", "commit.gpgsign", "false"], work);
+  await git(["add", "-A"], work);
+  await git(["commit", "-q", "-m", `e2e captures for #${pullNumber} (run ${runKey})`], work);
+  await git(["remote", "add", "origin", `https://x-access-token:${token}@github.com/${repository}.git`], work);
+
+  const ref = `refs/e2e-captures/pr-${pullNumber}/${runKey}`;
+  await withRetry("push captures", () => git(["push", "origin", `HEAD:${ref}`], work));
+  log(`pushed ${ref}`);
+  return (await git(["rev-parse", "HEAD"], work)).trim();
 };
 
 /**
@@ -249,7 +187,9 @@ const uploadCapture = async (releaseId, pullNumber, project, file) => {
 const splitName = (file) => {
   const name = file.replace(/\.png$/, "");
   const match = /-(light|dark)$/.exec(name);
-  return match ? { screen: name.slice(0, -match[0].length), theme: match[1] } : { screen: name, theme: "light" };
+  return match
+    ? { screen: name.slice(0, -match[0].length), theme: match[1] }
+    : { screen: name, theme: "light" };
 };
 
 const table = (rows) => {
@@ -263,13 +203,12 @@ const table = (rows) => {
 
 const buildBody = (sections) => {
   const status = result === "success" ? "✅ passed" : "❌ failed";
-  const shortSha = sha?.slice(0, 7) ?? "unknown";
   const runLink = `${serverUrl}/${repository}/actions/runs/${runId}`;
   const lines = [
     MARKER,
     "### 📸 E2E captures",
     "",
-    `${status} · commit [\`${shortSha}\`](${serverUrl}/${repository}/commit/${sha}) · [run #${runNumber}](${runLink})`,
+    `${status} · commit [\`${sha.slice(0, 7)}\`](${serverUrl}/${repository}/commit/${sha}) · [run #${runNumber}](${runLink})`,
     "",
   ];
 
@@ -277,23 +216,23 @@ const buildBody = (sections) => {
     lines.push(
       `No captures were produced by this run — see [the logs](${runLink}) for what stopped it.`
     );
-  } else {
-    for (const section of sections) {
-      lines.push(
-        `<details>`,
-        `<summary><b>${section.project}</b> · ${section.rows.length} screens</summary>`,
-        "",
-        table(section.rows),
-        "",
-        `</details>`,
-        ""
-      );
-    }
-    lines.push(
-      `<sub>Hosted as assets of the [\`${TAG}\`](${serverUrl}/${repository}/releases/tag/${TAG}) prerelease, which later runs clean up once this pull request closes. The full set, plus traces and videos for anything that failed, is on [the run](${runLink}).</sub>`
-    );
+    return lines.join("\n");
   }
 
+  for (const section of sections) {
+    lines.push(
+      "<details>",
+      `<summary><b>${section.project}</b> · ${section.rows.length} screens</summary>`,
+      "",
+      table(section.rows),
+      "",
+      "</details>",
+      ""
+    );
+  }
+  lines.push(
+    `<sub>Kept on \`refs/e2e-captures/pr-*\`, which is outside the default fetch refspec — no clone or pull carries these. Traces and videos for anything that failed are on [the run](${runLink}).</sub>`
+  );
   return lines.join("\n");
 };
 
@@ -304,7 +243,10 @@ const upsertComment = async (pullNumber, body) => {
     );
     const mine = comments.find((comment) => comment.body?.startsWith(MARKER));
     if (mine) {
-      await api(`/repos/${repository}/issues/comments/${mine.id}`, { method: "PATCH", body: { body } });
+      await api(`/repos/${repository}/issues/comments/${mine.id}`, {
+        method: "PATCH",
+        body: { body },
+      });
       log(`updated comment ${mine.id}`);
       return;
     }
@@ -333,20 +275,22 @@ const main = async () => {
   }
 
   const captures = await collectCaptures();
-  const release = dryRun ? { id: 0 } : await ensureRelease();
-  if (!dryRun) await pruneAssets(await listAssets(release.id), pull.number);
+  const commit =
+    captures.length === 0
+      ? undefined
+      : dryRun
+        ? "0".repeat(40)
+        : await publishCaptures(pull.number, captures);
 
-  const sections = [];
-  for (const { project, files } of captures) {
+  const sections = captures.map(({ project, files }) => {
     const rows = new Map();
     for (const file of files) {
-      const url = await uploadCapture(release.id, pull.number, project, file);
       const { screen, theme } = splitName(file);
+      const url = `${rawUrl}/${repository}/${commit}/${project}/${file}`;
       rows.set(screen, { ...rows.get(screen), [theme]: url });
     }
-    log(dryRun ? `${files.length} capture(s) for ${project}` : `uploaded ${files.length} capture(s) for ${project}`);
-    sections.push({ project, rows: [...rows] });
-  }
+    return { project, rows: [...rows] };
+  });
 
   const body = buildBody(sections);
   if (dryRun) {

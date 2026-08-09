@@ -15,8 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  # contents: write is for the e2e-captures prerelease the captures are uploaded
-  # to; nothing here writes to a branch
+  # contents: write is for pushing the captures to refs/e2e-captures/*; nothing
+  # here writes to a branch, a tag or a release
   contents: write
   packages: read
   pull-requests: write

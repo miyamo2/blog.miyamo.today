@@ -64,16 +64,27 @@ request, one collapsed table per project.
 
 A comment can only show an image from a public http(s) URL: GitHub's sanitizer
 drops `data:` sources, and an artifact is a zip behind a login. So the captures
-are uploaded as assets of a single `e2e-captures` prerelease. That keeps them out
-of the object database — a branch would be fetched by every `git clone` and
-`git pull` of this repository — and out of the way of real releases. The asset
-name carries the run id, because GitHub caches comment images by URL and a re-run
-that reused a name would keep showing the old screenshot.
+are committed and pushed — but to `refs/e2e-captures/pr-<n>/<run>`, not to a
+branch. That ref is outside the default fetch refspec
+(`+refs/heads/*:refs/remotes/origin/*`), so no `git clone` or `git pull` of this
+repository ever carries a screenshot; it is also invisible in the branch list and
+costs no Releases section. The comment then embeds
+`raw.githubusercontent.com/<repo>/<commit>/<project>/<name>.png`, which resolves
+without the commit being reachable from any branch — the ref alone is what keeps
+the objects alive.
 
-Assets are dropped when the run's own pull request pushes again, and the next run
-after that deletes whatever belongs to a pull request that has since closed. The
-images in a merged pull request's comment therefore stop resolving; the artifact
-on the run is the copy that survives its 14 days.
+Nothing is ever deleted or rewritten, so a comment written months ago still
+shows its screenshots. To reclaim the space of a pull request that no longer
+matters:
+
+```sh
+git ls-remote origin 'refs/e2e-captures/*'
+git push origin :refs/e2e-captures/pr-42/12345678.1
+```
+
+The two rejected alternatives, for the record: a branch is fetched by everyone,
+and Git LFS keeps clones small but meters storage and bandwidth and does not give
+the quota back when the files are deleted.
 
 The comment appears from the first push after the pull request exists — the
 workflow is driven by `push`, so a pull request opened on an already-tested
