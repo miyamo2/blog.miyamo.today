@@ -7,6 +7,18 @@ type SchemaType = Exclude<Thing, string>["@type"];
 /** a JSON-LD node; kept loose because the builder assembles it dynamically */
 export type JSONLD = Record<string, unknown> & { "@type": SchemaType };
 
+/**
+ * Absolute URL for a site-relative path. siteUrl carries no trailing slash, so a
+ * path without a leading one would otherwise be glued onto the host
+ * ("articles/x" -> "https://blog.miyamo.todayarticles/x").
+ */
+const absoluteUrl = (path?: string): string => {
+  if (!path) {
+    return `${siteMetadata.siteUrl}/`;
+  }
+  return `${siteMetadata.siteUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+};
+
 interface BuildJSONLDParams {
   path?: string;
   type?: SchemaType;
@@ -47,7 +59,7 @@ export const buildJSONLD = ({
     jsonLD["@context"] = "https://schema.org";
   }
   if (withID) {
-    jsonLD["@id"] = path ? `${siteMetadata.siteUrl}${path}` : `${siteMetadata.siteUrl}/`;
+    jsonLD["@id"] = absoluteUrl(path);
   }
   if (headline) {
     jsonLD["headline"] = headline;
@@ -61,23 +73,23 @@ export const buildJSONLD = ({
   if (withMainEntityOfPage) {
     jsonLD["mainEntityOfPage"] = {
       "@type": type ?? "WebSite",
-      "@id": path ? `${siteMetadata.siteUrl}${path}` : siteMetadata.siteUrl,
+      "@id": absoluteUrl(path),
     };
   }
   if (withUrl) {
-    jsonLD["url"] = path ? `${siteMetadata.siteUrl}${path}` : `${siteMetadata.siteUrl}/`;
+    jsonLD["url"] = absoluteUrl(path);
   }
   if (image) {
     jsonLD["image"] = {
       "@type": "ImageObject",
-      url: `${siteMetadata.siteUrl}${image}`,
+      url: absoluteUrl(image),
     };
   }
   if (withAuthor) {
     jsonLD["author"] = {
       "@type": "Person",
       name: "miyamo2",
-      url: `${siteMetadata.siteUrl}/about/`,
+      url: absoluteUrl("/about"),
       sameAs: [
         "https://github.com/miyamo2",
         "https://zenn.dev/miyamo2",
@@ -96,7 +108,7 @@ export const buildJSONLD = ({
   if (withLogo) {
     jsonLD["logo"] = {
       "@type": "ImageObject",
-      url: `${siteMetadata.siteUrl}${siteMetadata.icon}`,
+      url: absoluteUrl(siteMetadata.icon),
       width: 65,
       height: 65,
     };

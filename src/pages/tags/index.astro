@@ -11,7 +11,7 @@ const path = "/tags";
 const jsonLDTags = tagSummaries.map((tag, i) =>
   buildJSONLD({
     type: "ListItem",
-    path: `tags/${tag.cursor}/`,
+    path: `/tags/${tag.cursor}`,
     withUrl: true,
     attributes: {
       position: i + 1,
