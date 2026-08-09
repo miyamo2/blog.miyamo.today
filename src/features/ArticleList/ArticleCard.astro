@@ -21,11 +21,13 @@ interface Props {
   tags: Tag[];
   imageData: RemoteImageData | null;
   articleExcerpt?: string;
-  /** this card sits above the fold, so its thumbnail is the page's LCP candidate */
+  /** this card's thumbnail is the page's LCP candidate (see ArticleCardGrid) */
   priority?: boolean;
+  /** this card can sit above the fold, so its thumbnail must not be lazy */
+  eager?: boolean;
 }
 
-const { id, title, createdAt, tags, imageData, articleExcerpt, priority } = Astro.props;
+const { id, title, createdAt, tags, imageData, articleExcerpt, priority, eager } = Astro.props;
 
 const formattedCreatedAt = format(new Date(createdAt), "YYYY/MM/DD");
 ---
@@ -47,6 +49,7 @@ const formattedCreatedAt = format(new Date(createdAt), "YYYY/MM/DD");
           objectFit="cover"
           fill
           priority={priority}
+          eager={eager}
           class="transform-scaleup-then-hover-img-container h-full w-full"
         />
       )

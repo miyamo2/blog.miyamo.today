@@ -15,8 +15,11 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  # contents: write is for pushing the captures to refs/e2e-captures/*; nothing
+  # here writes to a branch, a tag or a release
+  contents: write
   packages: read
+  pull-requests: write
 
 jobs:
   e2e:
@@ -44,6 +47,7 @@ jobs:
         run: bun run e2e:setup
 
       - name: Run e2e tests
+        id: e2e
         run: bun run e2e
 
       # kept whether the run passed or failed: the captures are the point, and a
@@ -67,3 +71,13 @@ jobs:
             e2e/test-results
           if-no-files-found: warn
           retention-days: 14
+
+      # an artifact is a zip behind a login, so it cannot be shown in a review;
+      # this puts the same screenshots in a comment on the pull request the push
+      # belongs to, and does nothing when the branch has no pull request
+      - name: Comment the captures on the pull request
+        if: ${{ always() }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          E2E_RESULT: ${{ steps.e2e.outcome }}
+        run: node scripts/e2e-capture-report.mjs

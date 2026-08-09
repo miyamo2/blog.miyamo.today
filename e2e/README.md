@@ -55,6 +55,45 @@ Every file runs in two projects: `desktop-chromium` (1440x900) and
 into `captures/<project>/<name>.png`. They are attached to the HTML report and
 uploaded by CI as the `e2e-captures` artifact on every run, pass or fail.
 
+### On a pull request
+
+`scripts/e2e-capture-report.mjs` puts the same screenshots in a comment, so a
+change can be reviewed without downloading anything. It runs as the last step of
+the E2E workflow — pass or fail — and rewrites one sticky comment per pull
+request, one collapsed table per project.
+
+A comment can only show an image from a public http(s) URL: GitHub's sanitizer
+drops `data:` sources, and an artifact is a zip behind a login. So the captures
+are committed and pushed — but to `refs/e2e-captures/pr-<n>/<run>`, not to a
+branch. That ref is outside the default fetch refspec
+(`+refs/heads/*:refs/remotes/origin/*`), so no `git clone` or `git pull` of this
+repository ever carries a screenshot; it is also invisible in the branch list and
+costs no Releases section. The comment then embeds
+`raw.githubusercontent.com/<repo>/<commit>/<project>/<name>.png`, which resolves
+without the commit being reachable from any branch — the ref alone is what keeps
+the objects alive.
+
+Nothing is ever deleted or rewritten, so a comment written months ago still
+shows its screenshots. To reclaim the space of a pull request that no longer
+matters:
+
+```sh
+git ls-remote origin 'refs/e2e-captures/*'
+git push origin :refs/e2e-captures/pr-42/12345678.1
+```
+
+The two rejected alternatives, for the record: a branch is fetched by everyone,
+and Git LFS keeps clones small but meters storage and bandwidth and does not give
+the quota back when the files are deleted.
+
+The comment appears from the first push after the pull request exists — the
+workflow is driven by `push`, so a pull request opened on an already-tested
+branch gets its comment on the next push.
+
+```sh
+node scripts/e2e-capture-report.mjs --dry-run  # print the comment, upload nothing
+```
+
 ## The build the tests see
 
 `scripts/e2e.mjs` builds with `ARTICLE_PER_PAGE=2` over the mock's 4 articles, so

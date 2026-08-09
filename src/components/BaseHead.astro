@@ -3,6 +3,7 @@ import type { JsonLdNode } from "@miyamo2/astro-jsonld";
 import JsonLd from "@miyamo2/astro-jsonld/JsonLd.astro";
 import { absoluteUrl } from "virtual:jsonld";
 import { siteMetadata } from "../lib/site";
+import type { RemoteImageData } from "../lib/images";
 // `?inline` rather than `?raw`: both hand the stylesheet over as a string
 // without adding it to the CSS bundle, but `?inline` is the one that goes
 // through Vite's CSS pipeline, so a build inlines it minified (`?raw` shipped
@@ -18,9 +19,29 @@ export interface Props {
   jsonLD?: JsonLdNode[];
   /** include the scroll-driven animation style (ScrollDrivenAnimationStyle) */
   scrollDriven?: boolean;
+  /**
+   * the image this page's LCP is measured on (the article hero, the first
+   * article card's thumbnail, the avatar), preloaded at the top of the head.
+   *
+   * Its `<img>` already carries `fetchpriority="high"`, but the preload scanner
+   * only reaches it after the whole head -- json-ld, the inline style, the font
+   * preloads, the stylesheet -- has gone by, which on a throttled connection is
+   * several round trips of html. PageSpeed Insights measured 910ms of "resource
+   * load delay" against 190ms of actual download. A `<link>` here is in the
+   * first bytes of the document instead, so the request goes out immediately.
+   */
+  preloadImage?: RemoteImageData | null;
 }
 
-const { path, title, description, image, jsonLD = [], scrollDriven = true } = Astro.props;
+const {
+  path,
+  title,
+  description,
+  image,
+  jsonLD = [],
+  scrollDriven = true,
+  preloadImage,
+} = Astro.props;
 
 const {
   title: defaultTitle,
@@ -60,6 +81,21 @@ const preconnectDomains = [
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+{
+  /* first, so nothing else in the head is queued ahead of the LCP image.
+     imagesrcset/imagesizes have to repeat the <img>'s own attributes exactly,
+     or the browser preloads a candidate the <img> then does not use. */
+  preloadImage && (
+    <link
+      rel="preload"
+      as="image"
+      href={preloadImage.src}
+      imagesrcset={preloadImage.srcSet}
+      imagesizes={preloadImage.srcSet ? preloadImage.sizes : undefined}
+      fetchpriority="high"
+    />
+  )
+}
 <title>{seo.title}</title>
 <meta name="description" content={seo.description} />
 <meta name="author" content="miyamo2" />
@@ -88,7 +124,13 @@ const preconnectDomains = [
 <JsonLd nodes={jsonLD} />
 {scrollDriven && <style type="text/css" set:html={scrollDrivenCss} />}
 
-{/* font preloads (gatsby-ssr.tsx onRenderBody) */}
+{/* Font preloads (gatsby-ssr.tsx onRenderBody), for the two faces that paint
+    on first render. The italic pair is another 655KB of subset woff2 competing
+    with the LCP image on the same connection, and nothing above the fold is
+    italic -- markdown emphasis inside an article is the only thing that ever
+    is, so let the stylesheet fetch those when a node actually uses them.
+    Every face is `font-display: swap` (styles/global.css), so this only moves
+    when they arrive, never whether the text shows. */}
 <link
   rel="preload"
   href="/fonts/UDEVGothic35HS-Regular-Subset.woff2"
@@ -99,20 +141,6 @@ const preconnectDomains = [
 <link
   rel="preload"
   href="/fonts/UDEVGothic35HS-Bold-Subset.woff2"
-  as="font"
-  type="font/woff2"
-  crossorigin="anonymous"
-/>
-<link
-  rel="preload"
-  href="/fonts/UDEVGothic35HS-Italic-Subset.woff2"
-  as="font"
-  type="font/woff2"
-  crossorigin="anonymous"
-/>
-<link
-  rel="preload"
-  href="/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2"
   as="font"
   type="font/woff2"
   crossorigin="anonymous"

@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import ArticleListPage from "../../views/ArticleListPage.astro";
 import { getContent, type ArticleListPageVM } from "../../lib/content";
+import { lcpThumbnail } from "../../features/ArticleList/lcp";
 import { buildBreadcrumbList, buildCollectionPage } from "virtual:jsonld";
 import { credits } from "../../lib/jsonld";
 
@@ -43,6 +44,13 @@ const jsonLDArticleListPage = buildCollectionPage({
 const jsonLDBreadcrumb = buildBreadcrumbList([{ name: `page ${data.currentPage}` }]);
 ---
 
-<Layout head={{ path, title: "Articles", jsonLD: [jsonLDArticleListPage, jsonLDBreadcrumb] }}>
+<Layout
+  head={{
+    path,
+    title: "Articles",
+    jsonLD: [jsonLDArticleListPage, jsonLDBreadcrumb],
+    preloadImage: lcpThumbnail(data.cards),
+  }}
+>
   <ArticleListPage data={data} />
 </Layout>

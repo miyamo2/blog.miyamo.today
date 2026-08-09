@@ -1,0 +1,22 @@
+---
+import ArticleCard from "./ArticleCard.astro";
+import { ABOVE_THE_FOLD, lcpThumbnailIndex } from "./lcp";
+import type { ArticleCardVM } from "../../lib/content";
+
+interface Props {
+  cards: ArticleCardVM[];
+}
+
+const { cards } = Astro.props;
+
+// the page's <head> preloads this same image -- see lcpThumbnail's callers
+const primaryIndex = lcpThumbnailIndex(cards);
+---
+
+<div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-2">
+  {
+    cards.map((card, i) => (
+      <ArticleCard {...card} priority={i === primaryIndex} eager={i < ABOVE_THE_FOLD} />
+    ))
+  }
+</div>

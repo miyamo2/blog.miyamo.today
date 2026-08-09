@@ -100,6 +100,15 @@ screenshots) and **e2e-report** (the HTML report plus traces and videos). Downlo
 `e2e-report`, unzip it, and open `playwright-report/index.html` to get the same
 view as a local run.
 
+The last step, `scripts/e2e-capture-report.mjs`, embeds the captures in a sticky
+comment on the pull request the pushed commit belongs to (and does nothing when
+there is none). The images are pushed to `refs/e2e-captures/pr-<n>/<run>` — a ref
+outside `refs/heads/*`, so nobody's clone or pull carries them — and embedded by
+raw URL. See the "On a pull request" section of `e2e/README.md` for why the other
+options do not work, and for how to delete an old run's ref.
+`node scripts/e2e-capture-report.mjs --dry-run` prints the comment locally without
+pushing anything.
+
 If a job fails only in CI, reproduce it with a clean build locally
 (`bun run e2e`), and check the viewport: CI runs both projects, and a local
 `--project=desktop-chromium` habit hides mobile regressions.
