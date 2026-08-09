@@ -7,6 +7,11 @@ on:
     types:
       - sync-read-model
   workflow_dispatch:
+    inputs:
+      cold_build:
+        description: "Build without restoring the astro cache"
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}
@@ -17,6 +22,13 @@ permissions: write-all
 jobs:
   publish:
     runs-on: ubuntu-24.04-arm
+    env:
+      # `cacheDir` in astro.config.ts, plus the two directories the blogapi
+      # loader generates. Restored and saved as one unit.
+      ASTRO_CACHE_PATHS: |
+        ./.cache
+        ./src/content/blogapi
+        ./src/assets/blogapi
     services:
       qdrant:
         image: qdrant/qdrant:latest
@@ -53,18 +65,23 @@ jobs:
           echo "::add-mask::$ID_TOKEN"
           echo "idtoken=${ID_TOKEN}" >> $GITHUB_OUTPUT
 
+      # Everything cached here is fetched from somewhere else -- the content
+      # layer store and the blogapi loader's output, the remote image originals
+      # `src/lib/staged-remote-image.ts` downloads, and the images astro:assets
+      # generates from them. None of it is derived from this repository, so the
+      # commit being built has no bearing on whether it is still valid: the key
+      # is unique per run and every build restores whatever the last one left.
+      # (The loader refetches changed articles on its own; that is what the
+      # sync-read-model dispatch already relied on.)
       - name: Restore Astro cache
-        id: cache-primes-restore
         uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
-        if: ${{ github.event.action ==  'sync-read-model' }}
+        if: ${{ !inputs.cold_build }}
         with:
-          path: |
-            ./.cache
-            ./src/content/blogapi
-            ./src/assets/blogapi
-          key: ${{ runner.os }}-astro-build-${{ github.sha }}-${{ github.event.client_payload.event_id }}
+          path: ${{ env.ASTRO_CACHE_PATHS }}
+          key: ${{ runner.os }}-astro-build-${{ hashFiles('bun.lock') }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
-            ${{ runner.os }}-astro-build-${{ github.sha }}-
+            ${{ runner.os }}-astro-build-${{ hashFiles('bun.lock') }}-
+            ${{ runner.os }}-astro-build-
 
       - name: Build
         env:
@@ -82,31 +99,71 @@ jobs:
       - name: Save Astro cache
         uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
-          path: |
-            ./.cache
-            ./src/content/blogapi
-            ./src/assets/blogapi
-          key: ${{ runner.os }}-astro-build-${{ github.sha }}-${{ github.event.client_payload.event_id }}
+          path: ${{ env.ASTRO_CACHE_PATHS }}
+          key: ${{ runner.os }}-astro-build-${{ hashFiles('bun.lock') }}-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Deploy
         env:
           BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
         run: |
+          set -euo pipefail
+          : "${BUCKET_NAME:?BUCKET_NAME is empty}"
+
+          # Content-hashed filenames: new bytes always arrive under a new name.
+          IMMUTABLE="public, max-age=31536000, immutable"
+          # Unhashed files copied straight out of public/. They are overwritten
+          # in place, but only when the file itself is replaced -- which is rare
+          # enough to be worth a week in the browser, and the invalidation below
+          # rolls the edge over on the deploy that replaces them.
+          STATIC="public, max-age=604800"
+          # Everything a build rewrites in place. Browsers revalidate on every
+          # request so a publish is visible immediately, while CloudFront answers
+          # them from the edge instead of reaching S3. The invalidation below is
+          # what actually rolls this over; s-maxage only bounds how long a missed
+          # invalidation could keep serving the previous build.
+          REVALIDATE="public, max-age=0, must-revalidate, s-maxage=86400"
+
+          # Prefixes the final sync must leave alone: uploaded above under their
+          # own policy, or below to give them a content type the aws cli does
+          # not guess from the extension.
+          OWNED=(
+            --exclude "_astro/*"
+            --exclude "fonts/*"
+            --exclude "icons/*"
+            --exclude "logo.png"
+            --exclude "logo.webp"
+            --exclude "ogp.png"
+            --exclude "pwa_logo.png"
+            --exclude "feed/rss.xml"
+            --exclude "manifest.webmanifest"
+          )
+
           # immutable hashed assets first so pages never reference missing files
           aws s3 sync ./dist/_astro "s3://${BUCKET_NAME}/_astro" --delete \
-            --cache-control "public, max-age=31536000, immutable"
+            --cache-control "$IMMUTABLE"
+          # the subset filenames are not hashed, so a year of immutable is a
+          # promise these bytes never change -- regenerating a subset means
+          # giving it a new filename, not overwriting the existing one
           aws s3 sync ./dist/fonts "s3://${BUCKET_NAME}/fonts" --delete --exclude "*" --include "*.woff2" \
-            --content-type "font/woff2" --cache-control "public, max-age=31536000, immutable"
+            --content-type "font/woff2" --cache-control "$IMMUTABLE"
           aws s3 sync ./dist/fonts "s3://${BUCKET_NAME}/fonts" --exclude "*.woff2" \
-            --cache-control "public, max-age=31536000, immutable"
-          # everything else must revalidate (same policy as the previous gatsby-plugin-s3 config)
-          aws s3 sync ./dist "s3://${BUCKET_NAME}" --delete \
-            --exclude "_astro/*" --exclude "fonts/*" --exclude "feed/rss.xml" --exclude "manifest.webmanifest" \
-            --cache-control "public, max-age=0, must-revalidate"
+            --cache-control "$IMMUTABLE"
+
+          # favicons, pwa icons, the ogp image -- reached by crawlers and the
+          # manifest, and unchanged across almost every deploy
+          aws s3 sync ./dist/icons "s3://${BUCKET_NAME}/icons" --delete \
+            --cache-control "$STATIC"
+          aws s3 sync ./dist "s3://${BUCKET_NAME}" --exclude "*" \
+            --include "logo.png" --include "logo.webp" --include "ogp.png" --include "pwa_logo.png" \
+            --cache-control "$STATIC"
+
+          # html, the sitemaps and robots.txt
+          aws s3 sync ./dist "s3://${BUCKET_NAME}" --delete "${OWNED[@]}" \
+            --cache-control "$REVALIDATE"
           aws s3 cp ./dist/feed/rss.xml "s3://${BUCKET_NAME}/feed/rss.xml" \
-            --content-type "application/rss+xml; charset=utf-8" --cache-control "public, max-age=0, must-revalidate"
+            --content-type "application/rss+xml; charset=utf-8" --cache-control "$REVALIDATE"
           aws s3 cp ./dist/manifest.webmanifest "s3://${BUCKET_NAME}/manifest.webmanifest" \
-            --content-type "application/manifest+json" --cache-control "public, max-age=0, must-revalidate"
+            --content-type "application/manifest+json" --cache-control "$REVALIDATE"
 
       - name: Invalidate CloudFront Edge Cache
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
