@@ -1,0 +1,8 @@
+# playwright's own output
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# the capture sweep's screenshots -- artifacts of a run, uploaded by CI
+captures/

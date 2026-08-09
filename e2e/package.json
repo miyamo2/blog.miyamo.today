@@ -1,0 +1,16 @@
+{
+  "name": "e2e",
+  "private": true,
+  "description": "playwright end-to-end suite; kept out of the site's dependency tree (like dev/mock-blogapi)",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@playwright/test": "1.56.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.9.3"
+  }
+}
