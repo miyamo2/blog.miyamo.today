@@ -65,23 +65,32 @@ jobs:
           echo "::add-mask::$ID_TOKEN"
           echo "idtoken=${ID_TOKEN}" >> $GITHUB_OUTPUT
 
-      # Everything cached here is fetched from somewhere else -- the content
-      # layer store and the blogapi loader's output, the remote image originals
-      # `src/lib/staged-remote-image.ts` downloads, and the images astro:assets
-      # generates from them. None of it is derived from this repository, so the
-      # commit being built has no bearing on whether it is still valid: the key
-      # is unique per run and every build restores whatever the last one left.
-      # (The loader refetches changed articles on its own; that is what the
-      # sync-read-model dispatch already relied on.)
+      # A cache lineage is one implementation. Anything the build derives --
+      # the content layer store, the rendered entries, the images astro:assets
+      # generates -- is only reusable while the code that produced it is
+      # unchanged, so the key hashes the config, the sources, the integrations
+      # and the lockfile. A content-only event (sync-read-model), a re-run or a
+      # docs-only commit stays in its lineage and picks up where the last build
+      # left off; touching the implementation misses every key and cold-builds.
+      #
+      # Resolved before the build because the loader writes into src/ while it
+      # runs: hashing again afterwards would save under a key no later build
+      # can match. `src/{content,assets}/blogapi` are excluded for the same
+      # reason -- they are cache contents, not implementation.
+      - name: Resolve Astro cache key
+        id: astro-cache
+        run: echo "key=${{ runner.os }}-astro-build-${{ hashFiles('bun.lock', 'package.json', 'astro.config.ts', 'tsconfig.json', 'integrations/**', 'src/**', '!src/content/blogapi/**', '!src/assets/blogapi/**') }}" >> "$GITHUB_OUTPUT"
+
       - name: Restore Astro cache
         uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         if: ${{ !inputs.cold_build }}
         with:
           path: ${{ env.ASTRO_CACHE_PATHS }}
-          key: ${{ runner.os }}-astro-build-${{ hashFiles('bun.lock') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          key: ${{ steps.astro-cache.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt }}
+          # no broader fallback: a key miss here is the cold build a changed
+          # implementation is supposed to get
           restore-keys: |
-            ${{ runner.os }}-astro-build-${{ hashFiles('bun.lock') }}-
-            ${{ runner.os }}-astro-build-
+            ${{ steps.astro-cache.outputs.key }}-
 
       - name: Build
         env:
@@ -100,7 +109,7 @@ jobs:
         uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ${{ env.ASTRO_CACHE_PATHS }}
-          key: ${{ runner.os }}-astro-build-${{ hashFiles('bun.lock') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          key: ${{ steps.astro-cache.outputs.key }}-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Deploy
         env:
