@@ -55,6 +55,34 @@ Every file runs in two projects: `desktop-chromium` (1440x900) and
 into `captures/<project>/<name>.png`. They are attached to the HTML report and
 uploaded by CI as the `e2e-captures` artifact on every run, pass or fail.
 
+### On a pull request
+
+`scripts/e2e-capture-report.mjs` puts the same screenshots in a comment, so a
+change can be reviewed without downloading anything. It runs as the last step of
+the E2E workflow — pass or fail — and rewrites one sticky comment per pull
+request, one collapsed table per project.
+
+A comment can only show an image from a public http(s) URL: GitHub's sanitizer
+drops `data:` sources, and an artifact is a zip behind a login. So the captures
+are uploaded as assets of a single `e2e-captures` prerelease. That keeps them out
+of the object database — a branch would be fetched by every `git clone` and
+`git pull` of this repository — and out of the way of real releases. The asset
+name carries the run id, because GitHub caches comment images by URL and a re-run
+that reused a name would keep showing the old screenshot.
+
+Assets are dropped when the run's own pull request pushes again, and the next run
+after that deletes whatever belongs to a pull request that has since closed. The
+images in a merged pull request's comment therefore stop resolving; the artifact
+on the run is the copy that survives its 14 days.
+
+The comment appears from the first push after the pull request exists — the
+workflow is driven by `push`, so a pull request opened on an already-tested
+branch gets its comment on the next push.
+
+```sh
+node scripts/e2e-capture-report.mjs --dry-run  # print the comment, upload nothing
+```
+
 ## The build the tests see
 
 `scripts/e2e.mjs` builds with `ARTICLE_PER_PAGE=2` over the mock's 4 articles, so
