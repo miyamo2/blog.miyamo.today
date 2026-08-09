@@ -203,6 +203,30 @@ const pageWindow = (currentPage: number, totalPages: number): (number | "ellipsi
   ];
 };
 
+/**
+ * Pull the complete faces down while the panel is opening.
+ *
+ * The webfont a page loads only covers the characters the build knew about
+ * (integrations/font-subset), and the one place a reader can put a character it
+ * has never seen is this box. Missing ones still render -- every face is
+ * `font-display: swap`, so the browser paints them from the system font and
+ * repaints when the full face lands -- but the full face is only asked for once
+ * such a character is already on screen, which is exactly too late to be
+ * invisible. Opening the dialog is the earliest honest signal that arbitrary
+ * text is coming, and it buys the fetch the seconds between the click and the
+ * first keystroke. Nobody who does not open search pays for it.
+ */
+let fallbackFontWarmed = false;
+const warmFallbackFont = (): void => {
+  if (fallbackFontWarmed || !document.fonts) return;
+  fallbackFontWarmed = true;
+  for (const font of ['1em "UDEVGothicHSFull"', 'bold 1em "UDEVGothicHSFull"']) {
+    document.fonts.load(font).catch(() => {
+      // a font that fails to arrive is what the system fallback is already for
+    });
+  }
+};
+
 class SearchPanel {
   private readonly root: HTMLElement;
   private readonly dialog: HTMLDialogElement;
@@ -300,6 +324,7 @@ class SearchPanel {
     // the starwind dialog exposes no open event, so follow the `open` attribute it toggles
     const observer = new MutationObserver(() => {
       if (this.dialog.open) {
+        warmFallbackFont();
         requestAnimationFrame(() => this.input.focus({ preventScroll: true }));
       } else {
         this.reset();
@@ -317,6 +342,8 @@ class SearchPanel {
    */
   public adoptCurrentState(): void {
     if (!this.dialog.open) return;
+    // this *is* the open the observer missed, so it owes the same work
+    warmFallbackFont();
     this.clearButton.hidden = this.input.value.length === 0;
     requestAnimationFrame(() => this.input.focus({ preventScroll: true }));
     if (this.input.value.trim() !== "") void this.search(true);
@@ -505,7 +532,7 @@ class SearchPanel {
 
     const current = this.page;
     this.pager.appendChild(
-      this.stepButton(faChevronLeft, "Go to previous page", current - 1, current === 0),
+      this.stepButton(faChevronLeft, "Go to previous page", current - 1, current === 0)
     );
 
     for (const item of pageWindow(current + 1, nbPages)) {
@@ -527,7 +554,7 @@ class SearchPanel {
     }
 
     this.pager.appendChild(
-      this.stepButton(faChevronRight, "Go to next page", current + 1, current >= nbPages - 1),
+      this.stepButton(faChevronRight, "Go to next page", current + 1, current >= nbPages - 1)
     );
   }
 
@@ -535,7 +562,7 @@ class SearchPanel {
     icon: IconDefinition,
     label: string,
     page: number,
-    disabled: boolean,
+    disabled: boolean
   ): HTMLButtonElement {
     const button = document.createElement("button");
     button.type = "button";

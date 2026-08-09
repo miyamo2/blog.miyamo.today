@@ -42,6 +42,7 @@ bun run e2e:rerun -g "the pager walks" --project=mobile-chromium
 | `navigation.spec.ts` | header, footer, mobile menu, view-transition persistence |
 | `theme.spec.ts` | light/dark toggle and its persistence |
 | `search.spec.ts` | the Algolia panel — querying, paging, URL sync, failure states |
+| `fonts.spec.ts` | the build-time font subsets and the full-face fallback |
 | `feeds.spec.ts` | RSS, sitemap, manifest, robots.txt |
 | `seo.spec.ts` | titles, canonical, Open Graph, JSON-LD |
 | `captures.spec.ts` | the screenshot sweep |

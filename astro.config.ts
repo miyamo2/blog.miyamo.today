@@ -12,6 +12,7 @@ import jsonld from "@miyamo2/astro-jsonld";
 import { remoteImageStaging } from "./integrations/remote-image-staging";
 import { inlineScripts } from "./integrations/inline-scripts";
 import { deferredScripts } from "./integrations/deferred-scripts";
+import { fontSubset } from "./integrations/font-subset";
 import { lastmodSerializer } from "./integrations/sitemap-lastmod";
 import {
   headingAnchorPlugin,
@@ -109,6 +110,7 @@ export default defineConfig({
     remoteImageStaging(),
     inlineScripts(),
     deferredScripts(),
+    fontSubset(),
     // The site's JSON-LD identity, and the single source for the site's name,
     // description and url -- src/lib/site.ts reads them back off the resolved
     // config. `siteUrl`, `base` and `trailingSlash` are left to astro's own

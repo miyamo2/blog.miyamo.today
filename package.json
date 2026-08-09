@@ -59,6 +59,7 @@
     "satteri-link-card": "^0.2.0",
     "schema-dts": "^2.0.0",
     "sharp": "^0.33.5",
+    "subset-font": "^2.5.0",
     "tailwind-merge": "^3.6.0",
     "tailwind-variants": "^3.3.1",
     "tailwindcss": "^4.3.3",

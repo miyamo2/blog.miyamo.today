@@ -31,10 +31,7 @@ test.describe("head metadata @desktop", () => {
       await page.goto(path);
 
       await expect(page).toHaveTitle(title);
-      await expect(page.locator('meta[name="description"]')).toHaveAttribute(
-        "content",
-        /.+/
-      );
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.+/);
 
       const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
       expect(canonical).toBeTruthy();
@@ -87,11 +84,14 @@ test.describe("head metadata @desktop", () => {
     expect(new URL(canonical!).search).toBe("");
   });
 
-  test("the fonts the pages preload are actually served", async ({ page, request }) => {
+  test("the fonts the pages declare are actually served", async ({ page, request }) => {
+    // nothing is preloaded any more (integrations/font-subset): the faces are
+    // declared in the head and fetched on use, and the subsets' filenames are
+    // stamped in after the pages render -- so an unsubstituted url would 404
     await page.goto("/");
-    const hrefs = await page
-      .locator('link[rel="preload"][as="font"]')
-      .evaluateAll((links) => links.map((link) => link.getAttribute("href") ?? ""));
+    const hrefs = [...(await page.content()).matchAll(/url\((\/fonts\/[^)]+\.woff2)\)/g)].map(
+      (match) => match[1]
+    );
     expect(hrefs.length).toBeGreaterThan(0);
 
     for (const href of hrefs) {

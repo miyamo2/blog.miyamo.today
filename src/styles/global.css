@@ -1,39 +1,6 @@
-@font-face {
-  font-family: "UDEVGothicHS";
-  font-display: swap;
-  font-style: normal;
-  font-weight: normal;
-  font-named-instance: "UDEVGothicHS";
-  src: url(/fonts/UDEVGothic35HS-Regular-Subset.woff2) format("woff2");
-}
-
-@font-face {
-  font-family: "UDEVGothicHS";
-  font-display: swap;
-  font-style: normal;
-  font-weight: bold;
-  font-named-instance: "UDEVGothicHS";
-  src: url(/fonts/UDEVGothic35HS-Bold-Subset.woff2) format("woff2");
-}
-
-@font-face {
-  font-family: "UDEVGothicHS";
-  font-display: swap;
-  font-style: italic;
-  font-weight: normal;
-  font-named-instance: "UDEVGothicHS";
-  src: url(/fonts/UDEVGothic35HS-Italic-Subset.woff2) format("woff2");
-}
-
-@font-face {
-  font-family: "UDEVGothicHS";
-  font-display: swap;
-  font-style: italic;
-  font-weight: bold;
-  font-named-instance: "UDEVGothicHS";
-  src: url(/fonts/UDEVGothic35HS-BoldItalic-Subset.woff2) format("woff2");
-}
-
+/* The @font-face rules are in BaseHead, not here: the subset each one points
+   at is named after the characters that went into it, which is only settled
+   once the pages have rendered (see integrations/font-subset). */
 :root {
   overflow-y: auto !important;
   scroll-behavior: auto !important;
@@ -67,6 +34,18 @@ body,
 
 #app-root #app-focus-wrapper * {
   font-family: "UDEVGothicHS", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
+}
+
+/* The complete faces sit behind the subset here and nowhere else.
+   Every character the build rendered is in the subset by construction, so a
+   page falling through to them could only be chasing a character the source
+   face never had -- 300KB fetched to render an em dash in the system font
+   anyway. The one text this site paints that the build did not produce is what
+   a reader types in here, so this is the one place the fallback earns its
+   download (search.ts fetches it as the panel opens). */
+#app-root #app-focus-wrapper [data-search-input] {
+  font-family: "UDEVGothicHS", "UDEVGothicHSFull", "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol" !important;
 }
 
 .contain-paint {
