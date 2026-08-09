@@ -55,7 +55,9 @@ test.describe("article detail page (/articles/[id])", () => {
     await expect(card.first()).toContainText(/Mock OGP Page|ogp-page/);
   });
 
-  test("the copy button copies the code block", async ({ page, context }) => {
+  // the button is `display: none` below 1200px (views/article-detail.css), so
+  // the click only exists to be made at desktop widths
+  test("the copy button copies the code block @desktop", async ({ page, context }) => {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     const body = page.locator("article .markdown-body");
     const button = body.locator(".code-copy-button").first();
@@ -70,6 +72,14 @@ test.describe("article detail page (/articles/[id])", () => {
 
     // the handler restores the label after 1.5s
     await expect(button).toHaveText("Copy", { timeout: 5_000 });
+  });
+
+  test("the copy button stays out of the way on a phone @mobile", async ({ page }) => {
+    // it overlaps the code on a narrow screen, so it is hidden below 1200px --
+    // the markup is still there, only the button is not shown
+    const button = page.locator("article .markdown-body .code-copy-button").first();
+    await expect(button).toHaveText("Copy");
+    await expect(button).toBeHidden();
   });
 
   test("a tag on the article opens that tag's list", async ({ page }) => {

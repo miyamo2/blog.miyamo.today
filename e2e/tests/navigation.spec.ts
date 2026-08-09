@@ -18,7 +18,12 @@ test.describe("header", () => {
   ] as const) {
     test(`the ${label} link opens ${path} @desktop`, async ({ page }) => {
       await page.goto("/about");
-      await page.locator(`.header-wrapper a[href="${path}"]`).filter({ hasText: label }).click();
+      // Menu.astro renders inside the header too, so its (closed, invisible)
+      // dialog holds a second link to each destination
+      await page
+        .locator(`.header-wrapper a[href="${path}"]`)
+        .filter({ visible: true, hasText: label })
+        .click();
       await page.waitForURL((url) => url.pathname === path);
       await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
     });

@@ -120,6 +120,13 @@ of that file — it exists to leave pictures behind.
   `pressSequentially` only when the point *is* the debounce.
 - **View transitions.** `.header-wrapper` is `transition:persist`; a client-router
   navigation reuses the element. That is what the persistence test checks.
+- **The mobile menu lives inside the header.** `.header-wrapper a[href="/tags"]`
+  matches the desktop nav link *and* the one in the (closed) menu dialog, so a bare
+  click is a strict-mode violation at any width. Filter with
+  `{ visible: true, hasText: label }`.
+- **The code copy button is `display: none` below 1200px** (`views/article-detail.css`).
+  It is in the markup at every width, so `toHaveText` passes on a phone while
+  `click()` hangs until the test times out. Anything that clicks it is `@desktop`.
 - **Absolute urls are production urls.** The build keeps
   `site: "https://blog.miyamo.today"`, so canonical / og:url / share links point
   there even though the page is served from 127.0.0.1.

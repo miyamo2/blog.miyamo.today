@@ -1,11 +1,13 @@
 name: E2E
 
-# Every branch: the suite builds the site against scripts/mock-api.mjs, so it
-# needs none of the deploy secrets and can run wherever a push lands.
+# Work branches only: the suite builds the site against scripts/mock-api.mjs, so
+# it needs none of the deploy secrets and can run wherever a push lands -- but a
+# push to main is a merge of a branch this already ran on, and main's own job is
+# to publish.
 on:
   push:
-    branches:
-      - "**"
+    branches-ignore:
+      - main
   workflow_dispatch:
 
 concurrency:

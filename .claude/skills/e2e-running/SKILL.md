@@ -90,9 +90,10 @@ bun run e2e:ui tests/<file>.spec.ts
 
 ## CI
 
-`.github/workflows/e2e.yaml` runs on every push to any branch, and on
-`workflow_dispatch`. It needs no deploy secrets — only the default `GITHUB_TOKEN`,
-for the `@miyamo2` package on GitHub Packages.
+`.github/workflows/e2e.yaml` runs on every push to a branch other than `main`, and
+on `workflow_dispatch`. (A push to `main` is a merge of a branch the suite already
+ran on; `main`'s own workflow is Publish.) It needs no deploy secrets — only the
+default `GITHUB_TOKEN`, for the `@miyamo2` package on GitHub Packages.
 
 Two artifacts are uploaded on every run, pass or fail: **e2e-captures** (the
 screenshots) and **e2e-report** (the HTML report plus traces and videos). Download
