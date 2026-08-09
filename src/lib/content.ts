@@ -18,7 +18,7 @@ interface TagVM {
   name: string;
 }
 
-interface ArticleCardVM {
+export interface ArticleCardVM {
   id: string;
   title: string;
   createdAt: string;
