@@ -11,6 +11,7 @@ import { imagePlaceholderService } from "@miyamo2/astro-image-placeholder";
 import { remoteImageStaging } from "./integrations/remote-image-staging";
 import { inlineScripts } from "./integrations/inline-scripts";
 import { jsonld } from "./integrations/jsonld";
+import { lastmodSerializer } from "./integrations/sitemap-lastmod";
 import {
   headingAnchorPlugin,
   plainTextMdastPlugin,
@@ -132,7 +133,15 @@ export default defineConfig({
       url: env.BLOG_API_MIYAMO_TODAY_URL ?? "",
       token: env.BLOG_API_MIYAMO_TODAY_TOKEN ?? "",
     }),
-    sitemap(),
+    sitemap({
+      // /pages/1 and /tags/{tag}/1 are 301s to / and /tags/{tag} (the routes
+      // redirect themselves), so listing them only earns one "page with
+      // redirect" per tag in Search Console
+      filter: (page) => !/\/(?:pages|tags\/[^/]+)\/1\/?$/.test(new URL(page).pathname),
+      // without this every <url> is a bare <loc> and nothing tells a crawler
+      // an article was edited
+      serialize: lastmodSerializer(),
+    }),
     algoliaIndex({
       appId: env.PUBLIC_ALGOLIA_APP_ID,
       apiKey: env.ALGOLIA_ADMIN_KEY,

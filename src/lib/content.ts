@@ -11,6 +11,7 @@ import {
 } from "./images";
 import { optimizeLinkCardImages } from "./link-card-images";
 import { PER_PAGE, siteMetadata } from "./site";
+import { writeLastmods, type LastmodStore } from "../../integrations/sitemap-lastmod";
 
 interface TagVM {
   id: string;
@@ -128,6 +129,19 @@ const byIdDesc = (a: { id: string }, b: { id: string }): number => {
 };
 
 const range = (start: number, end: number) => [...Array(end - start + 1)].map((_, i) => start + i);
+
+/**
+ * `lastmod` for a page that lists articles: the newest of the articles it
+ * shows, so a list page re-announces itself exactly when its contents change.
+ */
+const latestUpdatedAt = (articles: RenderedArticle[]): string | undefined =>
+  articles.reduce<string | undefined>(
+    // ISO 8601 UTC strings from toISOString() are fixed-width, so they sort
+    // lexicographically in date order
+    (latest, article) =>
+      latest === undefined || article.updatedAt > latest ? article.updatedAt : latest,
+    undefined
+  );
 
 const toCard = (rendered: RenderedArticle): ArticleCardVM => {
   return {
@@ -314,6 +328,39 @@ const buildContent = async (): Promise<Content> => {
     };
   });
   await writeRecords(algoliaRecords);
+
+  // ---- sitemap lastmod ----
+  // Handed to @astrojs/sitemap's serialize(); see integrations/sitemap-lastmod
+  // for why it travels through a file rather than an import.
+  const lastmods: LastmodStore = {};
+  const articlesOf = (page: ArticleListPageVM): RenderedArticle[] =>
+    page.cards.map((card) => rendered.get(card.id)!);
+  const setLastmod = (path: string, articles: RenderedArticle[]): void => {
+    const lastmod = latestUpdatedAt(articles);
+    if (lastmod) {
+      lastmods[path] = lastmod;
+    }
+  };
+  for (const detail of details) {
+    lastmods[`/articles/${detail.id}`] = detail.updatedAt;
+  }
+  for (const listPage of listPages) {
+    // page 1 is "/" itself -- /pages/1 exists only to redirect there, and the
+    // sitemap filters it out (see astro.config.ts)
+    const path = listPage.currentPage === 1 ? "/" : `/pages/${listPage.currentPage}`;
+    setLastmod(path, articlesOf(listPage));
+  }
+  for (const taggedPage of taggedPages) {
+    // /tags/{tag}/1 redirects to /tags/{tag}, same as above
+    const path =
+      taggedPage.currentPage === 1
+        ? `/tags/${taggedPage.tagId}`
+        : `/tags/${taggedPage.tagId}/${taggedPage.currentPage}`;
+    setLastmod(path, articlesOf(taggedPage));
+  }
+  // the tag list shows every tag's article count, so any article can move it
+  setLastmod("/tags", [...rendered.values()]);
+  await writeLastmods(lastmods);
 
   return {
     listPages,
