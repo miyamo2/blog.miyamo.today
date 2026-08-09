@@ -8,6 +8,15 @@
 }
 
 .article-detail {
+  /* where the sticky rails come to rest: clear of the 70px fixed site header,
+     plus enough of a gap that they do not read as glued to it. Both rails
+     share it so they always line up */
+  --article-sticky-top: 5.5rem;
+  /* how tall the side nav may get, and how much of that the heading list is
+     guaranteed once the two blocks start competing for it */
+  --article-sidebar-max: calc(100vh - var(--article-sticky-top) - 1rem);
+  --article-toc-min: 14rem;
+
   grid-template-areas:
     "title title title"
     "tag tag tag"
@@ -57,25 +66,69 @@
   }
 }
 
-/* the sticky side nav scrolls inside itself once the table of contents and the
-   recommendations together outgrow the viewport, so its tail stays reachable.
+/* The side nav is capped at the viewport and lays its two blocks out as a flex
+   column, so the nav itself never scrolls -- each block owns its own overflow.
    Scroll chaining is deliberately left at the default: containing it would trap
-   the wheel here once the nav bottoms out, instead of carrying on down the page */
+   the wheel in a block once it bottoms out, instead of carrying on down the
+   page. */
 .article-sidebar {
   position: sticky;
-  top: 71px;
-  max-height: calc(100vh - 71px - 1rem);
+  top: var(--article-sticky-top);
+  max-height: var(--article-sidebar-max);
+  display: flex;
+  flex-direction: column;
+}
+
+.article-share-rail {
+  position: sticky;
+  top: var(--article-sticky-top);
+}
+
+.side-toc-block {
+  display: flex;
+  flex-direction: column;
+  /* sized by its content and free to shrink; the floor it needs is expressed as
+     a max-height on the recommendations instead of a min-height here, because a
+     min-height also applies when the list is *shorter* than it and would pad a
+     three-entry table of contents out with blank space */
+  flex: 0 1 auto;
+  min-height: 0;
+}
+
+.side-toc {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  /* bookends the header rule, so a list cut off mid-entry reads as a bounded
+     box that scrolls rather than as text that just stops */
+  border-bottom: 1px solid var(--border);
+}
+
+/* keeps its natural height -- but never takes so much of the nav that the
+   heading list is squeezed below --article-toc-min. As a max-height this only
+   binds when the cards genuinely do not fit, so a short list is never padded */
+.article-sidebar > .recommend-block {
+  flex: 0 0 auto;
+  max-height: calc(var(--article-sidebar-max) - var(--article-toc-min));
   overflow-y: auto;
   scrollbar-width: thin;
 }
 
 .side-toc a {
   display: block;
+  padding-bottom: 0.75rem;
 }
 
-/* headings wrap onto as many lines as they need instead of being cut off at the
-   column edge; the depth indent is padding so continuation lines line up too */
+/* two lines per heading, ellipsised past that: long headings stay readable
+   without letting one of them eat the column. The depth indent is padding so
+   the second line lines up with the first */
 .side-toc span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
   line-height: 1.6;
   overflow-wrap: anywhere;
 }

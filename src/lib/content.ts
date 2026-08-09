@@ -30,8 +30,8 @@ interface ArticleCardVM {
 interface RecommendVM {
   id: string;
   title: string;
-  excerpt: string;
   createdAt: string;
+  tags: TagVM[];
   imageData: RemoteImageData | null;
 }
 
@@ -267,8 +267,8 @@ const buildContent = async (): Promise<Content> => {
         (rec): RecommendVM => ({
           id: rec.id,
           title: rec.title,
-          excerpt: excerptOf(rec.plainText, 140, true),
           createdAt: rec.createdAt,
+          tags: rec.tags,
           imageData: rec.recommendImage,
         })
       );

@@ -23,7 +23,7 @@ const calcDepth = (depth: number | null | undefined) => {
 };
 ---
 
-<div class="w-full pl-[0.5em]">
+<div class="side-toc-block w-full pl-[0.5em]">
   <div class="w-full border-b backdrop-blur-md [writing-mode:horizontal-tb]">
     <h2 class="text-xl font-bold whitespace-nowrap">
       <FaIcon icon={faListUl} class="mr-2" />
@@ -34,7 +34,7 @@ const calcDepth = (depth: number | null | undefined) => {
     {
       headings?.map((heading) => (
         <a href={`#${heading?.id}`}>
-          <span class="block w-full pb-3" style={`padding-left: ${calcDepth(heading?.depth)}em`}>
+          <span class="block w-full" style={`padding-left: ${calcDepth(heading?.depth)}em`}>
             {heading?.value}
           </span>
         </a>
