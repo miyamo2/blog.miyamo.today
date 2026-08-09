@@ -34,17 +34,20 @@ const wrapperClass = ["algolia-search", className].filter(Boolean).join(" ");
   </DialogTrigger>
 
   {/* no display utility here: it would override the closed <dialog>'s ua display:none */}
-  {/* mobile-first: fills the screen below lg, then lg: restores the centered card */}
+  {/* fills the screen at every breakpoint; the panel's contents are held to a
+      readable column by the wrapper below rather than by the dialog's own width */}
   <DialogContent
-    class="search-dialog top-0 left-0 h-dvh max-h-none w-full max-w-none translate-x-0 translate-y-0 sm:top-0 sm:translate-y-0 rounded-none border-0 overflow-hidden p-4 lg:top-[10vh] lg:left-[50%] lg:h-auto lg:max-h-[80vh] lg:w-[92vw] lg:max-w-3xl lg:translate-x-[-50%] lg:rounded-lg lg:border"
+    class="search-dialog top-0 left-0 h-dvh max-h-none w-full max-w-none translate-x-0 translate-y-0 sm:top-0 sm:translate-y-0 rounded-none border-0 overflow-hidden p-4 lg:p-6"
     animationDuration={300}
   >
     <DialogHeader class="sr-only">
       <DialogTitle>Search articles</DialogTitle>
     </DialogHeader>
 
-    <div class="flex h-full min-h-0 flex-col gap-3">
-      <div class="relative pr-9">
+    <div class="mx-auto flex h-full w-full max-w-3xl min-h-0 flex-col gap-3">
+      {/* room for the dialog's close button, which overlaps the input row only
+          while the column is as wide as the panel */}
+      <div class="relative pr-9 lg:pr-0">
         <FaIcon
           icon={faSearch}
           class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
