@@ -201,7 +201,7 @@ const table = (rows) => {
   return lines.join("\n");
 };
 
-const buildBody = (sections) => {
+const buildBody = (sections, { taken, failure } = {}) => {
   const status = result === "success" ? "✅ passed" : "❌ failed";
   const runLink = `${serverUrl}/${repository}/actions/runs/${runId}`;
   const lines = [
@@ -213,8 +213,11 @@ const buildBody = (sections) => {
   ];
 
   if (sections.length === 0) {
+    // a comment is still worth writing: which of the two happened is the useful part
     lines.push(
-      `No captures were produced by this run — see [the logs](${runLink}) for what stopped it.`
+      failure
+        ? `${taken} captures were taken, but pushing them failed (\`${failure}\`). They are in the **e2e-captures** artifact on [the run](${runLink}).`
+        : `No captures were produced by this run — see [the logs](${runLink}) for what stopped it.`
     );
     return lines.join("\n");
   }
@@ -275,14 +278,26 @@ const main = async () => {
   }
 
   const captures = await collectCaptures();
-  const commit =
-    captures.length === 0
-      ? undefined
-      : dryRun
-        ? "0".repeat(40)
-        : await publishCaptures(pull.number, captures);
+  const taken = captures.reduce((total, { files }) => total + files.length, 0);
 
-  const sections = captures.map(({ project, files }) => {
+  let commit;
+  let failure;
+  if (captures.length > 0) {
+    if (dryRun) {
+      commit = "0".repeat(40);
+    } else {
+      try {
+        commit = await publishCaptures(pull.number, captures);
+      } catch (error) {
+        // the screenshots are still in the artifact, and saying so beats a red
+        // step with no comment at all
+        failure = error instanceof Error ? error.message : String(error);
+        log(`could not publish the captures: ${failure}`);
+      }
+    }
+  }
+
+  const sections = (commit ? captures : []).map(({ project, files }) => {
     const rows = new Map();
     for (const file of files) {
       const { screen, theme } = splitName(file);
@@ -292,7 +307,7 @@ const main = async () => {
     return { project, rows: [...rows] };
   });
 
-  const body = buildBody(sections);
+  const body = buildBody(sections, { taken, failure });
   if (dryRun) {
     console.log(`\n${body}\n`);
     return;
