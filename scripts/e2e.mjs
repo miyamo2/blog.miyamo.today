@@ -153,6 +153,10 @@ const main = async () => {
   return run(join(E2E_DIR, "node_modules", ".bin", "playwright"), ["test", ...playwrightArgs], {
     cwd: E2E_DIR,
     env: {
+      // `astro preview` re-runs the `astro:config:setup` hooks, so the loader
+      // integration validates its url/token there too -- the preview server
+      // (started by playwright's webServer) needs the same env the build got
+      ...buildEnv,
       E2E_BASE_URL: BASE_URL,
       E2E_PORT: PREVIEW_PORT,
       E2E_ROOT: ROOT,
