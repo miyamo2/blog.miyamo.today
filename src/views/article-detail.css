@@ -12,6 +12,10 @@
      plus enough of a gap that they do not read as glued to it. Both rails
      share it so they always line up */
   --article-sticky-top: 5.5rem;
+  /* how tall the side nav may get, and how much of that the heading list is
+     guaranteed once the two blocks start competing for it */
+  --article-sidebar-max: calc(100vh - var(--article-sticky-top) - 1rem);
+  --article-toc-min: 14rem;
 
   grid-template-areas:
     "title title title"
@@ -63,22 +67,16 @@
 }
 
 /* The side nav is capped at the viewport and lays its two blocks out as a flex
-   column, so the only thing that ever scrolls is the list of headings: the
-   recommendations keep their natural height and the heading list takes whatever
-   is left. Scroll chaining is deliberately left at the default -- containing it
-   would trap the wheel here once the list bottoms out, instead of carrying on
-   down the page.
-   The overflow on the nav itself is a fallback, not the normal path: it only
-   engages when the recommendations alone are taller than the viewport, and
-   without it those cards would be stranded below the fold. */
+   column, so the nav itself never scrolls -- each block owns its own overflow.
+   Scroll chaining is deliberately left at the default: containing it would trap
+   the wheel in a block once it bottoms out, instead of carrying on down the
+   page. */
 .article-sidebar {
   position: sticky;
   top: var(--article-sticky-top);
-  max-height: calc(100vh - var(--article-sticky-top) - 1rem);
+  max-height: var(--article-sidebar-max);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  scrollbar-width: thin;
 }
 
 .article-share-rail {
@@ -89,11 +87,12 @@
 .side-toc-block {
   display: flex;
   flex-direction: column;
-  /* gives its space up to the recommendations, but never below the point where
-     the list stops being a usable nav -- past that the fallback overflow on
-     .article-sidebar takes over rather than leaving a one-line peephole */
+  /* sized by its content and free to shrink; the floor it needs is expressed as
+     a max-height on the recommendations instead of a min-height here, because a
+     min-height also applies when the list is *shorter* than it and would pad a
+     three-entry table of contents out with blank space */
   flex: 0 1 auto;
-  min-height: 14rem;
+  min-height: 0;
 }
 
 .side-toc {
@@ -106,8 +105,14 @@
   border-bottom: 1px solid var(--border);
 }
 
+/* keeps its natural height -- but never takes so much of the nav that the
+   heading list is squeezed below --article-toc-min. As a max-height this only
+   binds when the cards genuinely do not fit, so a short list is never padded */
 .article-sidebar > .recommend-block {
   flex: 0 0 auto;
+  max-height: calc(var(--article-sidebar-max) - var(--article-toc-min));
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .side-toc a {
