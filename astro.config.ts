@@ -8,9 +8,9 @@ import { satteriLinkCard } from "satteri-link-card";
 import { blogApiMiyamoToday } from "@miyamo2/astro-loader-blogapi-miyamo-today";
 import algoliaIndex from "@miyamo2/astro-algolia-index";
 import { imagePlaceholderService } from "@miyamo2/astro-image-placeholder";
+import jsonld from "@miyamo2/astro-jsonld";
 import { remoteImageStaging } from "./integrations/remote-image-staging";
 import { inlineScripts } from "./integrations/inline-scripts";
-import { jsonld } from "./integrations/jsonld";
 import { lastmodSerializer } from "./integrations/sitemap-lastmod";
 import {
   headingAnchorPlugin,
@@ -97,17 +97,19 @@ export default defineConfig({
   integrations: [
     remoteImageStaging(),
     inlineScripts(),
-    // The site's JSON-LD identity. `siteUrl` is left to astro's own `site`
-    // above; everything else used to be hard-coded in src/lib/jsonld.ts.
+    // The site's JSON-LD identity, declared once and read by the builders the
+    // pages import from `virtual:jsonld`. `siteUrl`, `base` and
+    // `trailingSlash` are left to astro's own settings above.
     jsonld({
       name: "blog.miyamo.today",
       alternateName: "blog miyamo today",
       author: {
         name: "miyamo2",
-        path: "/about",
+        url: "/about",
         jobTitle: "Software Engineer",
         // only reaches the ProfilePage's mainEntity, so it costs nothing on
-        // the article pages. Positive by design -- see JsonLdAuthor.
+        // the article pages. Positive by design: "is not <other person>" reads
+        // as a distinction to a human, but no consumer models negation.
         disambiguatingDescription: "Goが好きなソフトウェアエンジニア。GitHub: @miyamo2",
         sameAs: [
           "https://github.com/miyamo2",
@@ -125,8 +127,8 @@ export default defineConfig({
       },
       publisher: {
         name: "blog.miyamo.today",
-        path: "/",
-        logo: { path: "/logo.png", width: 65, height: 65 },
+        url: "/",
+        logo: { url: "/logo.png", width: 65, height: 65 },
       },
     }),
     blogApiMiyamoToday({

@@ -2,7 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import ArticleListPage from "../../views/ArticleListPage.astro";
 import { getContent, type ArticleListPageVM } from "../../lib/content";
-import { buildBreadcrumbJSONLD, buildItemList, buildJSONLD } from "../../../integrations/jsonld/builder";
+import { buildBreadcrumbList, buildCollectionPage } from "virtual:jsonld";
 
 export async function getStaticPaths() {
   const { listPages } = await getContent();
@@ -26,25 +26,16 @@ if (data.currentPage === 1) {
 const path = `/pages/${data.currentPage}`;
 const page = path.split("/").at(-1);
 
-const jsonLDArticleListPage = buildJSONLD({
-  type: "CollectionPage",
+const jsonLDArticleListPage = buildCollectionPage({
   name: "Articles",
   path: path,
   description: page ? `記事一覧(page ${page})` : "記事一覧",
-  withUrl: true,
-  withAuthor: true,
-  withPublisher: true,
-  withContext: true,
-  withIsPartOf: true,
-  withID: true,
-  attributes: {
-    mainEntity: buildItemList(
-      data.cards.map((card) => ({ name: card.title, path: `/articles/${card.id}` }))
-    ),
-  },
+  author: true,
+  publisher: true,
+  items: data.cards.map((card) => ({ name: card.title, path: `/articles/${card.id}` })),
 });
 // page 1 is "/" itself, so the trail below the root is just this page
-const jsonLDBreadcrumb = buildBreadcrumbJSONLD([{ name: `page ${data.currentPage}`, path }]);
+const jsonLDBreadcrumb = buildBreadcrumbList([{ name: `page ${data.currentPage}`, path }]);
 ---
 
 <Layout head={{ path, title: "Articles", jsonLD: [jsonLDArticleListPage, jsonLDBreadcrumb] }}>

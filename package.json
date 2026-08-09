@@ -32,6 +32,7 @@
     "@graphql-codegen/typescript-graphql-request": "^6.4.0",
     "@miyamo2/astro-algolia-index": "https://registry.npmjs.org/@miyamo2/astro-algolia-index/-/astro-algolia-index-0.1.0.tgz",
     "@miyamo2/astro-image-placeholder": "https://registry.npmjs.org/@miyamo2/astro-image-placeholder/-/astro-image-placeholder-0.1.0.tgz",
+    "@miyamo2/astro-jsonld": "https://registry.npmjs.org/@miyamo2/astro-jsonld/-/astro-jsonld-0.1.0.tgz",
     "@miyamo2/astro-loader-blogapi-miyamo-today": "^0.3.0",
     "@miyamo2/astro-recommend-article": "https://registry.npmjs.org/@miyamo2/astro-recommend-article/-/astro-recommend-article-0.1.0.tgz",
     "@starwind-ui/core": "2.0.1",

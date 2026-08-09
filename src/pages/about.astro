@@ -3,11 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import AboutPage, { type AboutVM } from "../views/AboutPage.astro";
 import { fetchGitHubProfile } from "../lib/api";
 import { buildRemoteImage } from "../lib/images";
-import {
-  buildBreadcrumbJSONLD,
-  buildJSONLD,
-  buildPersonJSONLD,
-} from "../../integrations/jsonld/builder";
+import { buildBreadcrumbList, buildProfilePage } from "virtual:jsonld";
 
 const profile = await fetchGitHubProfile();
 const avatarImage = await buildRemoteImage(profile.avatarUrl, { width: 350, height: 350 });
@@ -21,27 +17,21 @@ const data: AboutVM = {
 };
 
 const path = "/about";
-const jsonLDAboutPage = buildJSONLD({
-  type: "ProfilePage",
+// buildProfilePage puts the configured author in `mainEntity`: the page is
+// *about* miyamo2, which is what ProfilePage exists to say and what google's
+// ProfilePage structured data requires. It supersedes the `author` credit the
+// page used to carry -- same entity, same `@id`, and this copy is the one that
+// defines it rather than pointing at it.
+//
+// mainEntityOfPage is left off: a ProfilePage is already a WebPage, so it would
+// only point the node back at itself; `@id` + `url` say the same thing.
+const jsonLDAboutPage = buildProfilePage({
   name: "About",
   path: path,
   description: "miyamo2について",
-  // a ProfilePage is already a WebPage, so mainEntityOfPage would only point
-  // the node back at itself; `@id` + `url` say the same thing without it
-  withUrl: true,
-  withPublisher: true,
-  withContext: true,
-  withIsPartOf: true,
-  withID: true,
-  attributes: {
-    // the page is *about* miyamo2, which is what ProfilePage exists to say and
-    // what google's ProfilePage structured data requires. It supersedes the
-    // `author` credit the page used to carry: same entity, same `@id`, and
-    // this copy is the one that defines it rather than pointing at it.
-    mainEntity: buildPersonJSONLD(),
-  },
+  publisher: true,
 });
-const jsonLDBreadcrumb = buildBreadcrumbJSONLD([{ name: "About", path }]);
+const jsonLDBreadcrumb = buildBreadcrumbList([{ name: "About", path }]);
 ---
 
 <Layout head={{ path, title: "About", jsonLD: [jsonLDAboutPage, jsonLDBreadcrumb] }}>
