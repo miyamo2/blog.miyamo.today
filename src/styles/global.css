@@ -1,8 +1,6 @@
-/* The @font-face rules are not here but in BaseHead: the subset each one
-   points at is named after the characters that went into it (see
-   integrations/font-subset), and a stylesheet bundled before the build knows
-   that name cannot carry it. What stays here is the stack -- the subset family
-   first, the complete faces behind it for any character the subset lacks. */
+/* The @font-face rules are in BaseHead, not here: the subset each one points
+   at is named after the characters that went into it, which is only settled
+   once the pages have rendered (see integrations/font-subset). */
 :root {
   overflow-y: auto !important;
   scroll-behavior: auto !important;
@@ -35,6 +33,17 @@ body,
 }
 
 #app-root #app-focus-wrapper * {
+  font-family: "UDEVGothicHS", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
+}
+
+/* The complete faces sit behind the subset here and nowhere else.
+   Every character the build rendered is in the subset by construction, so a
+   page falling through to them could only be chasing a character the source
+   face never had -- 300KB fetched to render an em dash in the system font
+   anyway. The one text this site paints that the build did not produce is what
+   a reader types in here, so this is the one place the fallback earns its
+   download (search.ts fetches it as the panel opens). */
+#app-root #app-focus-wrapper [data-search-input] {
   font-family: "UDEVGothicHS", "UDEVGothicHSFull", "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol" !important;
 }

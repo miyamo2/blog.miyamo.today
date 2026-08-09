@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync } from "node:fs";
-import { extname, join, resolve } from "node:path";
+import { readFile, readdir } from "node:fs/promises";
+import { extname, join } from "node:path";
 
 /**
  * The four UDEVGothic faces are 1.26MB of woff2 -- more than everything else
@@ -9,23 +9,26 @@ import { extname, join, resolve } from "node:path";
  * run's simulated LCP (5.0s) was essentially the whole payload divided by the
  * bandwidth.
  *
- * Nothing about a static site requires shipping the whole face, though: every
- * character it can paint is already sitting in the repository when the build
- * starts. This module works out that character set; the integration next to it
- * cuts each face down to it (~300KB becomes ~30-70KB, pixel-for-pixel identical
- * because it is the same font).
+ * A static site never needs the whole face, though: when the build finishes,
+ * every character it can paint is sitting in the output. This module works out
+ * that character set; the integration next to it cuts each face down to it
+ * (~300KB becomes ~30-70KB, pixel-for-pixel identical because it is the same
+ * font).
  *
- * What the repository does not contain is covered two ways:
+ * Text the output does not contain is covered two ways:
  *
- * - BASE_GLYPHS is in every subset regardless of what the sources use, so
- *   ascii, kana and the usual punctuation are always there -- that is what a
- *   reader types into the search box.
- * - the full faces stay declared as a second family behind the subset one
- *   ("UDEVGothicHS", "UDEVGothicHSFull", see BaseHead). A character the subset
- *   lacks falls through to it by ordinary font fallback, which fetches the full
- *   face at that moment and never before. Comments are outside all of this:
- *   giscus renders in its own cross-origin iframe, which this site's @font-face
- *   has never reached.
+ * - BASE_GLYPHS is in every subset regardless of what the pages use, so ascii,
+ *   kana and the usual punctuation are always there -- that is what a reader
+ *   types into the search box.
+ * - the complete faces are declared as a second family, "UDEVGothicHSFull",
+ *   which styles/global.css puts behind this one on the search input alone.
+ *   Site-wide it would be a liability rather than a safety net: every rendered
+ *   character is in the corpus by construction, so the only thing that could
+ *   fall through is a character the source face never had -- U+2014 is one --
+ *   and the fallback would fetch 300KB to end up in the system font regardless.
+ *
+ * Comments are outside all of this: giscus renders in its own cross-origin
+ * iframe, which this site's @font-face has never reached.
  */
 export const FACES = [
   { file: "UDEVGothic35HS-Regular-Subset", style: "normal", weight: "normal" },
@@ -36,10 +39,22 @@ export const FACES = [
 
 export type Face = (typeof FACES)[number];
 
+/**
+ * What the @font-face rules carry until the digest is known.
+ *
+ * A subset is named after the characters in it, and those are only settled once
+ * every page has been rendered -- after the head that has to point at the file.
+ * So the pages go out with this in place of the digest and the build swaps it
+ * in, rather than the character set being guessed early from the sources: a
+ * page can render text that is in no source file (the GitHub profile on
+ * /about), and content the loader has not written yet would simply be missed.
+ */
+export const DIGEST_TOKEN = "__FONT_SUBSET_DIGEST__";
+
 const range = (from: number, to: number): number[] =>
   [...Array(to - from + 1)].map((_, i) => from + i);
 
-/** what a subset carries even if nothing in the sources uses it (see above) */
+/** what a subset carries even if no page happens to use it (see above) */
 const BASE_GLYPHS = [
   // printable ascii
   ...range(0x20, 0x7e),
@@ -50,79 +65,66 @@ const BASE_GLYPHS = [
 ].map((code) => String.fromCodePoint(code));
 
 /**
- * Where the text comes from. `src/content/blogapi` is the articles as the
- * loader wrote them, and the rest is the ui's own labels -- between them, every
- * string any page can render. `src/assets` is deliberately absent: it holds the
- * downloaded thumbnails, which are megabytes of binary with no text in them.
- */
-const SOURCE_ROOT = resolve(process.cwd(), "src");
-const CONTENT_ROOT = join(SOURCE_ROOT, "content");
-const ASSET_ROOT = join(SOURCE_ROOT, "assets");
-
-/** what the ui is written in; nothing else under src/ carries text to paint */
-const SOURCE_EXTENSIONS = new Set([".astro", ".ts", ".tsx", ".js", ".css", ".json", ".md", ".mdx"]);
-/** the loader chooses its own layout under src/content, so read all but these */
-const BINARY_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".avif", ".gif", ".woff2"]);
-
-const readable = (dir: string, name: string): boolean =>
-  dir.startsWith(CONTENT_ROOT)
-    ? !BINARY_EXTENSIONS.has(extname(name))
-    : SOURCE_EXTENSIONS.has(extname(name));
-
-const walk = (dir: string, seen: Set<string>): void => {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (path !== ASSET_ROOT) {
-        walk(path, seen);
-      }
-      continue;
-    }
-    if (!readable(dir, entry.name)) {
-      continue;
-    }
-    for (const char of readFileSync(path, "utf8")) {
-      seen.add(char);
-    }
-  }
-};
-
-let cached: { text: string; hash: string } | undefined;
-
-/**
- * Every character the built site can paint, and a digest of it.
+ * Every character the built site can paint.
  *
- * Read once per process: the page build asks for the urls while it renders and
- * the integration asks again when it writes the files, and both have to agree.
- * Sorting before hashing keeps the digest a function of the character *set*,
- * not of the order the files happened to be walked in.
+ * Whole files are read rather than just their text nodes: markup, json-ld and
+ * meta descriptions are ascii or text the page shows anyway, so over-collecting
+ * costs nothing (a character is counted once) and under-collecting would leave
+ * something the pages do render outside the subset. The client bundles are here
+ * for the same reason -- the search panel's own labels live in js, not in any
+ * page's html.
  */
-const collect = (): { text: string; hash: string } => {
-  if (!cached) {
-    const seen = new Set(BASE_GLYPHS);
-    walk(SOURCE_ROOT, seen);
-    const text = [...seen].sort().join("");
-    cached = { text, hash: createHash("sha256").update(text).digest("hex").slice(0, 8) };
-  }
-  return cached;
+export const collectCorpus = async (
+  outDir: string
+): Promise<{ text: string; htmlFiles: string[] }> => {
+  const chars = new Set<string>(BASE_GLYPHS);
+  const htmlFiles: string[] = [];
+
+  const walk = async (dir: string): Promise<void> => {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(path);
+        continue;
+      }
+      const extension = extname(entry.name);
+      if (extension !== ".html" && extension !== ".js") {
+        continue;
+      }
+      if (extension === ".html") {
+        htmlFiles.push(path);
+      }
+      for (const char of await readFile(path, "utf8")) {
+        chars.add(char);
+      }
+    }
+  };
+
+  await walk(outDir);
+  // sorted so the digest is a function of the character *set*, not of the order
+  // the files happened to be walked in
+  return { text: [...chars].sort().join(""), htmlFiles };
 };
 
-export const corpus = (): string => collect().text;
-
 /**
- * The subset's filename, carrying a digest of the characters that went into it.
+ * The digest a subset's filename carries.
  *
  * The deploy serves everything under /fonts as immutable for a year (see
  * .github/workflows/publish.yaml), which is a promise that a given name always
  * means the same bytes. A subset's bytes change whenever the site's text does,
  * so the name has to change with them -- otherwise every returning reader keeps
- * last month's glyph set until the year is out. The pages that reference this
- * are revalidated on every request, so a new digest reaches readers with the
- * deploy that produces it.
+ * last month's glyph set until the year is out. The pages that reference it are
+ * revalidated on every request, so a new digest reaches readers with the deploy
+ * that produced it.
  */
-export const subsetFileName = (face: Face): string => `${face.file}.${collect().hash}.woff2`;
+export const digestOf = (corpus: string): string =>
+  createHash("sha256").update(corpus).digest("hex").slice(0, 8);
 
-export const subsetHref = (face: Face): string => `/fonts/${subsetFileName(face)}`;
+export const subsetFileName = (face: Face, digest: string): string =>
+  `${face.file}.${digest}.woff2`;
+
+export const subsetHref = (face: Face, digest: string): string =>
+  `/fonts/${subsetFileName(face, digest)}`;
 
 /** the untouched face, as shipped in public/fonts */
 export const fullHref = (face: Face): string => `/fonts/${face.file}.woff2`;

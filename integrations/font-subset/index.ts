@@ -3,19 +3,27 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { AstroIntegration } from "astro";
 import subsetFont from "subset-font";
-import { FACES, corpus, fullHref, subsetFileName, subsetHref, type Face } from "./corpus";
+import {
+  DIGEST_TOKEN,
+  FACES,
+  collectCorpus,
+  digestOf,
+  fullHref,
+  subsetFileName,
+  subsetHref,
+  type Face,
+} from "./corpus";
 
 /**
- * Cuts each UDEVGothic face down to the characters the site can paint, and
- * hands the page the @font-face rules that point at the result.
+ * Cuts each UDEVGothic face down to the characters the built site can paint,
+ * and hands the pages the @font-face rules that point at the result.
  *
- * Both halves have to name the same file, and a subset's name carries a digest
- * of the characters that produced it (see ./corpus) -- so the name is not
- * something a hand-written stylesheet could hold. That is why the css comes
- * from here too, as `virtual:font-subset`, rather than the filename being
- * repeated somewhere a later edit could leave behind: one module decides it,
- * the build writes the bytes under it, and BaseHead only prints what it is
- * given.
+ * Both halves have to name the same file, and the name carries a digest of
+ * those characters (see ./corpus) -- which is only known once every page has
+ * been rendered, i.e. after the head that points at it. So the css comes from
+ * here too, as `virtual:font-subset`, carrying DIGEST_TOKEN where the digest
+ * goes; this hook reads the pages back, subsets the faces to what it finds,
+ * and writes the digest into the pages it just read.
  */
 const VIRTUAL_ID = "virtual:font-subset";
 const RESOLVED_ID = `\0${VIRTUAL_ID}`;
@@ -30,14 +38,14 @@ const fontFace = (family: string, src: string, face: Face): string =>
 
 /**
  * Every face declared twice: once as "UDEVGothicHS" from the subset, once as
- * "UDEVGothicHSFull" from the complete file. styles/global.css stacks them in
- * that order, so a character the subset lacks reaches the full face by ordinary
- * font fallback -- fetched at that point and not during the load.
+ * "UDEVGothicHSFull" from the complete file. Declaring a face fetches nothing;
+ * styles/global.css decides where each family is used, and the full one is
+ * reached from the search input alone (see ./corpus).
  */
 const fontFaceCss = (): string =>
   FACES.map(
     (face) =>
-      fontFace("UDEVGothicHS", subsetHref(face), face) +
+      fontFace("UDEVGothicHS", subsetHref(face, DIGEST_TOKEN), face) +
       fontFace("UDEVGothicHSFull", fullHref(face), face)
   ).join("");
 
@@ -62,26 +70,45 @@ export const fontSubset = (): AstroIntegration => ({
     },
 
     "astro:build:done": async ({ dir, logger }) => {
-      const fontsDir = join(fileURLToPath(dir), "fonts");
-      const text = corpus();
-      await mkdir(fontsDir, { recursive: true });
+      const outDir = fileURLToPath(dir);
+      const { text, htmlFiles } = await collectCorpus(outDir);
+      const digest = digestOf(text);
 
+      await mkdir(join(outDir, "fonts"), { recursive: true });
       for (const face of FACES) {
         const source = await readFile(sourcePath(face));
         const subset = await subsetFont(source, text, { targetFormat: "woff2" });
-        await writeFile(join(fontsDir, subsetFileName(face)), subset);
+        await writeFile(join(outDir, "fonts", subsetFileName(face, digest)), subset);
         logger.info(`${face.file}: ${kib(source.length)} -> ${kib(subset.length)}`);
       }
+
+      let stamped = 0;
+      for (const path of htmlFiles) {
+        const html = await readFile(path, "utf8");
+        if (!html.includes(DIGEST_TOKEN)) {
+          continue;
+        }
+        await writeFile(path, html.replaceAll(DIGEST_TOKEN, digest));
+        stamped += 1;
+      }
+      logger.info(`${digest}: ${stamped} page(s) point at this subset`);
     },
 
     /**
-     * `astro dev` never runs the hook above, so the subsets do not exist there.
-     * Answering their urls with the full face keeps the dev server from 404ing
-     * on every font: the pages get the same glyphs, just all of them.
+     * `astro dev` never runs the hook above, so no subset exists there and the
+     * pages still carry DIGEST_TOKEN. Answering whatever they ask for with the
+     * full face keeps the dev server from 404ing on every font: the pages get
+     * the same glyphs, just all of them.
      */
     "astro:server:setup": ({ server }) => {
       server.middlewares.use((req, res, next) => {
-        const face = FACES.find((candidate) => req.url?.endsWith(subsetFileName(candidate)));
+        const url = req.url?.split("?")[0] ?? "";
+        const face = FACES.find(
+          (candidate) =>
+            url.startsWith(`/fonts/${candidate.file}.`) &&
+            url.endsWith(".woff2") &&
+            url !== fullHref(candidate)
+        );
         if (!face) {
           next();
           return;

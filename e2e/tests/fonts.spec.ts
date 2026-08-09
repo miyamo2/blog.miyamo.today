@@ -1,4 +1,4 @@
-import { expect, test } from "../fixtures/test";
+import { expect, searchDialog, searchTrigger, test } from "../fixtures/test";
 
 /** `/fonts/UDEVGothic35HS-Regular-Subset.<digest>.woff2`, as BaseHead writes it */
 const SUBSET_URL = /\/fonts\/UDEVGothic35HS-Regular-Subset\.[0-9a-f]{8}\.woff2/;
@@ -25,6 +25,28 @@ test.describe("webfonts @desktop", () => {
     // the complete faces are only the per-character fallback behind it, and a
     // page whose text the build already knew about must not reach for them
     expect(statuses["UDEVGothicHSFull"] ?? []).not.toContain("loaded");
+  });
+
+  test("opening search fetches the complete faces, before anything is typed", async ({ page }) => {
+    // the search box is the one place a character the build never saw can turn
+    // up, and asking for the face once it is on screen would be too late
+    await page.goto("/");
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+    });
+
+    await searchTrigger(page).click();
+    await expect(searchDialog(page)).toHaveAttribute("data-state", "open");
+
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          [...document.fonts]
+            .filter((face) => face.family === "UDEVGothicHSFull")
+            .map((face) => face.status)
+        )
+      )
+      .toContain("loaded");
   });
 
   test("the subset is named after its contents, so /fonts can stay immutable", async ({ page }) => {
