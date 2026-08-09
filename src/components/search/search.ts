@@ -313,19 +313,23 @@ class SearchPanel {
    * Brings the panel in line with the state a URL describes: opens it and runs
    * the query, or closes it when the URL no longer carries a search.
    *
-   * `force` is set for history navigations, where the URL is the user's latest
-   * instruction. It is left off on init, so that a query typed into an
-   * already-open panel -- possible before this module finishes loading -- is not
-   * overwritten by the `?q=` the visitor arrived with.
+   * `force` marks the call that follows a navigation, which is the only one
+   * allowed to close the panel -- on init a missing `?q=` just means there is
+   * nothing to restore.
    */
   public applyRoute(route: RouteState | null, force: boolean): void {
-    if (!force && this.dialog.open && this.input.value.trim() !== "") return;
+    // A query already sitting in an open panel outranks the URL: on init it is
+    // what the visitor typed before this module finished loading, and after a
+    // navigation it is what they typed while the transition was still animating.
+    const typed = this.dialog.open && this.input.value.trim() !== "";
+    if (typed && (route !== null || !force)) return;
     this.cancelPending();
 
     if (route === null) {
-      // only a history navigation means "this panel should not be open". On init
-      // a missing `?q=` just means there is nothing to restore, and the panel may
-      // well have been opened by hand while this module was still loading.
+      // Only a navigation means "this panel should not be open". On init a
+      // missing `?q=` just means there is nothing to restore -- and the panel is
+      // very often already open by then, since the click that opens it is also
+      // what starts loading this module.
       if (force && this.dialog.open) this.root.dispatchEvent(new CustomEvent("dialog:close"));
       return;
     }
@@ -607,11 +611,53 @@ const setupSearchPanels = (): void => {
       console.error(error);
     }
   });
-
-  applyRoute(false);
 };
 
+/**
+ * The client router's `finished` promise for the navigation in flight.
+ *
+ * The panel cannot be opened as soon as the new page is swapped in: the
+ * `::view-transition` pseudo-elements paint *above* the top layer, so a modal
+ * opened while they are still animating spends the rest of the transition
+ * behind a snapshot of the page being left. `astro:page-load` is no help -- the
+ * router fires it on updateCallbackDone, before those animations run -- so take
+ * the transition's own promise, which resolves once they are done (and which
+ * the router also provides, already resolved, when it swaps without animating).
+ */
+let transitionFinished: Promise<unknown> = Promise.resolve();
+/**
+ * Bumped as each navigation starts. A transition can still be animating when the
+ * next navigation begins, and its `finished` promise then resolves against a URL
+ * that already belongs to the newer one -- so a deferred apply checks that it is
+ * still the current navigation's.
+ */
+let navigationId = 0;
+
+document.addEventListener("astro:before-preparation", () => {
+  navigationId++;
+});
+
+document.addEventListener("astro:before-swap", (event) => {
+  const { viewTransition } = event as Event & {
+    viewTransition?: { finished?: Promise<unknown> };
+  };
+  transitionFinished = viewTransition?.finished?.catch(() => undefined) ?? Promise.resolve();
+});
+
 setupSearchPanels();
-document.addEventListener("astro:after-swap", setupSearchPanels);
-// back / forward between a search URL and the page it was opened from
-window.addEventListener("popstate", () => applyRoute(true));
+applyRoute(false);
+
+/*
+ * Every history navigation on this site goes through the client router (the
+ * layout renders it on every page), so its swap is the one signal to follow --
+ * a popstate listener of our own would only re-open the panel a beat too early,
+ * before the swap it triggers.
+ */
+document.addEventListener("astro:after-swap", () => {
+  setupSearchPanels();
+  const id = navigationId;
+  void transitionFinished.then(() => {
+    if (id !== navigationId) return;
+    applyRoute(true);
+  });
+});
