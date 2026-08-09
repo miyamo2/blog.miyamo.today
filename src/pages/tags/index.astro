@@ -2,40 +2,32 @@
 import Layout from "../../layouts/Layout.astro";
 import TagsPage from "../../views/TagsPage.astro";
 import { getContent } from "../../lib/content";
-import { buildJSONLD, buildWebSiteJSONLD } from "../../lib/jsonld";
+import { buildBreadcrumbJSONLD, buildItemList, buildJSONLD } from "../../../integrations/jsonld/builder";
 
 const { tagSummaries } = await getContent();
 
 const path = "/tags";
 
-const jsonLDTags = tagSummaries.map((tag, i) =>
-  buildJSONLD({
-    type: "ListItem",
-    path: `/tags/${tag.cursor}`,
-    withUrl: true,
-    attributes: {
-      position: i + 1,
-    },
-  })
-);
-
-const jsonLDWebSite = buildWebSiteJSONLD();
 const jsonLDTagsPage = buildJSONLD({
-  type: "ItemList",
-  headline: "Tags",
+  type: "CollectionPage",
+  name: "Tags",
   path: path,
   description: "タグ一覧",
   withUrl: true,
   withAuthor: true,
-  withLogo: true,
+  withPublisher: true,
   withContext: true,
+  withIsPartOf: true,
   withID: true,
   attributes: {
-    itemListElement: jsonLDTags,
+    mainEntity: buildItemList(
+      tagSummaries.map((tag) => ({ name: `#${tag.name}`, path: `/tags/${tag.cursor}` }))
+    ),
   },
 });
+const jsonLDBreadcrumb = buildBreadcrumbJSONLD([{ name: "Tags", path }]);
 ---
 
-<Layout head={{ path, title: "Tags", jsonLD: [jsonLDWebSite, jsonLDTagsPage] }}>
+<Layout head={{ path, title: "Tags", jsonLD: [jsonLDTagsPage, jsonLDBreadcrumb] }}>
   <TagsPage data={tagSummaries} />
 </Layout>

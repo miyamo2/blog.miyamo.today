@@ -10,6 +10,7 @@ import algoliaIndex from "@miyamo2/astro-algolia-index";
 import { imagePlaceholderService } from "@miyamo2/astro-image-placeholder";
 import { remoteImageStaging } from "./integrations/remote-image-staging";
 import { inlineScripts } from "./integrations/inline-scripts";
+import { jsonld } from "./integrations/jsonld";
 import {
   headingAnchorPlugin,
   plainTextMdastPlugin,
@@ -95,6 +96,38 @@ export default defineConfig({
   integrations: [
     remoteImageStaging(),
     inlineScripts(),
+    // The site's JSON-LD identity. `siteUrl` is left to astro's own `site`
+    // above; everything else used to be hard-coded in src/lib/jsonld.ts.
+    jsonld({
+      name: "blog.miyamo.today",
+      alternateName: "blog miyamo today",
+      author: {
+        name: "miyamo2",
+        path: "/about",
+        jobTitle: "Software Engineer",
+        // only reaches the ProfilePage's mainEntity, so it costs nothing on
+        // the article pages. Positive by design -- see JsonLdAuthor.
+        disambiguatingDescription: "Goが好きなソフトウェアエンジニア。GitHub: @miyamo2",
+        sameAs: [
+          "https://github.com/miyamo2",
+          "https://zenn.dev/miyamo2",
+          "https://twitter.com/miyamo2_jp",
+          "https://speakerdeck.com/miyamo2",
+          "https://qiita.com/miyamo2",
+          "https://connpass.com/user/miyamo2/",
+          "https://medium.com/@miyamo2",
+          "https://dev.to/miyamo2",
+          "https://note.com/miyamo2",
+          "https://www.npmjs.com/~miyamo2",
+          "https://pypi.org/user/miyamo2theppl/",
+        ],
+      },
+      publisher: {
+        name: "blog.miyamo.today",
+        path: "/",
+        logo: { path: "/logo.png", width: 65, height: 65 },
+      },
+    }),
     blogApiMiyamoToday({
       url: env.BLOG_API_MIYAMO_TODAY_URL ?? "",
       token: env.BLOG_API_MIYAMO_TODAY_TOKEN ?? "",

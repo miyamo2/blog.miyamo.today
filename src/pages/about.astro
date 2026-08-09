@@ -3,7 +3,11 @@ import Layout from "../layouts/Layout.astro";
 import AboutPage, { type AboutVM } from "../views/AboutPage.astro";
 import { fetchGitHubProfile } from "../lib/api";
 import { buildRemoteImage } from "../lib/images";
-import { buildJSONLD, buildWebSiteJSONLD } from "../lib/jsonld";
+import {
+  buildBreadcrumbJSONLD,
+  buildJSONLD,
+  buildPersonJSONLD,
+} from "../../integrations/jsonld/builder";
 
 const profile = await fetchGitHubProfile();
 const avatarImage = await buildRemoteImage(profile.avatarUrl, { width: 350, height: 350 });
@@ -17,20 +21,29 @@ const data: AboutVM = {
 };
 
 const path = "/about";
-const jsonLDWebSite = buildWebSiteJSONLD();
 const jsonLDAboutPage = buildJSONLD({
   type: "ProfilePage",
-  headline: "About",
+  name: "About",
   path: path,
   description: "miyamo2について",
-  withMainEntityOfPage: true,
-  withAuthor: true,
-  withLogo: true,
+  // a ProfilePage is already a WebPage, so mainEntityOfPage would only point
+  // the node back at itself; `@id` + `url` say the same thing without it
+  withUrl: true,
+  withPublisher: true,
   withContext: true,
+  withIsPartOf: true,
   withID: true,
+  attributes: {
+    // the page is *about* miyamo2, which is what ProfilePage exists to say and
+    // what google's ProfilePage structured data requires. It supersedes the
+    // `author` credit the page used to carry: same entity, same `@id`, and
+    // this copy is the one that defines it rather than pointing at it.
+    mainEntity: buildPersonJSONLD(),
+  },
 });
+const jsonLDBreadcrumb = buildBreadcrumbJSONLD([{ name: "About", path }]);
 ---
 
-<Layout head={{ path, title: "About", jsonLD: [jsonLDWebSite, jsonLDAboutPage] }}>
+<Layout head={{ path, title: "About", jsonLD: [jsonLDAboutPage, jsonLDBreadcrumb] }}>
   <AboutPage data={data} />
 </Layout>

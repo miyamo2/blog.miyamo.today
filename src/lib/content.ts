@@ -5,6 +5,7 @@ import type { MarkdownHeading } from "astro";
 import { excerptOf, type ArticleHeading } from "./markdown";
 import {
   buildCollectionImage,
+  buildSeoImage,
   replaceRemoteImagePlaceholders,
   type RemoteImageData,
 } from "./images";
@@ -44,7 +45,10 @@ export interface ArticleDetailVM {
   /** excerpt(pruneLength: 140, truncate: true); used for meta description / JSON-LD */
   excerpt: string;
   imageData: RemoteImageData | null;
-  /** raw image src for og:image */
+  /**
+   * src of the crawler-facing variant (buildSeoImage), for og:image and the
+   * BlogPosting's `image` -- not the one the page renders, which is smaller
+   */
   imageSrc?: string;
   recommends: RecommendVM[];
 }
@@ -110,6 +114,8 @@ interface RenderedArticle {
   cardImage: RemoteImageData | null;
   detailImage: RemoteImageData | null;
   recommendImage: RemoteImageData | null;
+  /** og:image / JSON-LD only; never rendered (see buildSeoImage) */
+  seoImage: RemoteImageData | null;
   recommendEntryIds: string[];
 }
 
@@ -147,7 +153,7 @@ const renderAll = async (entries: BlogEntry[]): Promise<Map<string, RenderedArti
   await Promise.all(
     entries.map((entry) =>
       limit(async () => {
-        const [html, cardImage, detailImage, recommendImage] = await Promise.all([
+        const [html, cardImage, detailImage, recommendImage, seoImage] = await Promise.all([
           replaceRemoteImagePlaceholders(entry.rendered?.html ?? "").then(optimizeLinkCardImages),
           // matches the article-card thumbnail's CSS box (ArticleCard.css
           // .article-card-thumbnail height: 220px, fluid width up to ~560px
@@ -155,6 +161,7 @@ const renderAll = async (entries: BlogEntry[]): Promise<Map<string, RenderedArti
           buildCollectionImage(entry.data.thumbnail, { width: 560, height: 220 }),
           buildCollectionImage(entry.data.thumbnail, { width: 1000, height: 500 }),
           buildCollectionImage(entry.data.thumbnail, { width: 840, height: 420 }),
+          buildSeoImage(entry.data.thumbnail),
         ]);
         const metadata = renderedMetadataOf(entry);
         const headings: ArticleHeading[] = (metadata?.headings ?? []).map((h) => ({
@@ -175,6 +182,7 @@ const renderAll = async (entries: BlogEntry[]): Promise<Map<string, RenderedArti
           cardImage,
           detailImage,
           recommendImage,
+          seoImage,
           recommendEntryIds: entry.data.recommends.map((ref) => ref.id),
         });
       })
@@ -260,7 +268,7 @@ const buildContent = async (): Promise<Content> => {
       headings: r.headings,
       excerpt: excerptOf(r.plainText, 140, true),
       imageData: r.detailImage,
-      imageSrc: r.detailImage?.src,
+      imageSrc: r.seoImage?.src,
       recommends,
     };
   });
