@@ -30,29 +30,60 @@ export interface BuildRemoteImageOptions {
    * variant would be generated and shipped for nothing.
    */
   srcSet?: boolean;
+  /**
+   * Extra srcSet candidate widths, on top of the 1x/2x pair below. A pair is
+   * only enough when the rendered box is always `width`: everywhere else a box
+   * that falls between the two rungs rounds up to the 2x variant, so a 350px
+   * column on a 2x screen -- which needs 700 -- is served 1120. Callers that
+   * know their layout pass the widths it actually lands on.
+   */
+  widths?: number[];
+  /**
+   * `sizes` for the width-descriptor srcSet, replacing `sizesFor(width)`. That
+   * default describes an image rendered at its own width or full-bleed below
+   * it; a box that is neither (a grid column, the article's content column)
+   * has to say so, or the browser measures every candidate against a width the
+   * box never has and picks a file it cannot use.
+   */
+  sizes?: string;
 }
 
 // like gatsby's CONSTRAINED layout: offer up to 2x of the target width (capped
 // at the source width) so hidpi screens get a sharp candidate instead of
-// upscaling the 1x image
+// upscaling the 1x image, plus whatever rungs `options.widths` adds between and
+// above the two -- see BuildRemoteImageOptions.
 const srcsetWidths = (
   targetWidth: number,
   sourceWidth: number,
   options: BuildRemoteImageOptions = {}
 ): number[] => {
-  const widths = [targetWidth];
   if (options.srcSet === false) {
-    return widths;
+    return [targetWidth];
   }
+  // `targetWidth` is always offered: it is the box the layout asks for, and it
+  // is what `src` points at for anything that does not read the srcSet.
+  const widths = new Set([targetWidth]);
   const cap = Math.min(sourceWidth, targetWidth * 2);
   if (cap > targetWidth) {
-    widths.push(cap);
+    widths.add(cap);
   }
-  return widths;
+  // An explicit ladder fills in the rungs between those two, and above them
+  // wherever the source has the pixels for it -- the caller derived them from
+  // the box it actually renders, so the only bound left is "never upscale",
+  // which costs bytes and buys no detail.
+  for (const width of options.widths ?? []) {
+    if (width <= sourceWidth) {
+      widths.add(width);
+    }
+  }
+  return [...widths].sort((a, b) => a - b);
 };
 
 const sizesFor = (targetWidth: number): string =>
   `(min-width: ${targetWidth}px) ${targetWidth}px, 100vw`;
+
+const sizesAttribute = (targetWidth: number, options: BuildRemoteImageOptions): string =>
+  options.sizes ?? sizesFor(targetWidth);
 
 // webp encode quality. 100 disables webp's perceptual quantization almost
 // entirely and made every variant 3-4x larger than it needs to be (PageSpeed
@@ -104,7 +135,7 @@ const buildStagedImage = async (
     return {
       src: result.src,
       srcSet,
-      sizes: srcSet ? sizesFor(targetWidth) : undefined,
+      sizes: srcSet ? sizesAttribute(targetWidth, options) : undefined,
       width: targetWidth,
       height: targetHeight,
       placeholder,
@@ -155,7 +186,7 @@ const buildUrlImage = async (
     return {
       src: result.src,
       srcSet,
-      sizes: srcSet ? sizesFor(targetWidth) : undefined,
+      sizes: srcSet ? sizesAttribute(targetWidth, options) : undefined,
       width: targetWidth,
       height: targetHeight,
       placeholder: result.attributes["data-placeholder"] as string | undefined,
@@ -229,7 +260,7 @@ export const buildCollectionImage = async (
     return {
       src: result.src,
       srcSet,
-      sizes: srcSet ? sizesFor(targetWidth) : undefined,
+      sizes: srcSet ? sizesAttribute(targetWidth, options) : undefined,
       width: targetWidth,
       height: targetHeight,
       placeholder,

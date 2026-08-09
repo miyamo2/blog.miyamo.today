@@ -120,6 +120,81 @@ interface RenderedArticle {
   recommendEntryIds: string[];
 }
 
+/* ---------- thumbnail variants ----------
+ *
+ * A thumbnail is rendered in three different boxes, and each one gets its own
+ * `sizes` and its own ladder of srcSet candidates. Both decide how many bytes
+ * the LCP element costs: `sizes` is the width the browser measures every
+ * candidate against, so a `sizes` wider than the box picks a file the box
+ * cannot show, and a ladder with gaps in it rounds a near miss up to the next
+ * rung. The defaults in lib/images.ts -- render-at-own-width, 1x and 2x -- fit
+ * none of the three, which is why all three are spelled out here.
+ */
+
+/**
+ * The article-card grid (ArticleCardGrid.astro) is
+ * `repeat(auto-fill, minmax(280px, 1fr))` over a 0.5rem gap, inside the content
+ * wrapper of Layout.astro -- `100vw - 40px` below tailwind's `lg` breakpoint,
+ * `min(95vw, 1400px)` at and above it. The two together fix the column width at
+ * every viewport; these are the widest a column gets in each band, rounded up:
+ *
+ *   viewport        columns   widest column
+ *   below 608px     1         100vw - 40px
+ *   608 - 895px     2         50vw - 24px    -> 50vw
+ *   896 - 1204px    3         ~33vw - 18px   -> 34vw
+ *   1205px and up   4         344px          -> 350px
+ *
+ * The default `(min-width: 560px) 560px, 100vw` claimed the widest box there
+ * is -- the single-column one -- at every viewport above it, so a four-column
+ * desktop grid asked for a 560px image to fill a 344px column, and asked for
+ * the 1120px one on a hidpi screen.
+ */
+const CARD_THUMBNAIL_SIZES = [
+  "(min-width: 1205px) 350px",
+  "(min-width: 896px) 34vw",
+  "(min-width: 608px) 50vw",
+  "calc(100vw - 40px)",
+].join(", ");
+
+/**
+ * 1x, 2x and 3x candidates for the box above (280 - 560 CSS px). 700 and 840
+ * are the rungs the common 2x cases land on -- a ~350px column, which is what
+ * both a phone and a desktop grid render -- and which used to round up to 1120.
+ */
+const CARD_THUMBNAIL_WIDTHS = [420, 560, 700, 840, 1120];
+
+/**
+ * The hero on the article page fills the content column: the whole wrapper
+ * (`100vw - 40px`, capped at the image's own 1000px) until the three-track
+ * layout takes over at 1200px, and from there the `minmax(0, 1fr)` track left
+ * once the share rail, the side nav and the two 2.5rem gutters come out of
+ * `min(95vw, 1400px)` -- 0.73 of the wrapper less 128px, topping out at the
+ * same ~894px column link-card-images.ts sizes against (article-detail.css).
+ */
+const DETAIL_HERO_SIZES = [
+  "(min-width: 1473px) 894px",
+  "(min-width: 1200px) calc(70vw - 128px)",
+  "(min-width: 1024px) 1000px",
+  "calc(100vw - 40px)",
+].join(", ");
+
+/**
+ * 1000 is the `src` and the widest the column gets before the three-track
+ * layout narrows it. The rungs below it are the ones a phone lands on, which
+ * had nothing between them and the full 1000px hero.
+ */
+const DETAIL_HERO_WIDTHS = [500, 700, 1000, 1400, 2000];
+
+/**
+ * A recommendation row's thumbnail is a fixed 92px square (Recommend.css), in
+ * the side nav and under the article alike. It was built at 840x420 -- forty
+ * times the pixels of the box it is drawn into, fetched on the one page whose
+ * LCP element is the hero image sitting next to it.
+ */
+const RECOMMEND_THUMBNAIL_WIDTH = 92;
+const RECOMMEND_THUMBNAIL_SIZES = `${RECOMMEND_THUMBNAIL_WIDTH}px`;
+const RECOMMEND_THUMBNAIL_WIDTHS = [92, 184, 276];
+
 // same ordering as the Gatsby GraphQL layer's sort: { frontmatter: { id: DESC } }
 const byIdDesc = (a: { id: string }, b: { id: string }): number => {
   if (a.id === b.id) {
@@ -171,10 +246,27 @@ const renderAll = async (entries: BlogEntry[]): Promise<Map<string, RenderedArti
           replaceRemoteImagePlaceholders(entry.rendered?.html ?? "").then(optimizeLinkCardImages),
           // matches the article-card thumbnail's CSS box (ArticleCard.css
           // .article-card-thumbnail height: 220px, fluid width up to ~560px
-          // on the widest single-column grid cell)
-          buildCollectionImage(entry.data.thumbnail, { width: 560, height: 220 }),
-          buildCollectionImage(entry.data.thumbnail, { width: 1000, height: 500 }),
-          buildCollectionImage(entry.data.thumbnail, { width: 840, height: 420 }),
+          // on the widest single-column grid cell); the narrower boxes the
+          // multi-column grid renders are covered by the srcSet -- see the
+          // thumbnail variants above
+          buildCollectionImage(entry.data.thumbnail, {
+            width: 560,
+            height: 220,
+            widths: CARD_THUMBNAIL_WIDTHS,
+            sizes: CARD_THUMBNAIL_SIZES,
+          }),
+          buildCollectionImage(entry.data.thumbnail, {
+            width: 1000,
+            height: 500,
+            widths: DETAIL_HERO_WIDTHS,
+            sizes: DETAIL_HERO_SIZES,
+          }),
+          buildCollectionImage(entry.data.thumbnail, {
+            width: RECOMMEND_THUMBNAIL_WIDTH,
+            height: RECOMMEND_THUMBNAIL_WIDTH,
+            widths: RECOMMEND_THUMBNAIL_WIDTHS,
+            sizes: RECOMMEND_THUMBNAIL_SIZES,
+          }),
           buildSeoImage(entry.data.thumbnail),
         ]);
         const metadata = renderedMetadataOf(entry);
