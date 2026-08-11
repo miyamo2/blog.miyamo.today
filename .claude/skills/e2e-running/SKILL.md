@@ -100,14 +100,22 @@ screenshots) and **e2e-report** (the HTML report plus traces and videos). Downlo
 `e2e-report`, unzip it, and open `playwright-report/index.html` to get the same
 view as a local run.
 
-The last step, [`miyamo2/contact-sheet`](https://github.com/miyamo2/contact-sheet),
-embeds the captures in a sticky comment on the pull request the pushed commit
-belongs to (and does nothing when there is none). The images are pushed to
-`refs/contact-sheet/pr-<n>/<run>` — a ref outside `refs/heads/*`, so nobody's
-clone or pull carries them — and embedded by raw URL. The comment's layout is
-`.github/e2e-captures.tmpl`. See the "On a pull request" section of
-`e2e/README.md` for why the other options do not work, for how to render the
-template locally against `e2e/captures`, and for how to delete an old run's ref.
+A second workflow, `.github/workflows/contact-sheet.yaml`, waits on E2E's
+`workflow_run` and embeds the captures in a sticky comment on the pull request
+the tested commit belongs to (and does nothing when there is none), using
+[`miyamo2/contact-sheet`](https://github.com/miyamo2/contact-sheet). E2E itself
+holds no write permission; the **e2e-captures** artifact is the only thing that
+crosses. The images are pushed to `refs/contact-sheet/pr-<n>/<run>` — a ref
+outside `refs/heads/*`, so nobody's clone or pull carries them — and embedded by
+raw URL. The comment's layout is `.github/e2e-captures.tmpl`.
+
+Two things follow from the split when a job there misbehaves: the comment is a
+*separate run* in the Actions tab (**Contact Sheet**, not E2E), and GitHub runs
+the default branch's copy of that workflow and template — so editing either on a
+branch changes nothing until it is merged. See the "On a pull request" section of
+`e2e/README.md` for why the other publishing options do not work, for how to
+render the template locally against `e2e/captures`, and for how to delete an old
+run's ref.
 
 If a job fails only in CI, reproduce it with a clean build locally
 (`bun run e2e`), and check the viewport: CI runs both projects, and a local

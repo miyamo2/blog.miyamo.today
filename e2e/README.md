@@ -60,9 +60,24 @@ uploaded by CI as the `e2e-captures` artifact on every run, pass or fail.
 
 [`miyamo2/contact-sheet`](https://github.com/miyamo2/contact-sheet) puts the same
 screenshots in a comment, so a change can be reviewed without downloading
-anything. It runs as the last step of the E2E workflow — pass or fail — and
-rewrites one sticky comment per pull request, one collapsed table per project,
-one row per screen and one column per theme.
+anything: one sticky comment per pull request, rewritten on every push, with one
+collapsed table per project, one row per screen and one column per theme.
+
+It runs in a workflow of its own — `.github/workflows/contact-sheet.yaml`, on
+`workflow_run` — rather than as a last step of E2E, which is the
+[arrangement the action recommends](https://github.com/miyamo2/contact-sheet#recommended--two-workflows).
+E2E then needs no write permission at all: it runs the suite and uploads the
+`e2e-captures` artifact, and that artifact is the only thing that crosses to the
+job holding the token. A `workflow_run` job is always the default branch's,
+whatever branch was tested, so the token and the tested branch's code never share
+a job — which is what makes commenting on a fork's pull request safe, should the
+suite ever be driven by `pull_request` instead of `push`.
+
+Two consequences of that split are worth knowing before editing either file:
+GitHub only ever runs the default branch's copy of a `workflow_run` workflow, so
+changes to `contact-sheet.yaml` or to the comment template take effect once
+merged rather than on the branch making them; and the comment arrives a little
+after the E2E run finishes, as a second run in the Actions tab.
 
 A comment can only show an image from a public http(s) URL: GitHub's sanitizer
 drops `data:` sources, and an artifact is a zip behind a login. So the captures
@@ -91,11 +106,11 @@ The two rejected alternatives, for the record: a branch is fetched by everyone,
 and Git LFS keeps clones small but meters storage and bandwidth and does not give
 the quota back when the files are deleted.
 
-The comment appears from the first push after the pull request exists — the
-workflow is driven by `push`, so a pull request opened on an already-tested
-branch gets its comment on the next push.
+The comment appears from the first push after the pull request exists — E2E is
+driven by `push`, so a pull request opened on an already-tested branch gets its
+comment on the next push.
 
-Its layout is `.github/e2e-captures.tmpl`, which can be rendered locally against
+The comment's layout is `.github/e2e-captures.tmpl`, which can be rendered against
 whatever the last run left in `captures/`, without a token and without pushing
 anything:
 

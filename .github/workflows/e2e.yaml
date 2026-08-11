@@ -15,11 +15,11 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  # contents: write is for pushing the captures to refs/contact-sheet/*; nothing
-  # here writes to a branch, a tag or a release
-  contents: write
+  # This half runs the tests and writes nothing: the captures are published by
+  # the Contact Sheet workflow, which holds the token this one does without.
+  # packages: read is for the @miyamo2 package on GitHub Packages.
+  contents: read
   packages: read
-  pull-requests: write
 
 jobs:
   e2e:
@@ -47,11 +47,12 @@ jobs:
         run: bun run e2e:setup
 
       - name: Run e2e tests
-        id: e2e
         run: bun run e2e
 
       # kept whether the run passed or failed: the captures are the point, and a
-      # failure's trace/video is what makes it diagnosable without a local repro
+      # failure's trace/video is what makes it diagnosable without a local repro.
+      # This artifact is also the whole of what crosses to the Contact Sheet
+      # workflow, so its name is a contract with .github/workflows/contact-sheet.yaml
       - name: Upload captures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -71,33 +72,3 @@ jobs:
             e2e/test-results
           if-no-files-found: warn
           retention-days: 14
-
-      # pinact pins every action to a commit sha, and a sha names no release, so
-      # contact-sheet is built from source rather than fetched as a binary --
-      # which wants a go toolchain the step can find
-      - name: Setup Go
-        if: ${{ always() }}
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
-        with:
-          go-version: stable
-          # nothing here is a go module, so there is no go.sum to key a cache on
-          cache: false
-
-      # an artifact is a zip behind a login, so it cannot be shown in a review;
-      # this puts the same screenshots in a comment on the pull request the push
-      # belongs to, and does nothing when the branch has no pull request. The
-      # captures ride on refs/contact-sheet/*, outside the default fetch refspec,
-      # so no clone or pull of this repository carries a screenshot.
-      - name: Comment the captures on the pull request
-        if: ${{ always() }}
-        uses: miyamo2/contact-sheet@b0baf9daca997c6df0d8280e09ca1d6e286f6d65 # v0.1.1
-        with:
-          path: e2e/captures
-          status: ${{ steps.e2e.outcome }}
-          title: 📸 E2E captures
-          row-label: screen
-          template-files: .github/e2e-captures.tmpl
-          # captures/<project>/<screen>-<theme>.png -- the modals and the article
-          # sidebar carry no theme suffix, and the template puts those in the
-          # light column, which is what they are
-          layout: '^(?:[^/]+/)?(?P<screen>.+?)(?:-(?P<theme>light|dark))?\.png$'
