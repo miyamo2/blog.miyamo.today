@@ -90,10 +90,13 @@ bun run e2e:ui tests/<file>.spec.ts
 
 ## CI
 
-`.github/workflows/e2e.yaml` runs on every push to a branch other than `main`, and
-on `workflow_dispatch`. (A push to `main` is a merge of a branch the suite already
-ran on; `main`'s own workflow is Publish.) It needs no deploy secrets — only the
-default `GITHUB_TOKEN`, for the `@miyamo2` package on GitHub Packages.
+`.github/workflows/e2e.yaml` runs on `pull_request` — opening one starts it, and
+every push to the branch re-runs it — and on `workflow_dispatch`, which is the
+only way to run a branch with no pull request open. (A push to `main` is a merge
+of a pull request the suite already ran on; `main`'s own workflow is Publish.) It
+needs no deploy secrets — only the default `GITHUB_TOKEN`, for the `@miyamo2`
+package on GitHub Packages — and holds no write permission, so a fork's pull
+request runs it as it stands.
 
 Two artifacts are uploaded on every run, pass or fail: **e2e-captures** (the
 screenshots) and **e2e-report** (the HTML report plus traces and videos). Download

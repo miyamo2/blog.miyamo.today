@@ -20,8 +20,9 @@ on:
 
 concurrency:
   # a branch's newest sheet is the one worth having; an older one still being
-  # published would only overwrite the comment with staler images
-  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
+  # published would only overwrite the comment with staler images. The fork is
+  # part of the key because two of them may push the same branch name
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 permissions:

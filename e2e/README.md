@@ -70,8 +70,9 @@ E2E then needs no write permission at all: it runs the suite and uploads the
 `e2e-captures` artifact, and that artifact is the only thing that crosses to the
 job holding the token. A `workflow_run` job is always the default branch's,
 whatever branch was tested, so the token and the tested branch's code never share
-a job — which is what makes commenting on a fork's pull request safe, should the
-suite ever be driven by `pull_request` instead of `push`.
+a job. That is what earns `allow-fork`: E2E runs a fork's code with a read-only
+token, and the job that writes the comment runs this repository's code and never
+checks the fork out.
 
 Two consequences of that split are worth knowing before editing either file:
 GitHub only ever runs the default branch's copy of a `workflow_run` workflow, so
@@ -106,9 +107,11 @@ The two rejected alternatives, for the record: a branch is fetched by everyone,
 and Git LFS keeps clones small but meters storage and bandwidth and does not give
 the quota back when the files are deleted.
 
-The comment appears from the first push after the pull request exists — E2E is
-driven by `push`, so a pull request opened on an already-tested branch gets its
-comment on the next push.
+The comment appears with the first run of the pull request: E2E is driven by
+`pull_request`, so opening one is itself what starts the suite, and every push
+after that rewrites the same comment. A branch with no pull request open runs
+nothing — `workflow_dispatch` is there for testing one anyway, and that run
+comments on nothing.
 
 The comment's layout is `.github/e2e-captures.tmpl`, which can be rendered against
 whatever the last run left in `captures/`, without a token and without pushing

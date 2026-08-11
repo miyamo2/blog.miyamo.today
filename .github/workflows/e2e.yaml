@@ -1,16 +1,17 @@
 name: E2E
 
-# Work branches only: the suite builds the site against scripts/mock-api.mjs, so
-# it needs none of the deploy secrets and can run wherever a push lands -- but a
-# push to main is a merge of a branch this already ran on, and main's own job is
-# to publish.
+# Pull requests, and nothing else: the suite builds the site against
+# scripts/mock-api.mjs, so it needs none of the deploy secrets and a fork's
+# pull request can run it as safely as a branch of this repository -- this job
+# writes nothing, and the token it holds on a fork's is read-only anyway. A push
+# to main is a merge of a pull request this already ran on, and main's own job
+# is to publish. A branch with no pull request open yet is workflow_dispatch.
 on:
-  push:
-    branches-ignore:
-      - main
+  pull_request:
   workflow_dispatch:
 
 concurrency:
+  # refs/pull/<n>/merge for a pull request, the branch for a dispatch
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
