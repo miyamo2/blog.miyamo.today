@@ -58,14 +58,31 @@ uploaded by CI as the `e2e-captures` artifact on every run, pass or fail.
 
 ### On a pull request
 
-`scripts/e2e-capture-report.mjs` puts the same screenshots in a comment, so a
-change can be reviewed without downloading anything. It runs as the last step of
-the E2E workflow — pass or fail — and rewrites one sticky comment per pull
-request, one collapsed table per project.
+[`miyamo2/contact-sheet`](https://github.com/miyamo2/contact-sheet) puts the same
+screenshots in a comment, so a change can be reviewed without downloading
+anything: one sticky comment per pull request, rewritten on every push, with one
+collapsed table per project, one row per screen and one column per theme.
+
+It runs in a workflow of its own — `.github/workflows/contact-sheet.yaml`, on
+`workflow_run` — rather than as a last step of E2E, which is the
+[arrangement the action recommends](https://github.com/miyamo2/contact-sheet#recommended--two-workflows).
+E2E then needs no write permission at all: it runs the suite and uploads the
+`e2e-captures` artifact, and that artifact is the only thing that crosses to the
+job holding the token. A `workflow_run` job is always the default branch's,
+whatever branch was tested, so the token and the tested branch's code never share
+a job. That is what earns `allow-fork`: E2E runs a fork's code with a read-only
+token, and the job that writes the comment runs this repository's code and never
+checks the fork out.
+
+Two consequences of that split are worth knowing before editing either file:
+GitHub only ever runs the default branch's copy of a `workflow_run` workflow, so
+changes to `contact-sheet.yaml` or to the comment template take effect once
+merged rather than on the branch making them; and the comment arrives a little
+after the E2E run finishes, as a second run in the Actions tab.
 
 A comment can only show an image from a public http(s) URL: GitHub's sanitizer
 drops `data:` sources, and an artifact is a zip behind a login. So the captures
-are committed and pushed — but to `refs/e2e-captures/pr-<n>/<run>`, not to a
+are committed and pushed — but to `refs/contact-sheet/pr-<n>/<run>`, not to a
 branch. That ref is outside the default fetch refspec
 (`+refs/heads/*:refs/remotes/origin/*`), so no `git clone` or `git pull` of this
 repository ever carries a screenshot; it is also invisible in the branch list and
@@ -79,20 +96,32 @@ shows its screenshots. To reclaim the space of a pull request that no longer
 matters:
 
 ```sh
-git ls-remote origin 'refs/e2e-captures/*'
-git push origin :refs/e2e-captures/pr-42/12345678.1
+git ls-remote origin 'refs/contact-sheet/*'
+git push origin :refs/contact-sheet/pr-42/12345678.1
 ```
+
+(Runs from before the switch are under `refs/e2e-captures/*`, and are deleted the
+same way.)
 
 The two rejected alternatives, for the record: a branch is fetched by everyone,
 and Git LFS keeps clones small but meters storage and bandwidth and does not give
 the quota back when the files are deleted.
 
-The comment appears from the first push after the pull request exists — the
-workflow is driven by `push`, so a pull request opened on an already-tested
-branch gets its comment on the next push.
+The comment appears with the first run of the pull request: E2E is driven by
+`pull_request`, so opening one is itself what starts the suite, and every push
+after that rewrites the same comment. A branch with no pull request open runs
+nothing — `workflow_dispatch` is there for testing one anyway, and that run
+comments on nothing.
+
+The comment's layout is `.github/e2e-captures.tmpl`, which can be rendered against
+whatever the last run left in `captures/`, without a token and without pushing
+anything:
 
 ```sh
-node scripts/e2e-capture-report.mjs --dry-run  # print the comment, upload nothing
+go run github.com/miyamo2/contact-sheet/cmd/contact-sheet@v0.1.1 --dry-run \
+  --path e2e/captures --title '📸 E2E captures' --row-label screen \
+  --template-files .github/e2e-captures.tmpl \
+  --layout '^(?:[^/]+/)?(?P<screen>.+?)(?:-(?P<theme>light|dark))?\.png$'
 ```
 
 ## The build the tests see

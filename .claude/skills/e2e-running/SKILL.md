@@ -90,24 +90,35 @@ bun run e2e:ui tests/<file>.spec.ts
 
 ## CI
 
-`.github/workflows/e2e.yaml` runs on every push to a branch other than `main`, and
-on `workflow_dispatch`. (A push to `main` is a merge of a branch the suite already
-ran on; `main`'s own workflow is Publish.) It needs no deploy secrets — only the
-default `GITHUB_TOKEN`, for the `@miyamo2` package on GitHub Packages.
+`.github/workflows/e2e.yaml` runs on `pull_request` — opening one starts it, and
+every push to the branch re-runs it — and on `workflow_dispatch`, which is the
+only way to run a branch with no pull request open. (A push to `main` is a merge
+of a pull request the suite already ran on; `main`'s own workflow is Publish.) It
+needs no deploy secrets — only the default `GITHUB_TOKEN`, for the `@miyamo2`
+package on GitHub Packages — and holds no write permission, so a fork's pull
+request runs it as it stands.
 
 Two artifacts are uploaded on every run, pass or fail: **e2e-captures** (the
 screenshots) and **e2e-report** (the HTML report plus traces and videos). Download
 `e2e-report`, unzip it, and open `playwright-report/index.html` to get the same
 view as a local run.
 
-The last step, `scripts/e2e-capture-report.mjs`, embeds the captures in a sticky
-comment on the pull request the pushed commit belongs to (and does nothing when
-there is none). The images are pushed to `refs/e2e-captures/pr-<n>/<run>` — a ref
+A second workflow, `.github/workflows/contact-sheet.yaml`, waits on E2E's
+`workflow_run` and embeds the captures in a sticky comment on the pull request
+the tested commit belongs to (and does nothing when there is none), using
+[`miyamo2/contact-sheet`](https://github.com/miyamo2/contact-sheet). E2E itself
+holds no write permission; the **e2e-captures** artifact is the only thing that
+crosses. The images are pushed to `refs/contact-sheet/pr-<n>/<run>` — a ref
 outside `refs/heads/*`, so nobody's clone or pull carries them — and embedded by
-raw URL. See the "On a pull request" section of `e2e/README.md` for why the other
-options do not work, and for how to delete an old run's ref.
-`node scripts/e2e-capture-report.mjs --dry-run` prints the comment locally without
-pushing anything.
+raw URL. The comment's layout is `.github/e2e-captures.tmpl`.
+
+Two things follow from the split when a job there misbehaves: the comment is a
+*separate run* in the Actions tab (**Contact Sheet**, not E2E), and GitHub runs
+the default branch's copy of that workflow and template — so editing either on a
+branch changes nothing until it is merged. See the "On a pull request" section of
+`e2e/README.md` for why the other publishing options do not work, for how to
+render the template locally against `e2e/captures`, and for how to delete an old
+run's ref.
 
 If a job fails only in CI, reproduce it with a clean build locally
 (`bun run e2e`), and check the viewport: CI runs both projects, and a local

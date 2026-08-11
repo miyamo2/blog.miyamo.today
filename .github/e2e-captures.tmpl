@@ -1,0 +1,35 @@
+{{/*
+The pull request comment for the capture sweep, rendered by miyamo2/contact-sheet
+from .github/workflows/contact-sheet.yaml. GitHub runs that workflow from the
+default branch, so an edit here reaches a comment once merged, not before.
+
+This is that action's templates/themes.tmpl -- one row per screen, one column per
+theme, one folded section per project -- with the traces and videos this workflow
+uploads pointed at from both states that leave a reviewer with nothing to look at.
+A shot with no -light or -dark suffix (the modals, the article sidebar) is a light
+one, which is the last argument to `table`.
+
+Iterate on it against whatever a local `bun run e2e` left behind, without a token
+and without pushing anything:
+
+  go run github.com/miyamo2/contact-sheet/cmd/contact-sheet@v0.1.1 --dry-run \
+    --path e2e/captures --title '📸 E2E captures' --row-label screen \
+    --template-files .github/e2e-captures.tmpl \
+    --layout '^(?:[^/]+/)?(?P<screen>.+?)(?:-(?P<theme>light|dark))?\.png$'
+
+Go text/template notation (https://pkg.go.dev/text/template). The fields and
+helpers a template may call are listed at
+https://github.com/miyamo2/contact-sheet#writing-the-comment
+*/ -}}
+### {{ .Title }}
+
+{{ if .Succeeded }}✅ passed{{ else }}❌ failed{{ end }} · commit [`{{ .ShortSHA }}`]({{ .CommitURL }}) · [run #{{ .Run.Number }}]({{ .Run.URL }})
+{{ if .Published }}
+{{ range groupBy .Images "dir" }}{{ details (printf "<b>%s</b> · %d screens" .Key (len (values .Images "screen"))) (table .Images "screen" "theme" "light,dark" "light") }}
+{{ end }}
+<sub>Kept on `{{ .Ref }}`, which is outside the default fetch refspec — no clone or pull carries these. Traces and videos for anything that failed are on [the run]({{ .Run.URL }}).</sub>
+{{- else if eq .State "publish-failed" }}
+{{ .Total }} captures were taken, but publishing them failed (`{{ .Failure }}`). They are in the **e2e-captures** artifact on [the run]({{ .Run.URL }}).
+{{- else }}
+No captures were produced by this run — see [the logs]({{ .Run.URL }}) for what stopped it.
+{{- end }}

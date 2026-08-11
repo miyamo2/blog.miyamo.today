@@ -1,25 +1,26 @@
 name: E2E
 
-# Work branches only: the suite builds the site against scripts/mock-api.mjs, so
-# it needs none of the deploy secrets and can run wherever a push lands -- but a
-# push to main is a merge of a branch this already ran on, and main's own job is
-# to publish.
+# Pull requests, and nothing else: the suite builds the site against
+# scripts/mock-api.mjs, so it needs none of the deploy secrets and a fork's
+# pull request can run it as safely as a branch of this repository -- this job
+# writes nothing, and the token it holds on a fork's is read-only anyway. A push
+# to main is a merge of a pull request this already ran on, and main's own job
+# is to publish. A branch with no pull request open yet is workflow_dispatch.
 on:
-  push:
-    branches-ignore:
-      - main
+  pull_request:
   workflow_dispatch:
 
 concurrency:
+  # refs/pull/<n>/merge for a pull request, the branch for a dispatch
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
-  # contents: write is for pushing the captures to refs/e2e-captures/*; nothing
-  # here writes to a branch, a tag or a release
-  contents: write
+  # This half runs the tests and writes nothing: the captures are published by
+  # the Contact Sheet workflow, which holds the token this one does without.
+  # packages: read is for the @miyamo2 package on GitHub Packages.
+  contents: read
   packages: read
-  pull-requests: write
 
 jobs:
   e2e:
@@ -47,11 +48,12 @@ jobs:
         run: bun run e2e:setup
 
       - name: Run e2e tests
-        id: e2e
         run: bun run e2e
 
       # kept whether the run passed or failed: the captures are the point, and a
-      # failure's trace/video is what makes it diagnosable without a local repro
+      # failure's trace/video is what makes it diagnosable without a local repro.
+      # This artifact is also the whole of what crosses to the Contact Sheet
+      # workflow, so its name is a contract with .github/workflows/contact-sheet.yaml
       - name: Upload captures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -71,13 +73,3 @@ jobs:
             e2e/test-results
           if-no-files-found: warn
           retention-days: 14
-
-      # an artifact is a zip behind a login, so it cannot be shown in a review;
-      # this puts the same screenshots in a comment on the pull request the push
-      # belongs to, and does nothing when the branch has no pull request
-      - name: Comment the captures on the pull request
-        if: ${{ always() }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          E2E_RESULT: ${{ steps.e2e.outcome }}
-        run: node scripts/e2e-capture-report.mjs
