@@ -100,14 +100,14 @@ screenshots) and **e2e-report** (the HTML report plus traces and videos). Downlo
 `e2e-report`, unzip it, and open `playwright-report/index.html` to get the same
 view as a local run.
 
-The last step, `scripts/e2e-capture-report.mjs`, embeds the captures in a sticky
-comment on the pull request the pushed commit belongs to (and does nothing when
-there is none). The images are pushed to `refs/e2e-captures/pr-<n>/<run>` — a ref
-outside `refs/heads/*`, so nobody's clone or pull carries them — and embedded by
-raw URL. See the "On a pull request" section of `e2e/README.md` for why the other
-options do not work, and for how to delete an old run's ref.
-`node scripts/e2e-capture-report.mjs --dry-run` prints the comment locally without
-pushing anything.
+The last step, [`miyamo2/contact-sheet`](https://github.com/miyamo2/contact-sheet),
+embeds the captures in a sticky comment on the pull request the pushed commit
+belongs to (and does nothing when there is none). The images are pushed to
+`refs/contact-sheet/pr-<n>/<run>` — a ref outside `refs/heads/*`, so nobody's
+clone or pull carries them — and embedded by raw URL. The comment's layout is
+`.github/e2e-captures.tmpl`. See the "On a pull request" section of
+`e2e/README.md` for why the other options do not work, for how to render the
+template locally against `e2e/captures`, and for how to delete an old run's ref.
 
 If a job fails only in CI, reproduce it with a clean build locally
 (`bun run e2e`), and check the viewport: CI runs both projects, and a local
