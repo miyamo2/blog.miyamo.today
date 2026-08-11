@@ -16,11 +16,25 @@
   vertical-align: -0.125em;
 }
 
-/* line the dialog's built-in close button up with the search input:
-   the panel's 1rem padding plus half of the input's 2.75rem height */
+/* line the dialog's built-in close button up with the search input: the panel's
+   own padding plus half of the input's 2.75rem height. The panel is full screen
+   at every breakpoint, so the button sits in its corner rather than beside the
+   centred column of results. */
+.search-dialog {
+  --search-panel-padding: 1rem;
+}
+
+/* --breakpoint-lg, spelled out: this file is not processed by tailwind, so the
+   token is not available here */
+@media (min-width: 1200px) {
+  .search-dialog {
+    --search-panel-padding: 1.5rem;
+  }
+}
+
 .search-dialog > .starwind-dialog-close {
-  top: 2.375rem;
-  right: 1rem;
+  top: calc(var(--search-panel-padding) + 1.375rem);
+  right: var(--search-panel-padding);
   transform: translateY(-50%);
 }
 
