@@ -1,4 +1,4 @@
-import { expect, searchDialog, searchTrigger, test } from "../fixtures/test";
+import { expect, searchDialog, searchTrigger, test, type Locator } from "../fixtures/test";
 
 /** `/fonts/UDEVGothic35HS-Regular-Subset.<digest>.woff2`, as BaseHead writes it */
 const SUBSET_URL = /\/fonts\/UDEVGothic35HS-Regular-Subset\.[0-9a-f]{8}\.woff2/;
@@ -74,5 +74,46 @@ test.describe("webfonts @desktop", () => {
     // the mock's four articles are small; the real corpus is bigger, but a
     // subset anywhere near the full face means the build stopped subsetting
     expect(subsetBytes).toBeLessThan(fullBytes / 2);
+  });
+});
+
+/**
+ * UDEVGothic advances every halfwidth glyph at 0.599em -- U+0020 with the rest,
+ * since it is a coding face and this is its roomy "35" cut. Prose that mixes
+ * japanese with latin words is mostly halfwidth spaces at the joins, so
+ * styles/global.css pulls them back to roughly a proportional font's gap and
+ * leaves them alone wherever a space is alignment rather than a word break.
+ */
+test.describe("halfwidth spacing @desktop", () => {
+  /** word-spacing as a fraction of the element's own font-size */
+  const spaceRatio = (locator: Locator): Promise<number> =>
+    locator.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return (parseFloat(style.wordSpacing) || 0) / parseFloat(style.fontSize);
+    });
+
+  test("prose narrows the coding face's space, at every text size", async ({
+    page,
+    articleIds,
+  }) => {
+    await page.goto(`/articles/${articleIds[0]}`);
+    const body = page.locator("article .markdown-body");
+
+    // the declaration is in `em`, so a 2em heading is pulled back by twice the
+    // pixels of a 16px paragraph and reads the same
+    expect(await spaceRatio(body.locator("p").first())).toBeCloseTo(-0.25, 2);
+    expect(await spaceRatio(body.locator("h2").first())).toBeCloseTo(-0.25, 2);
+    expect(await spaceRatio(page.getByRole("heading", { level: 1 }))).toBeCloseTo(-0.25, 2);
+  });
+
+  test("code keeps it, so listings stay on the monospace grid", async ({ page, articleIds }) => {
+    await page.goto(`/articles/${articleIds[0]}`);
+    const body = page.locator("article .markdown-body");
+
+    expect(await spaceRatio(body.locator("pre").first())).toBe(0);
+    expect(await spaceRatio(body.locator("p code").first())).toBe(0);
+    // shiki gives every token its own span, and the `*` that carries the prose
+    // value reaches those too -- the exception has to take them back
+    expect(await spaceRatio(body.locator("pre code span").first())).toBe(0);
   });
 });

@@ -36,6 +36,40 @@ body,
   font-family: "UDEVGothicHS", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
 }
 
+/* UDEVGothic is a coding face, and the "35" cut it ships here is the roomier
+   one (halfwidth 3 : fullwidth 5), so every halfwidth glyph -- U+0020 with the
+   rest -- advances 0.599em where a proportional face gives a space about
+   0.25em. Prose that mixes japanese with latin words puts one of those between
+   every "GitHub Actions" and its particle, and the gaps read as if the line had
+   been justified badly. Pulling 0.25em back off lands the space at ~0.35em,
+   close to a proportional one, while still parting two latin words.
+
+   word-spacing moves U+0020 and nothing else, so the monospace grid the face is
+   drawn on is untouched -- it is the gap between words that narrows, not the
+   glyphs.
+
+   The same `*` as the rule above rather than one declaration on the wrapper to
+   inherit: `em` resolves against the font-size of the element the declaration
+   is on, so an inherited value would be a fixed px computed from the wrapper --
+   the right gap in 16px prose and a quarter of it in a 2em heading, which is
+   where the gaps show most. Per element, every size is pulled back by the same
+   fraction of its own text. */
+#app-root #app-focus-wrapper * {
+  word-spacing: -0.25em;
+}
+
+/* Code keeps the face's own space. In a listing the spaces are indentation and
+   column alignment -- the reason a monospace face is here at all -- and
+   narrowing them would put ascii tables and aligned assignments out by a
+   fraction of a character per space. The descendant half is not redundant: the
+   `*` above sets the property on every element rather than leaving it to
+   inherit, so shiki's per-token spans inside a highlighted <pre> have to be
+   taken back too. */
+#app-root #app-focus-wrapper :is(pre, code, kbd, samp, tt),
+#app-root #app-focus-wrapper :is(pre, code, kbd, samp, tt) * {
+  word-spacing: normal;
+}
+
 /* The complete faces sit behind the subset here and nowhere else.
    Every character the build rendered is in the subset by construction, so a
    page falling through to them could only be chasing a character the source
